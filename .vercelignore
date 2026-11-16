@@ -1,0 +1,3 @@
+# Vercel kök dizinindeki server.js dosyasını giriş noktası sanmasın (giriş api/index.js).
+server.js
+scripts/

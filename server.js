@@ -1,12 +1,12 @@
 require('./config/env');
 const http = require('node:http');
-const { handleRequest } = require('./app');
+const { handleRequest } = require('./site-handler');
 const { runScheduledTasks } = require('./routes/scheduled-tasks');
 
 const port = Number(process.env.PORT || 3003);
 
 // Yerel geliştirme ve kendi sunucunuz için: istekleri dinler, zamanlanmış işleri aralıklı çalıştırır.
-// Vercel bu dosyayı kullanmaz; api/index.js yalnızca app.js'i dışa aktarır.
+// Vercel bu dosyayı kullanmaz; api/index.js yalnızca site-handler.js'i dışa aktarır.
 http.createServer(handleRequest).listen(port, () => console.log(`Art World TV hazır: http://localhost:${port}`));
 
 const scheduleTimer = setInterval(() => {
