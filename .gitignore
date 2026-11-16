@@ -1,0 +1,22 @@
+.env
+.env.*
+!.env.example
+node_modules/
+*.log
+/storage/media/
+/graphify-out/
+/data/artworld-source/
+__pycache__/
+*.py[cod]
+
+# Yerel/gizli içerik — GitHub'a gönderilmez
+sifreler.txt
+/backups/
+/data/
+/storage/
+*.zip
+/artworld logo ve tanıtım/
+/ilan_*/
+/.codex/
+/sast/
+/.claude/

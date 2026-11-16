@@ -1,0 +1,436 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+/* Basınsoft kabuk teması: üst bar, nav, son dakika, footer.
+   Yalnız açık tema. body.dark kurallarına dokunulmaz. */
+
+body:not(.dark) {
+  font-family: Poppins, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  background: #ececec;
+  color: #1f2937;
+}
+
+/* ---------- Üst bar (masthead) ---------- */
+body:not(.dark) .masthead.shell {
+  position: relative;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 30px 16px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: #ffffff;
+  color: #1f2937;
+  box-sizing: border-box;
+  min-height: 0;
+}
+
+/* İnce gri utility şerit */
+body:not(.dark) .masthead.shell::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 30px;
+  background: #f3f4f6;
+  border-bottom: 1px solid #e5e7eb;
+  pointer-events: none;
+}
+
+body:not(.dark) .masthead.shell .brand {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  flex: 0 0 auto;
+}
+
+body:not(.dark) .masthead.shell .brand img {
+  display: block;
+  height: 56px;
+  width: auto;
+  max-width: 260px;
+  object-fit: contain;
+}
+
+body:not(.dark) .masthead.shell .masthead-tools {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+body:not(.dark) .masthead.shell .edition {
+  font-size: 13px;
+  color: #6b7280;
+  white-space: nowrap;
+}
+
+body:not(.dark) .masthead.shell .search-button {
+  background: transparent;
+  border: 0;
+  padding: 6px 4px;
+  color: #374151;
+  font: 500 14px/1 Poppins, system-ui, sans-serif;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+body:not(.dark) .masthead.shell .search-button:hover {
+  color: #e02424;
+}
+
+body:not(.dark) .masthead.shell .masthead-tools > .icon-button {
+  background: transparent;
+  border: 0;
+  color: #6b7280;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px 6px;
+}
+
+body:not(.dark) .masthead.shell .masthead-tools > .icon-button:hover {
+  color: #e02424;
+}
+
+/* Yönetim: kırmızı buton */
+body:not(.dark) .masthead.shell .masthead-tools .login-link,
+body:not(.dark) .masthead.shell a.login-link {
+  display: inline-flex;
+  align-items: center;
+  background: #e02424 !important;
+  color: #ffffff !important;
+  border: 0;
+  border-radius: 4px;
+  padding: 8px 14px;
+  font: 600 14px/1.2 Poppins, system-ui, sans-serif;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color .15s ease;
+}
+
+body:not(.dark) .masthead.shell .masthead-tools .login-link:hover,
+body:not(.dark) .masthead.shell a.login-link:hover {
+  background: #c81e1e !important;
+  color: #ffffff !important;
+}
+
+/* Mobil menü butonu: sade */
+body:not(.dark) .masthead.shell .mobile-menu {
+  background: transparent;
+  border: 0;
+  color: #1f2937;
+  font-size: 22px;
+  line-height: 1;
+  padding: 6px;
+  cursor: pointer;
+}
+
+/* ---------- Nav (sticky) ---------- */
+body:not(.dark) .nav-wrap {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: #ffffff;
+  border-top: 1px solid #e5e7eb;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+}
+
+body:not(.dark) .nav-wrap nav.nav {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 4px 16px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+body:not(.dark) .nav-wrap nav.nav::-webkit-scrollbar {
+  display: none;
+}
+
+body:not(.dark) .nav-wrap nav.nav a {
+  flex: 0 0 auto;
+  display: inline-block;
+  padding: 8px 12px;
+  color: #1f2937;
+  font: 500 16px/1.3 Poppins, system-ui, sans-serif;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color .15s ease;
+}
+
+body:not(.dark) .nav-wrap nav.nav a:hover {
+  color: #e02424;
+}
+
+body:not(.dark) .nav-wrap nav.nav a.nav-active,
+body:not(.dark) .nav-wrap nav.nav a[aria-current="page"] {
+  color: #e02424 !important;
+}
+
+/* ---------- Son dakika şeridi ---------- */
+body:not(.dark) .breaking {
+  max-width: 1200px;
+  margin: 14px auto;
+  padding: 10px 16px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+body:not(.dark) .breaking .breaking-label {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #e02424;
+  color: #ffffff;
+  font: 700 14px/1 Poppins, system-ui, sans-serif;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+  padding: 7px 12px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+body:not(.dark) .breaking .breaking-label i {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ffffff;
+  animation: bs-shell-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes bs-shell-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .35; }
+}
+
+body:not(.dark) .breaking .ticker-window {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+}
+
+body:not(.dark) .breaking .ticker-track a {
+  color: #1f2937;
+  font: 500 15px/1.4 Poppins, system-ui, sans-serif;
+  text-decoration: none;
+  padding-right: 40px;
+  white-space: nowrap;
+}
+
+body:not(.dark) .breaking .ticker-track a:hover {
+  color: #e02424;
+}
+
+body:not(.dark) .breaking .ticker-control {
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  color: #6b7280;
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+body:not(.dark) .breaking .ticker-control:hover {
+  color: #e02424;
+  border-color: #e02424;
+}
+
+/* ---------- Footer ---------- */
+body:not(.dark) #footer,
+body:not(.dark) .corporate-footer {
+  background: #1e293b;
+  color: #94a3b8;
+  margin-top: 40px;
+  padding: 40px 0 0;
+  font-family: Poppins, system-ui, sans-serif;
+  box-sizing: border-box;
+}
+
+body:not(.dark) #footer .footer-main,
+body:not(.dark) .corporate-footer .corporate-footer-grid {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px 32px;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: 1.4fr repeat(3, 1fr);
+  gap: 32px;
+  align-items: start;
+}
+
+body:not(.dark) #footer .footer-brand p,
+body:not(.dark) .corporate-footer .corporate-footer-grid > div p {
+  color: #cbd5e1;
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 8px 0 0;
+}
+
+body:not(.dark) #footer .footer-brand img {
+  display: block;
+  max-width: 200px;
+  height: auto;
+}
+
+body:not(.dark) .corporate-footer .corporate-footer-grid > div strong {
+  display: block;
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+body:not(.dark) #footer .footer-column b,
+body:not(.dark) .corporate-footer .corporate-footer-grid nav[aria-label] > strong {
+  display: block;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+body:not(.dark) #footer .footer-column a,
+body:not(.dark) .corporate-footer a {
+  display: block;
+  color: #94a3b8;
+  font-size: 14px;
+  line-height: 1.5;
+  padding: 4px 0;
+  text-decoration: none;
+  transition: color .15s ease;
+}
+
+body:not(.dark) #footer .footer-column a:hover,
+body:not(.dark) .corporate-footer a:hover {
+  color: #ffffff;
+}
+
+body:not(.dark) #footer .socials {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+body:not(.dark) #footer .socials a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 50%;
+  background: #334155;
+  color: #e2e8f0;
+}
+
+body:not(.dark) #footer .socials a:hover {
+  background: #e02424;
+  color: #ffffff;
+}
+
+body:not(.dark) #footer .footer-bottom,
+body:not(.dark) .corporate-footer .corporate-footer-bottom {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 18px 16px;
+  box-sizing: border-box;
+  border-top: 1px solid #334155;
+  color: #64748b;
+  font-size: 13px;
+  text-align: center;
+}
+
+body:not(.dark) .corporate-footer .corporate-footer-bottom a {
+  display: inline;
+  padding: 0;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 980px) {
+  body:not(.dark) .masthead.shell .brand img {
+    height: 46px;
+  }
+
+  body:not(.dark) .nav-wrap nav.nav a {
+    font-size: 15px;
+    padding: 8px 10px;
+  }
+
+  body:not(.dark) #footer .footer-main,
+  body:not(.dark) .corporate-footer .corporate-footer-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  body:not(.dark) .masthead.shell {
+    padding: 30px 16px 10px;
+    flex-wrap: wrap;
+  }
+
+  body:not(.dark) .masthead.shell .brand img {
+    height: 40px;
+  }
+
+  body:not(.dark) .masthead.shell .masthead-tools {
+    gap: 10px;
+    justify-content: flex-start;
+    width: 100%;
+  }
+
+  body:not(.dark) .masthead.shell .edition {
+    font-size: 12px;
+  }
+
+  body:not(.dark) .breaking {
+    flex-wrap: wrap;
+    margin-left: 16px;
+    margin-right: 16px;
+    width: auto;
+    box-sizing: border-box;
+  }
+
+  body:not(.dark) .breaking .ticker-window {
+    flex: 1 1 100%;
+    order: 3;
+  }
+
+  body:not(.dark) .breaking .ticker-control {
+    order: 2;
+    margin-left: auto;
+  }
+
+  body:not(.dark) #footer .footer-main,
+  body:not(.dark) .corporate-footer .corporate-footer-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    padding-bottom: 24px;
+  }
+}

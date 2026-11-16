@@ -1,0 +1,594 @@
+/* BSX ana sayfa bolumleri (1/2): S1 son dakika, S2 manset, S3 kart seridi, S4 video + gundem,
+   S5 piyasalar, S6 kose yazarlari, S7 haber izgarasi A.
+   Yalnizca bu bolumlerin duzeni. Ortak bilesenler (.bsx-title, .bsx-card, .bsx-arrow, .bsx-noimg) bsx-base.css'te.
+   Jetonlar bsx-base.css :root'tan gelir. */
+
+/* ---------- S1 Son dakika ---------- */
+.bsx-breaking-in {
+  display: flex;
+  align-items: stretch;
+  height: 44px;
+  background: #fff;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.bsx-breaking-label {
+  flex: 0 0 232px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 8px 0 12px;
+  background: var(--bsx-red);
+  color: #fff;
+  border-radius: 4px 0 0 4px;
+  font: 700 16px/1 var(--bsx-font);
+  white-space: nowrap;
+}
+.bsx-breaking-label svg { flex: 0 0 auto; }
+.bsx-breaking-text { flex: 1 1 auto; }
+.bsx-breaking-nav { display: flex; gap: 2px; flex: 0 0 auto; }
+.bsx-breaking-btn {
+  width: 20px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  font: 700 18px/1 var(--bsx-font);
+  cursor: pointer;
+}
+.bsx-breaking-list {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+}
+.bsx-tick {
+  display: none;
+  height: 44px;
+  padding: 0 16px;
+  font: 500 18px/44px var(--bsx-font);
+  color: var(--bsx-ink);
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.bsx-tick.is-active { display: block; }
+.bsx-tick:hover { color: var(--bsx-red); }
+
+/* ---------- S2 Manset ---------- */
+.bsx-hero-in {
+  display: flex;
+  height: 340px;
+  background: #fff;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.bsx-hero-nums {
+  flex: 0 0 40px;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+}
+.bsx-hero-nums button {
+  flex: 0 0 68px;
+  width: 40px;
+  height: 68px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #000;
+  font: 600 16px/1 var(--bsx-font);
+  cursor: pointer;
+}
+.bsx-hero-nums button.is-active {
+  background: var(--bsx-red);
+  color: #fff;
+}
+.bsx-hero-slides {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+}
+.bsx-hero-slide {
+  position: absolute;
+  inset: 0;
+  display: none;
+  color: #fff;
+  text-decoration: none;
+}
+.bsx-hero-slide.is-active { display: flex; }
+.bsx-hero-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 50%;
+  overflow: hidden;
+}
+.bsx-hero-pic {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.bsx-hero-img .bsx-noimg { width: 100%; height: 100%; }
+.bsx-hero-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 65%;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 24px;
+  background: linear-gradient(to left, var(--bsx-red2) 60%, rgba(220, 38, 38, 0));
+}
+.bsx-hero-title {
+  margin: 0;
+  font: 700 48px/64px var(--bsx-font);
+  color: #fff;
+  text-align: right;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+
+/* ---------- S3 Kart seridi ---------- */
+.bsx-strip-car { position: relative; }
+.bsx-strip-track {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.bsx-strip-track::-webkit-scrollbar { display: none; }
+.bsx-strip [data-bsx-track] > .bsx-card {
+  flex: 0 0 297px;
+  width: 297px;
+  scroll-snap-align: start;
+}
+.bsx-strip-car > .bsx-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+}
+.bsx-strip-car > .bsx-arrow--prev { left: 0; right: auto; }
+.bsx-strip-car > .bsx-arrow--next { right: 0; left: auto; }
+
+/* ---------- S4 Video haber + gundem ---------- */
+.bsx-feat-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+.bsx-feat-main { grid-column: span 8; min-width: 0; }
+.bsx-feat-grid--full .bsx-feat-main { grid-column: 1 / -1; }
+.bsx-feat-side { grid-column: span 4; min-width: 0; }
+.bsx-feat-slides {
+  position: relative;
+  height: 465px;
+  background: #000;
+  overflow: hidden;
+}
+.bsx-feat-slide {
+  position: absolute;
+  inset: 0;
+  display: none;
+  color: #fff;
+  text-decoration: none;
+}
+.bsx-feat-slide.is-active { display: block; }
+.bsx-feat-img { position: absolute; inset: 0; }
+.bsx-feat-pic {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.bsx-feat-img .bsx-noimg { width: 100%; height: 100%; }
+.bsx-feat-tag {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  background: var(--bsx-navy);
+  color: #fff;
+  font: 500 13px/20px var(--bsx-font);
+}
+.bsx-feat-cap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 48px 24px 20px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0));
+}
+.bsx-feat-title {
+  margin: 0;
+  color: var(--bsx-yellow);
+  font: 700 36px/44px var(--bsx-font);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+.bsx-feat-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+.bsx-feat-arrow {
+  flex: 0 0 27px;
+  width: 27px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.7);
+  color: #000;
+  font: 600 20px/1 var(--bsx-font);
+  cursor: pointer;
+}
+.bsx-feat-nums {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(20, minmax(0, 1fr));
+  gap: 2px;
+}
+.bsx-feat-nums button {
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: var(--bsx-red);
+  color: #fff;
+  font: 500 14px/1 var(--bsx-font);
+  cursor: pointer;
+}
+.bsx-feat-nums button.is-active { background: var(--bsx-navy); }
+.bsx-hlist {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.bsx-hitem {
+  display: flex;
+  align-items: center;
+  height: 80px;
+  background: #fff;
+  color: var(--bsx-ink);
+  text-decoration: none;
+  overflow: hidden;
+}
+.bsx-hitem:hover .bsx-hitem-title { color: var(--bsx-red); }
+.bsx-hitem-img {
+  flex: 0 0 144px;
+  width: 144px;
+  height: 80px;
+  overflow: hidden;
+}
+.bsx-hitem-pic {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.bsx-hitem-img .bsx-noimg { width: 100%; height: 100%; }
+.bsx-hitem-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0 12px;
+  font: 600 16px/24px var(--bsx-font);
+  color: var(--bsx-ink);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+
+/* ---------- S5 Piyasalar ---------- */
+.bsx-fx-in {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--bsx-line2);
+}
+.bsx-fx-cell {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: 73px;
+  padding: 8px;
+  background: var(--bsx-card);
+}
+.bsx-fx-name {
+  display: block;
+  text-align: center;
+  font: 700 14px/20px var(--bsx-font);
+  color: var(--bsx-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.bsx-fx-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 4px;
+}
+.bsx-fx-value {
+  font: 500 14px/20px var(--bsx-font);
+  color: var(--bsx-text);
+  white-space: nowrap;
+}
+.bsx-fx-chg {
+  padding: 2px 8px;
+  border-radius: 3px;
+  color: #fff;
+  font: 500 12px/16px var(--bsx-font);
+  white-space: nowrap;
+}
+.bsx-fx-chg--up { background: var(--bsx-up); }
+.bsx-fx-chg--down { background: var(--bsx-down); }
+.bsx-fx-chg--flat { background: var(--bsx-muted); }
+
+/* ---------- S6 Kose yazarlari ---------- */
+.bsx-col-car { position: relative; }
+.bsx-col-track {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.bsx-col-track::-webkit-scrollbar { display: none; }
+.bsx-columnists [data-bsx-track] > .bsx-columnist {
+  flex: 0 0 401px;
+  width: 401px;
+  scroll-snap-align: start;
+}
+.bsx-col-car > .bsx-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+}
+.bsx-col-car > .bsx-arrow--prev { left: 0; right: auto; }
+.bsx-col-car > .bsx-arrow--next { right: 0; left: auto; }
+.bsx-columnist {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  box-sizing: border-box;
+  height: 144px;
+  padding: 16px;
+  border-radius: 8px;
+  background: var(--bsx-card);
+  color: var(--bsx-ink);
+  text-decoration: none;
+  overflow: hidden;
+}
+.bsx-columnist:hover .bsx-columnist-name { color: var(--bsx-red); }
+.bsx-columnist-text { flex: 1 1 auto; min-width: 0; }
+.bsx-columnist-name {
+  display: block;
+  font: 700 18px/24px var(--bsx-font);
+  color: var(--bsx-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.bsx-columnist-title {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-top: 6px;
+  font: 400 14px/20px var(--bsx-font);
+  color: var(--bsx-muted);
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+.bsx-columnist-photo {
+  position: relative;
+  flex: 0 0 96px;
+  width: 96px;
+  height: 96px;
+}
+.bsx-columnist-arc {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  bottom: -8px;
+  left: -8px;
+  z-index: 0;
+  border: 4px solid var(--bsx-red);
+  border-left-color: transparent;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  transform: rotate(-45deg);
+}
+.bsx-columnist-img {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.bsx-columnist-initial {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: var(--bsx-line);
+  color: var(--bsx-text);
+  font: 700 36px/1 var(--bsx-font);
+}
+
+/* ---------- S7 Haber izgarasi A ---------- */
+.bsx-grid4 {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1100px) {
+  .bsx-feat-main,
+  .bsx-feat-grid--full .bsx-feat-main,
+  .bsx-feat-side { grid-column: 1 / -1; }
+  .bsx-feat-slides {
+    height: auto;
+    aspect-ratio: 16 / 9;
+  }
+  .bsx-grid4 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (max-width: 768px) {
+  .bsx-breaking-label {
+    flex-basis: 150px;
+    width: 150px;
+    padding: 0 8px;
+    font-size: 14px;
+  }
+  .bsx-tick {
+    padding: 0 12px;
+    font-size: 15px;
+  }
+
+  .bsx-hero-in {
+    height: auto;
+    flex-direction: column;
+  }
+  .bsx-hero-nums { display: none; }
+  .bsx-hero-slides { overflow: visible; }
+  .bsx-hero-slide {
+    position: relative;
+    inset: auto;
+    flex-direction: column;
+  }
+  .bsx-hero-img {
+    position: relative;
+    width: 100%;
+    height: 220px;
+  }
+  .bsx-hero-panel {
+    position: relative;
+    top: auto;
+    right: auto;
+    bottom: auto;
+    width: 100%;
+    padding: 16px;
+    background: var(--bsx-red2);
+    justify-content: flex-start;
+  }
+  .bsx-hero-title {
+    font-size: 26px;
+    line-height: 34px;
+    text-align: left;
+    -webkit-line-clamp: 3;
+  }
+
+  .bsx-feat-tag {
+    top: 10px;
+    right: 10px;
+  }
+  .bsx-feat-cap { padding: 32px 16px 14px; }
+  .bsx-feat-title {
+    font-size: 24px;
+    line-height: 30px;
+  }
+  .bsx-feat-nums { grid-template-columns: repeat(10, minmax(0, 1fr)); }
+
+  .bsx-strip [data-bsx-track] > .bsx-card {
+    flex-basis: 260px;
+    width: 260px;
+  }
+  .bsx-columnists [data-bsx-track] > .bsx-columnist {
+    flex-basis: 320px;
+    width: 320px;
+  }
+
+  .bsx-fx-in { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .bsx-grid4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 480px) {
+  .bsx-breaking-label {
+    flex-basis: 118px;
+    width: 118px;
+    font-size: 13px;
+  }
+  .bsx-breaking-label svg { display: none; }
+  .bsx-tick {
+    font-size: 14px;
+    padding: 0 10px;
+  }
+
+  .bsx-hero-img { height: 200px; }
+  .bsx-hero-title {
+    font-size: 22px;
+    line-height: 30px;
+  }
+
+  .bsx-feat-title {
+    font-size: 20px;
+    line-height: 26px;
+  }
+  .bsx-feat-nums button { height: 34px; }
+
+  .bsx-hitem-img {
+    flex-basis: 120px;
+    width: 120px;
+  }
+  .bsx-hitem-title {
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  .bsx-strip [data-bsx-track] > .bsx-card,
+  .bsx-columnists [data-bsx-track] > .bsx-columnist {
+    flex-basis: 100%;
+    width: 100%;
+  }
+  .bsx-columnist {
+    height: auto;
+    min-height: 144px;
+  }
+
+  .bsx-fx-in { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .bsx-fx-cell { min-height: 64px; }
+  .bsx-fx-name { font-size: 13px; }
+
+  .bsx-grid4 { grid-template-columns: minmax(0, 1fr); }
+}

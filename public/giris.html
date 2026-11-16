@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#071827">
+  <title>Yönetim girişi — Art World TV</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="login.css">
+</head>
+<body class="login-page">
+  <main class="login-shell">
+    <aside class="login-panel" aria-label="Art World TV Yönetim Sistemi hakkında">
+      <a class="login-brand" href="/" aria-label="Art World TV ana sayfa"><img src="assets/art-world-logo.png" alt="Art World TV"></a>
+      <div class="login-panel-copy">
+        <p class="login-panel-kicker">Yayın masası</p>
+        <h2 class="login-panel-title">Art World TV<br>Yönetim Sistemi</h2>
+        <p class="login-panel-text">Haber, röportaj ve yayın akışınızı tek ekrandan planlayın, yönetin ve yayımlayın.</p>
+      </div>
+      <p class="login-panel-foot">Yalnızca yetkili personel içindir.</p>
+    </aside>
+    <div class="login-main">
+      <section class="login-card" aria-labelledby="login-title">
+        <h1 id="login-title">Giriş Yap</h1>
+        <p class="login-intro">Yönetim paneline erişmek için hesabınızla oturum açın.</p>
+        <form id="login-form">
+          <label for="login-email">E-posta adresi</label>
+          <input id="login-email" name="email" type="email" autocomplete="username" required maxlength="254" autofocus>
+          <label for="login-password">Parola</label>
+          <input id="login-password" name="password" type="password" autocomplete="current-password" required maxlength="256">
+          <div class="login-options">
+            <label class="login-remember" for="login-remember">
+              <input id="login-remember" name="remember" type="checkbox">
+              <span>Beni Hatırla</span>
+            </label>
+            <a class="login-forgot" href="/sifremi-unuttum.html">Şifremi Unuttum?</a>
+          </div>
+          <p class="login-error" id="login-error" role="alert" aria-live="polite"></p>
+          <button class="primary-action login-submit" type="submit">Giriş yap</button>
+        </form>
+      </section>
+      <a class="back-link" href="/">Haber sitesine dön</a>
+    </div>
+  </main>
+  <script src="login.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,269 @@
+/* BSX ana sayfa bölümleri (2/2): namaz, ızgara B, magazin, filmler, foto, spor,
+   video, burçlar, ızgara C, hava durumu, top6, saat akışı.
+   Renkler TASARIM-BSX.md §1 jetonları; ortak bileşenler (bsx-title, bsx-card, bsx-arrow) bsx-base.css'te. */
+
+/* ---------- S8 Namaz vakitleri ---------- */
+.bsx-prayer .bsx-pr-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--bsx-gap); }
+.bsx-prayer .bsx-pr-cell { display: flex; align-items: center; gap: 8px; height: 80px; padding: 0 12px; box-sizing: border-box; background: var(--bsx-green); color: #fff; min-width: 0; }
+.bsx-prayer .bsx-pr-ico { width: 64px; height: 64px; flex: 0 0 auto; }
+.bsx-prayer .bsx-pr-text { display: flex; flex-direction: column; min-width: 0; }
+.bsx-prayer .bsx-pr-time { font-size: 16px; font-weight: 600; line-height: 22px; }
+.bsx-prayer .bsx-pr-name { font-size: 14px; font-weight: 700; line-height: 20px; }
+
+/* ---------- S9 Izgara B + Çok okunanlar ---------- */
+.bsx-gridb .bsx-gb { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--bsx-gap); align-items: start; }
+.bsx-gridb .bsx-gb-main { grid-column: span 8; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--bsx-gap); min-width: 0; }
+.bsx-gridb .bsx-gb-main:only-child { grid-column: 1 / -1; }
+.bsx-gridb .bsx-gb-big { grid-column: span 3; }
+.bsx-gridb .bsx-gb-big .bsx-card-img { aspect-ratio: 401 / 268; }
+.bsx-gridb .bsx-gb-sm { grid-column: span 2; }
+.bsx-gridb .bsx-gb-side { grid-column: span 4; min-width: 0; }
+.bsx-gridb .bsx-gb-side:only-child { grid-column: 1 / -1; }
+.bsx-gridb .bsx-mr-list { display: flex; flex-direction: column; gap: 8px; }
+.bsx-gridb .bsx-mr-row { display: flex; align-items: stretch; gap: 0; height: 80px; background: var(--bsx-card); color: var(--bsx-ink); text-decoration: none; overflow: hidden; min-width: 0; }
+.bsx-gridb .bsx-mr-img { position: relative; flex: 0 0 144px; width: 144px; height: 80px; background: #d1d5db; overflow: hidden; }
+.bsx-gridb .bsx-gb-img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.bsx-gridb .bsx-mr-img .bsx-noimg { width: 100%; height: 100%; }
+.bsx-gridb .bsx-mr-badge { position: absolute; left: 4px; bottom: 4px; max-width: calc(100% - 8px); padding: 2px 6px; box-sizing: border-box; background: rgba(75, 85, 99, 0.85); color: #fff; font-size: 11px; font-weight: 500; line-height: 14px; border-radius: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bsx-gridb .bsx-mr-title { margin: 0; padding: 8px 12px; min-width: 0; align-self: center; font-size: 16px; font-weight: 600; line-height: 24px; color: var(--bsx-ink); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.bsx-gridb .bsx-mr-row:hover .bsx-mr-title { color: var(--bsx-red); }
+
+/* ---------- S10 Magazin ---------- */
+.bsx-magazin .bsx-mg-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: auto auto; gap: var(--bsx-gap); }
+.bsx-magazin .bsx-mg-big { grid-column: span 2; grid-row: span 2; }
+.bsx-magazin .bsx-mg-big .bsx-card-img { aspect-ratio: 610 / 375; }
+.bsx-magazin .bsx-card-summary,
+.bsx-sport .bsx-card-summary { margin: 8px 0 0; font-size: 14px; line-height: 20px; color: var(--bsx-muted); display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* ---------- S11 Vizyondaki filmler ---------- */
+.bsx-movies .bsx-mv-carousel { position: relative; }
+.bsx-movies .bsx-mv-track { display: flex; gap: var(--bsx-gap); overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; scrollbar-width: none; -ms-overflow-style: none; }
+.bsx-movies .bsx-mv-track::-webkit-scrollbar { display: none; }
+.bsx-movies .bsx-mv-item { flex: 0 0 calc((100% - 5 * var(--bsx-gap)) / 6); min-width: 0; display: flex; flex-direction: column; scroll-snap-align: start; background: var(--bsx-card); color: var(--bsx-ink); text-decoration: none; }
+.bsx-movies .bsx-mv-img { position: relative; aspect-ratio: 193 / 108; background: #d1d5db; overflow: hidden; }
+.bsx-movies .bsx-mv-pic { display: block; width: 100%; height: 100%; object-fit: cover; }
+.bsx-movies .bsx-mv-img .bsx-noimg { width: 100%; height: 100%; }
+.bsx-movies .bsx-mv-date { position: absolute; top: 6px; left: 6px; padding: 2px 6px; background: #6b7280; color: #fff; font-size: 11px; line-height: 16px; border-radius: 3px; }
+.bsx-movies .bsx-mv-body { flex: 1; padding: 12px 8px; text-align: center; }
+.bsx-movies .bsx-mv-title { margin: 0; font-size: 16px; font-weight: 600; line-height: 24px; color: var(--bsx-ink); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.bsx-movies .bsx-mv-item:hover .bsx-mv-title { color: var(--bsx-red); }
+
+/* ---------- S12 Foto galeri (degrade zemin: section.bsx-photos) ---------- */
+section.bsx-photos {
+  box-sizing: border-box;
+  width: calc(100% - 32px);
+  max-width: var(--bsx-w);
+  margin: 16px auto;
+  padding: 16px;
+  background: linear-gradient(90deg, var(--bsx-pink1), var(--bsx-pink2));
+}
+section.bsx-photos > .bsx-wrap { max-width: none; margin: 0; padding: 0; }
+.bsx-photos .bsx-ph-grid { display: grid; grid-auto-rows: 224px; gap: var(--bsx-gap); }
+.bsx-photos .bsx-ph-card { position: relative; display: block; min-width: 0; height: 100%; overflow: hidden; background: #d1d5db; color: #fff; text-decoration: none; }
+.bsx-photos .bsx-ph-img { position: absolute; inset: 0; }
+.bsx-photos .bsx-ph-pic { display: block; width: 100%; height: 100%; object-fit: cover; }
+.bsx-photos .bsx-ph-img .bsx-noimg { width: 100%; height: 100%; }
+.bsx-photos .bsx-ph-cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 8px 12px; background: rgba(0, 0, 0, 0.55); color: #fff; font-size: 13px; font-weight: 600; line-height: 18px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.bsx-photos .bsx-ph-card:hover .bsx-ph-cap { text-decoration: underline; }
+
+/* ---------- S13 Spor ---------- */
+.bsx-sport .bsx-sp-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--bsx-gap); align-items: stretch; }
+.bsx-sport .bsx-sp-smalls { grid-column: span 2; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--bsx-gap); min-width: 0; }
+.bsx-sport .bsx-sp-big { grid-column: span 2; display: flex; flex-direction: column; min-width: 0; }
+.bsx-sport .bsx-sp-big .bsx-card-img { aspect-ratio: 610 / 375; }
+
+/* ---------- S14 Video galeri (degrade zemin: section.bsx-videos) ---------- */
+section.bsx-videos {
+  box-sizing: border-box;
+  width: calc(100% - 32px);
+  max-width: var(--bsx-w);
+  margin: 16px auto;
+  padding: 16px;
+  background: linear-gradient(90deg, var(--bsx-purple1), var(--bsx-purple2));
+}
+section.bsx-videos > .bsx-wrap { max-width: none; margin: 0; padding: 0; }
+.bsx-videos .bsx-vd-grid { display: grid; grid-template-columns: minmax(0, 797fr) minmax(0, 391fr); gap: var(--bsx-gap); align-items: start; }
+.bsx-videos .bsx-vd-big { position: relative; display: block; aspect-ratio: 797 / 464; min-width: 0; overflow: hidden; background: #1e1b4b; color: #fff; text-decoration: none; }
+.bsx-videos .bsx-vd-grid--single { grid-template-columns: minmax(0, 1fr); }
+.bsx-videos .bsx-vd-grid--single .bsx-vd-big { width: 100%; aspect-ratio: 16 / 9; max-height: 464px; }
+.bsx-videos .bsx-vd-img { position: absolute; inset: 0; }
+.bsx-videos .bsx-vd-pic { display: block; width: 100%; height: 100%; object-fit: cover; }
+.bsx-videos .bsx-vd-img .bsx-noimg { width: 100%; height: 100%; }
+.bsx-videos .bsx-vd-play { position: absolute; left: 50%; top: 50%; width: 72px; height: 72px; margin: -36px 0 0 -36px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: rgba(0, 0, 0, 0.45); border: 2px solid rgba(255, 255, 255, 0.85); }
+.bsx-videos .bsx-vd-play svg { width: 32px; height: 32px; }
+.bsx-videos .bsx-vd-cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 48px 24px 20px; background: linear-gradient(to top, rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0)); }
+.bsx-videos .bsx-vd-bigtitle { margin: 0; font-size: 20px; font-weight: 700; line-height: 28px; color: #fff; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.bsx-videos .bsx-vd-list { display: flex; flex-direction: column; gap: var(--bsx-gap); min-width: 0; }
+.bsx-videos .bsx-vd-row { display: flex; align-items: center; gap: 12px; height: 80px; min-width: 0; color: #fff; text-decoration: none; }
+.bsx-videos .bsx-vd-thumb { position: relative; flex: 0 0 144px; width: 144px; height: 80px; overflow: hidden; background: #1e1b4b; }
+.bsx-videos .bsx-vd-thumb .bsx-vd-pic { width: 100%; height: 100%; }
+.bsx-videos .bsx-vd-thumb .bsx-noimg { width: 100%; height: 100%; }
+.bsx-videos .bsx-vd-play-sm { position: absolute; left: 50%; top: 50%; width: 28px; height: 28px; margin: -14px 0 0 -14px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: rgba(0, 0, 0, 0.5); }
+.bsx-videos .bsx-vd-play-sm svg { width: 16px; height: 16px; }
+.bsx-videos .bsx-vd-rowtitle { min-width: 0; font-size: 14px; font-weight: 600; line-height: 20px; color: #fff; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.bsx-videos .bsx-vd-row:hover .bsx-vd-rowtitle { text-decoration: underline; }
+
+/* ---------- Yerel haberler (4 kolon, gridA ile aynı ölçü) ---------- */
+.bsx-local .bsx-lc-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--bsx-gap); }
+
+/* ---------- S15 Burçlar ---------- */
+.bsx-zodiac .bsx-zd-strip { padding: 16px; border-radius: 8px; background: var(--bsx-card); }
+.bsx-zodiac .bsx-zd-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--bsx-gap); }
+.bsx-zodiac .bsx-zd-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; height: 96px; min-width: 0; padding: 4px; box-sizing: border-box; border-radius: 8px; background: linear-gradient(135deg, #db2777, #e11d48); color: #fff; text-decoration: none; }
+.bsx-zodiac .bsx-zd-item:hover { filter: brightness(1.08); }
+.bsx-zodiac .bsx-zd-sym { font-size: 36px; line-height: 40px; }
+.bsx-zodiac .bsx-zd-name { font-size: 12px; font-weight: 600; line-height: 16px; }
+
+/* ---------- S16 Izgara C ---------- */
+.bsx-gridc .bsx-gc-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--bsx-gap); }
+.bsx-gridc .bsx-gc-big { grid-column: span 4; }
+.bsx-gridc .bsx-gc-big .bsx-card-img { aspect-ratio: 401 / 268; }
+.bsx-gridc .bsx-gc-sm { grid-column: span 3; }
+
+/* ---------- Sekmeli kategori bloğu (hava durumundan önce) ---------- */
+.bsx-tabs .bsx-tb-bar { display: flex; background: var(--bsx-card); overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; }
+.bsx-tabs .bsx-tb-bar::-webkit-scrollbar { display: none; }
+.bsx-tabs .bsx-tb-btn { position: relative; flex: 1 1 0; min-width: 0; height: 40px; margin: 0; padding: 0 12px; border: 0; background: none; font-family: inherit; font-size: 14px; font-weight: 500; line-height: 40px; color: #6b7280; cursor: pointer; white-space: nowrap; }
+.bsx-tabs .bsx-tb-btn::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: transparent; }
+.bsx-tabs .bsx-tb-btn.is-active { color: var(--bsx-ink); font-weight: 600; }
+.bsx-tabs .bsx-tb-btn.is-active::after { background: var(--bsx-red); }
+.bsx-tabs .bsx-tb-pane { margin-top: 16px; }
+.bsx-tabs .bsx-tb-pane[hidden] { display: none; }
+.bsx-tabs .bsx-tb-pane-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--bsx-gap); }
+.bsx-tabs .bsx-tb-small { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--bsx-gap); min-width: 0; }
+.bsx-tabs .bsx-tb-big { min-width: 0; }
+.bsx-tabs .bsx-tb-big .bsx-card-img { aspect-ratio: 3 / 2; }
+.bsx-tabs .bsx-card-summary { margin: 8px 0 0; font-size: 14px; line-height: 20px; color: var(--bsx-muted); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* ---------- S17 Hava durumu ---------- */
+.bsx-weather .bsx-wx-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: var(--bsx-gap); }
+.bsx-weather .bsx-wx-day { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-width: 0; min-height: 224px; padding: 16px 8px; box-sizing: border-box; background: var(--bsx-card); text-align: center; }
+.bsx-weather .bsx-wx-date { font-size: 14px; font-weight: 600; line-height: 20px; color: var(--bsx-text); }
+.bsx-weather .bsx-wx-name { font-size: 16px; font-weight: 700; line-height: 24px; color: var(--bsx-text); }
+.bsx-weather .bsx-wx-ico { display: block; width: 80px; height: 80px; }
+.bsx-weather .bsx-wx-label { font-size: 13px; line-height: 18px; color: var(--bsx-muted); }
+.bsx-weather .bsx-wx-temp { font-size: 13px; font-weight: 600; line-height: 18px; color: var(--bsx-text); }
+
+/* ---------- S18 Numaralı liste (top 6) ---------- */
+.bsx-top6 .bsx-t6-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--bsx-gap); }
+.bsx-top6 .bsx-t6-item { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 8px; align-items: center; min-width: 0; height: 117px; padding: 12px; box-sizing: border-box; background: var(--bsx-card); color: var(--bsx-ink); text-decoration: none; border-bottom: 3px solid var(--bsx-blue); overflow: hidden; }
+.bsx-top6 .bsx-t6-num { font-size: 48px; font-weight: 700; line-height: 1; color: var(--bsx-blue); }
+.bsx-top6 .bsx-t6-body { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.bsx-top6 .bsx-t6-cat { font-size: 11px; font-weight: 700; line-height: 14px; color: var(--bsx-blue); }
+.bsx-top6 .bsx-t6-title { margin: 0; font-size: 13px; font-weight: 600; line-height: 18px; color: var(--bsx-ink); display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+.bsx-top6 .bsx-t6-item:hover .bsx-t6-title { color: var(--bsx-red); }
+
+/* ---------- S19 Saat akışı ---------- */
+.bsx-timeline .bsx-tl-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.bsx-timeline .bsx-tl-item { display: flex; align-items: center; gap: 12px; height: 48px; min-width: 0; padding: 0 12px; box-sizing: border-box; background: var(--bsx-card); color: var(--bsx-ink); text-decoration: none; }
+.bsx-timeline .bsx-tl-time { flex: 0 0 auto; padding: 6px 8px; border-radius: 4px; background: var(--bsx-red); color: #fff; font-size: 12px; font-weight: 700; line-height: 12px; }
+.bsx-timeline .bsx-tl-title { min-width: 0; font-size: 15px; font-weight: 500; line-height: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bsx-timeline .bsx-tl-item:hover .bsx-tl-title { color: var(--bsx-red); }
+
+/* ---------- Responsive (TASARIM-BSX §8) ---------- */
+@media (max-width: 1100px) {
+  .bsx-gridb .bsx-gb { grid-template-columns: minmax(0, 1fr); }
+  .bsx-gridb .bsx-gb-main,
+  .bsx-gridb .bsx-gb-side { grid-column: 1; }
+  .bsx-gridb .bsx-gb-main:only-child,
+  .bsx-gridb .bsx-gb-side:only-child { grid-column: 1; }
+
+  .bsx-magazin .bsx-mg-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .bsx-magazin .bsx-mg-big { grid-column: 1 / -1; grid-row: auto; }
+
+  .bsx-movies .bsx-mv-item { flex-basis: calc((100% - 3 * var(--bsx-gap)) / 4); }
+
+  .bsx-sport .bsx-sp-grid { grid-template-columns: minmax(0, 1fr); }
+  .bsx-sport .bsx-sp-smalls,
+  .bsx-sport .bsx-sp-big { grid-column: 1; }
+
+  .bsx-videos .bsx-vd-grid { grid-template-columns: minmax(0, 1fr); }
+  .bsx-videos .bsx-vd-big { aspect-ratio: 16 / 9; }
+
+  .bsx-zodiac .bsx-zd-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+
+  .bsx-local .bsx-lc-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+  .bsx-gridc .bsx-gc-big { grid-column: span 4; }
+  .bsx-gridc .bsx-gc-sm { grid-column: span 4; }
+
+  .bsx-weather .bsx-wx-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+  .bsx-prayer .bsx-pr-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+  .bsx-top6 .bsx-t6-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (max-width: 768px) {
+  .bsx-prayer .bsx-pr-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+  .bsx-gridb .bsx-gb-main { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .bsx-gridb .bsx-gb-big,
+  .bsx-gridb .bsx-gb-sm { grid-column: span 1; }
+  .bsx-gridb .bsx-mr-img { flex-basis: 144px; }
+
+  .bsx-magazin .bsx-mg-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+  .bsx-movies .bsx-mv-item { flex-basis: calc((100% - 2 * var(--bsx-gap)) / 3); }
+
+  .bsx-photos .bsx-ph-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; grid-auto-rows: 200px; }
+  .bsx-photos .bsx-ph-card { grid-column: auto !important; grid-row: auto !important; }
+  section.bsx-photos,
+  section.bsx-videos { padding: 16px; }
+  .bsx-photos .bsx-ph-cap { font-size: 12px; }
+
+  .bsx-videos .bsx-vd-row { gap: 10px; }
+
+  .bsx-zodiac .bsx-zd-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+  .bsx-gridc .bsx-gc-big { grid-column: span 6; }
+  .bsx-gridc .bsx-gc-sm { grid-column: span 6; }
+
+  .bsx-weather .bsx-wx-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+  .bsx-top6 .bsx-t6-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+  .bsx-sport .bsx-sp-smalls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+  .bsx-tabs .bsx-tb-pane-grid { grid-template-columns: minmax(0, 1fr); }
+  .bsx-tabs .bsx-tb-btn { flex: none; }
+
+  .bsx-local .bsx-lc-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 480px) {
+  .bsx-prayer .bsx-pr-cell { gap: 4px; padding: 0 6px; }
+  .bsx-prayer .bsx-pr-ico { width: 40px; height: 40px; }
+  .bsx-prayer .bsx-pr-time { font-size: 15px; }
+
+  .bsx-gridb .bsx-gb-main { grid-template-columns: minmax(0, 1fr); }
+  .bsx-gridb .bsx-gb-big,
+  .bsx-gridb .bsx-gb-sm { grid-column: 1; }
+
+  .bsx-magazin .bsx-mg-grid { grid-template-columns: minmax(0, 1fr); }
+  .bsx-magazin .bsx-mg-big,
+  .bsx-magazin .bsx-mg-grid > .bsx-card { grid-column: 1; }
+
+  .bsx-movies .bsx-mv-item { flex-basis: 100%; }
+
+  .bsx-photos .bsx-ph-grid { grid-template-columns: minmax(0, 1fr) !important; grid-auto-rows: 200px; }
+
+  .bsx-videos .bsx-vd-thumb { flex-basis: 120px; width: 120px; }
+
+  .bsx-zodiac .bsx-zd-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .bsx-zodiac .bsx-zd-sym { font-size: 28px; line-height: 32px; }
+
+  .bsx-gridc .bsx-gc-big,
+  .bsx-gridc .bsx-gc-sm { grid-column: 1 / -1; }
+
+  .bsx-weather .bsx-wx-grid { grid-template-columns: minmax(0, 1fr); }
+  .bsx-weather .bsx-wx-day { min-height: 0; }
+
+  .bsx-top6 .bsx-t6-grid { grid-template-columns: minmax(0, 1fr); }
+
+  .bsx-timeline .bsx-tl-grid { grid-template-columns: minmax(0, 1fr); }
+
+  .bsx-local .bsx-lc-grid { grid-template-columns: minmax(0, 1fr); }
+
+  .bsx-sport .bsx-sp-smalls { grid-template-columns: minmax(0, 1fr); }
+}

@@ -1,0 +1,69 @@
+/* Okur tarafı modül sayfaları ve ortak formlar (galeri, video, yazarlar, resmi ilanlar, burçlar, yorumlar, anket). */
+
+/* Honeypot: insanlardan gizli, botlar doldurursa gönderi sessizce atılır. display:none kullanılmıyor. */
+.hp-field{position:absolute!important;left:-10000px!important;top:auto;width:1px;height:1px;overflow:hidden}
+
+.module-page{padding-block:24px 56px}
+.module-page h1{font-family:Georgia,serif;font-size:clamp(1.75rem,3vw,2.5rem);line-height:1.2;margin:6px 0 10px}
+.module-page .lead{color:var(--muted);font-size:var(--type-lead,1.125rem);line-height:1.6;margin:0 0 24px;max-width:70ch}
+.module-page .meta{color:var(--muted);font-size:var(--type-small,.95rem);margin:4px 0}
+.module-page .breadcrumbs{display:flex;gap:8px;flex-wrap:wrap;color:var(--muted);font-size:var(--type-small,.95rem);margin-bottom:12px}
+.module-page .breadcrumbs a{color:var(--blue-deep)}
+.module-page .static-body,.module-page .column-body,.module-page .announcement-body{max-width:72ch;line-height:1.75;font-size:var(--type-body,1.0625rem)}
+.module-page .static-body p,.module-page .column-body p,.module-page .announcement-body p{margin:0 0 1em}
+
+/* Kart ızgaraları */
+.gallery-grid,.video-grid,.horoscope-grid{display:grid;gap:18px;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));margin:18px 0}
+.gallery-grid img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:6px;background:var(--soft);display:block}
+.gallery-card,.video-card,.horoscope-card{background:var(--paper);border:1px solid var(--line);border-radius:8px;overflow:hidden;box-shadow:var(--shadow)}
+.gallery-card a,.video-card a{display:block}
+.gallery-card h2,.gallery-card h3,.video-card h2,.video-card h3{font-size:1.05rem;line-height:1.35;margin:10px 14px 14px}
+.video-card{position:relative}
+.video-card img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;background:var(--navy)}
+.video-card .play{position:absolute;left:14px;top:14px;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:rgba(7,24,39,.78);color:#fff;font-size:16px}
+.video-embed{position:relative;width:100%;max-width:960px;aspect-ratio:16/9;background:#000;border-radius:8px;overflow:hidden;margin:18px 0}
+.video-embed iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.horoscope-card{padding:18px}
+.horoscope-symbol{font-size:2rem;line-height:1;display:block;margin-bottom:6px;color:var(--blue-deep)}
+
+/* Yazarlar */
+.author-group{border-top:1px solid var(--line);padding:18px 0}
+.author-group h2{font-size:1.25rem;margin:0 0 8px}
+.author-articles{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.author-articles a{color:var(--blue-deep)}
+
+/* Ortak okur formları (haber gönder, yorum) */
+.article-comments{width:min(760px,100%);margin:40px auto 0;padding-top:24px;border-top:1px solid var(--line)}
+.article-comments h2{font-size:1.4rem;margin:0 0 14px}
+.comment-list{list-style:none;margin:0 0 24px;padding:0;display:grid;gap:14px}
+.comment{background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:14px 16px}
+.comment p{margin:6px 0 0;line-height:1.6;white-space:pre-line}
+form[data-comment-form],form[data-visitor-post-form]{display:grid;gap:10px;max-width:640px;margin:16px 0}
+form[data-comment-form] label,form[data-visitor-post-form] label{display:grid;gap:6px;font-weight:700;font-size:var(--type-small,.95rem)}
+form[data-comment-form] input:not([type=checkbox]),form[data-comment-form] textarea,
+form[data-visitor-post-form] input:not([type=checkbox]),form[data-visitor-post-form] textarea{width:100%;min-height:46px;padding:10px 12px;border:1px solid var(--line);border-radius:6px;background:var(--paper);color:var(--ink);font:inherit}
+form[data-comment-form] textarea,form[data-visitor-post-form] textarea{min-height:140px;resize:vertical}
+.form-consent{display:flex!important;align-items:flex-start;gap:8px;font-weight:400!important}
+.form-consent input{margin-top:3px;flex:none}
+form[data-comment-form] button,form[data-visitor-post-form] button,form[data-poll-form] button{justify-self:start;min-height:44px;padding:0 20px;border:0;border-radius:6px;background:var(--blue-deep);color:#fff;font-weight:700;cursor:pointer}
+form[data-comment-form] button:disabled,form[data-visitor-post-form] button:disabled,form[data-poll-form] button:disabled{opacity:.6;cursor:wait}
+[data-form-status]{min-height:1.2em;margin:4px 0 0;font-size:var(--type-small,.95rem);color:var(--blue-deep)}
+form :focus-visible{outline:3px solid color-mix(in srgb,var(--blue) 35%,transparent);outline-offset:2px}
+
+/* Anket sonuçları (site-modules.js tarafından çizilir) */
+.poll-result-row{display:grid;gap:4px;margin:10px 0}
+.poll-result-head{display:flex;justify-content:space-between;gap:12px;font-size:var(--type-small,.95rem)}
+.poll-result-value{font-weight:700;white-space:nowrap}
+.poll-result-track{height:8px;border-radius:999px;background:var(--line);overflow:hidden}
+.poll-result-bar{height:100%;background:var(--blue-deep);border-radius:999px}
+.poll-result-total{color:var(--muted);font-size:var(--type-small,.95rem);margin-top:8px}
+
+/* Kurumsal footer içindeki yönetilebilir footer linkleri */
+.corporate-footer .footer-column{display:grid;gap:6px;align-content:start}
+.corporate-footer .footer-column b{font-size:.8rem;letter-spacing:.08em}
+
+@media (max-width:680px){
+  .module-page{padding-block:16px 40px}
+  .gallery-grid,.video-grid,.horoscope-grid{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){.poll-result-bar{transition:none}}

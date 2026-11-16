@@ -1,0 +1,164 @@
+/* Modül Ayarları paneli (basınsoft düzeni). Yalnız bu panel kapsamında. */
+
+.admin-content[data-panel="modul-ayarlari"] {
+  max-width: none;
+}
+
+.admin-content[data-panel="modul-ayarlari"] .mod-title {
+  margin: 0 0 14px;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.admin-content[data-panel="modul-ayarlari"] .mod-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.admin-content[data-panel="modul-ayarlari"] .mod-tab {
+  appearance: none;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  color: #1f2937;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.admin-content[data-panel="modul-ayarlari"] .mod-tab:hover {
+  border-color: #2563eb;
+  color: #2563eb;
+}
+
+.admin-content[data-panel="modul-ayarlari"] .mod-tab.is-active {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.admin-content[data-panel="modul-ayarlari"] .mod-note {
+  background: #fef2f2;
+  border-left: 4px solid #e02424;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  color: #7f1d1d;
+}
+
+.admin-content[data-panel="modul-ayarlari"] .mod-note strong {
+  display: block;
+  color: #b91c1c;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.admin-content[data-panel="modul-ayarlari"] .mod-note p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.admin-content[data-panel="modul-ayarlari"] .mod-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.admin-content[data-panel="modul-ayarlari"] .mod-card {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 14px;
+  min-height: 140px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-sizing: border-box;
+}
+
+.admin-content[data-panel="modul-ayarlari"] .mod-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.admin-content[data-panel="modul-ayarlari"] .mod-card-title {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.admin-content[data-panel="modul-ayarlari"] .mod-badge {
+  flex-shrink: 0;
+  background: #7c3aed;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 6px;
+  padding: 2px 6px;
+  line-height: 1.4;
+}
+
+.admin-content[data-panel="modul-ayarlari"] .mod-card-sub {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.admin-content[data-panel="modul-ayarlari"] .mod-card select,
+.admin-content[data-panel="modul-ayarlari"] .mod-card input[type="number"] {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 6px;
+}
+
+.admin-content[data-panel="modul-ayarlari"] .mod-hint {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.admin-content[data-panel="modul-ayarlari"] .mod-check-list {
+  display: grid;
+  gap: 4px;
+  max-height: 180px;
+  overflow-y: auto;
+  margin-top: 6px;
+  font-size: 14px;
+}
+
+.admin-content[data-panel="modul-ayarlari"] .mod-form {
+  margin-top: 16px;
+}
+
+.admin-content[data-panel="modul-ayarlari"] .mod-save-row {
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.admin-content[data-panel="modul-ayarlari"] .mod-form .form-feedback {
+  margin-top: 12px;
+}
+
+@media (max-width: 1100px) {
+  .admin-content[data-panel="modul-ayarlari"] .mod-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-content[data-panel="modul-ayarlari"] .mod-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-content[data-panel="modul-ayarlari"] .mod-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

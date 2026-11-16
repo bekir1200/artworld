@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#071827">
+  <meta name="robots" content="noindex">
+  <title>Yeni parola — Art World TV</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="login.css">
+</head>
+<body class="login-page">
+  <main class="login-shell">
+    <aside class="login-panel" aria-label="Art World TV Yönetim Sistemi hakkında">
+      <a class="login-brand" href="/" aria-label="Art World TV ana sayfa"><img src="assets/art-world-logo.png" alt="Art World TV"></a>
+      <div class="login-panel-copy">
+        <p class="login-panel-kicker">Yayın masası</p>
+        <h2 class="login-panel-title">Art World TV<br>Yönetim Sistemi</h2>
+        <p class="login-panel-text">Haber, röportaj ve yayın akışınızı tek ekrandan planlayın, yönetin ve yayımlayın.</p>
+      </div>
+      <p class="login-panel-foot">Yalnızca yetkili personel içindir.</p>
+    </aside>
+    <div class="login-main">
+      <section class="login-card" aria-labelledby="reset-title">
+        <h1 id="reset-title">Yeni Parola</h1>
+        <p class="login-intro">Yeni parolanızı belirleyin. Parola en az 14 karakter olmalıdır.</p>
+        <form id="login-form" data-mode="reset" novalidate>
+          <label for="login-password">Yeni parola</label>
+          <input id="login-password" name="password" type="password" autocomplete="new-password" required minlength="14" maxlength="256">
+          <label for="login-password-confirm">Yeni parola (tekrar)</label>
+          <input id="login-password-confirm" name="passwordConfirm" type="password" autocomplete="new-password" required minlength="14" maxlength="256">
+          <p class="login-error" id="login-error" role="alert" aria-live="polite"></p>
+          <button class="primary-action login-submit" type="submit">Parolayı kaydet</button>
+        </form>
+        <p class="login-intro" id="reset-message" role="status" aria-live="polite" hidden>Parolanız güncellendi. Yeni parolanızla giriş yapabilirsiniz.</p>
+        <p id="reset-done" hidden><a class="login-forgot" href="/giris">Giriş yap</a></p>
+      </section>
+      <a class="back-link" href="/giris">Giriş ekranına dön</a>
+    </div>
+  </main>
+  <script src="password-reset.js" defer></script>
+</body>
+</html>

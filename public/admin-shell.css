@@ -1,0 +1,249 @@
+/* Yönetim paneli - sol sidebar hiyerarşisi (admin-shell).
+   styles.css ve admin-dashboard.css'ten sonra yüklenir.
+   Renkler yalnızca mevcut tokenlardan alınır (--soft, --paper, --ink, --blue, --blue-deep,
+   --red, --line, --shadow, --muted). body.dark bu tokenları yeniden tanımladığı için
+   koyu tema otomatik uygulanır. */
+
+/* Panel içerikleri: görünür olan panel bir ızgara kolonu olarak yerleşir.
+   .hidden ve [hidden] kuralları önceliklidir. */
+.admin-layout > .admin-content:not(.hidden):not([hidden]) {
+  display: grid;
+  gap: 1.25rem;
+}
+
+/* Sidebar: masaüstünde sol kolonda, yapışkan (sticky) ve uzun listede kendi içinde kaydırılır */
+.admin-layout .admin-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: .25rem;
+  position: sticky;
+  top: 1rem;
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  padding: .65rem;
+  margin: 0;
+}
+
+/* Grup başlığı (accordion düğmesi) */
+.admin-layout .admin-nav-group {
+  display: grid;
+  gap: .2rem;
+}
+/* Alt öğelerin tamamı gizliyse (rol kısıtı, app.js) grubun tamamını gizle */
+.admin-layout .admin-nav-group:not(:has(.admin-tab:not([hidden]))) {
+  display: none;
+}
+.admin-layout .admin-group-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+  width: 100%;
+  min-height: 3.25rem;
+  padding: .75rem .9rem;
+  border: 0;
+  border-left: 4px solid transparent;
+  border-radius: .2rem;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--type-body);
+  font-weight: 800;
+  text-align: left;
+  cursor: pointer;
+}
+.admin-layout .admin-group-toggle:hover {
+  background: color-mix(in srgb, var(--blue) 8%, var(--paper));
+}
+.admin-layout .admin-group-toggle:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--blue) 35%, transparent);
+  outline-offset: 2px;
+}
+.admin-layout .admin-group-toggle[aria-expanded="true"] {
+  color: var(--blue-deep);
+}
+/* Chevron: kapalıyken aşağı, açıkken yukarı */
+.admin-layout .admin-group-toggle::after {
+  content: "";
+  flex: 0 0 auto;
+  width: .5rem;
+  height: .5rem;
+  margin-right: .3rem;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg) translate(-2px, -2px);
+  transition: transform .15s ease;
+}
+.admin-layout .admin-group-toggle[aria-expanded="true"]::after {
+  transform: rotate(-135deg) translate(-2px, -2px);
+}
+
+/* Alt öğeler: aria-expanded="false" iken gizli */
+.admin-layout .admin-group-items {
+  display: grid;
+  gap: .2rem;
+  margin: 0 0 .35rem .6rem;
+  padding-left: .6rem;
+  border-left: 1px solid var(--line);
+}
+.admin-layout .admin-group-toggle[aria-expanded="false"] + .admin-group-items {
+  display: none;
+}
+.admin-layout .admin-sidebar .admin-group-items .admin-tab {
+  min-height: 2.75rem;
+  padding: .55rem .75rem;
+  font-size: var(--type-small);
+  font-weight: 600;
+}
+
+/* Hamburger düğmesi: masaüstünde gizli */
+.admin-layout .admin-nav-toggle {
+  display: none;
+}
+.admin-nav-toggle-bars {
+  position: relative;
+  display: inline-block;
+  width: 1.1rem;
+  height: .8rem;
+  border-top: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  flex: 0 0 auto;
+}
+.admin-nav-toggle-bars::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  border-top: 2px solid currentColor;
+  transform: translateY(-1px);
+}
+
+/* Yönetim paneli içi satır (iskelet modüller için eylem düğmeli satır) */
+.admin-layout .shell-row {
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  min-width: 0;
+  min-height: 3.5rem;
+  padding: .6rem .9rem;
+  gap: .6rem;
+}
+.admin-layout .shell-row > div:first-child {
+  min-width: 0;
+  display: grid;
+  gap: .15rem;
+}
+.admin-layout .shell-row strong,
+.admin-layout .shell-row small {
+  overflow-wrap: anywhere;
+}
+.admin-layout .shell-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: .4rem;
+}
+.admin-layout .shell-actions button {
+  min-height: 2.5rem;
+  padding: .4rem .7rem;
+  font-size: var(--type-caption);
+}
+
+/* Mobil ve dar ekranlar (<=900px): sidebar sol taraftan açılan overlay olur */
+@media (max-width: 900px) {
+  .admin-layout {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 1rem;
+  }
+  .admin-layout > .admin-title {
+    grid-column: 1;
+  }
+  .admin-layout .admin-nav-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: .6rem;
+    justify-self: start;
+    min-height: 3rem;
+    padding: .6rem 1rem;
+    border: 1px solid var(--line);
+    border-radius: .3rem;
+    background: var(--paper);
+    color: var(--ink);
+    font: inherit;
+    font-size: var(--type-small);
+    font-weight: 700;
+    cursor: pointer;
+    grid-column: 1;
+    grid-row: auto;
+  }
+  .admin-layout .admin-nav-toggle:focus-visible {
+    outline: 3px solid color-mix(in srgb, var(--blue) 35%, transparent);
+    outline-offset: 2px;
+  }
+  .admin-layout .admin-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: min(19rem, 86vw);
+    height: 100vh;
+    height: 100dvh;
+    max-height: none;
+    z-index: 1000;
+    padding: 1rem;
+    border: 0;
+    border-right: 1px solid var(--line);
+    border-radius: 0;
+    background: var(--paper);
+    box-shadow: var(--shadow);
+    transform: translateX(-105%);
+    visibility: hidden;
+    transition: transform .2s ease, visibility .2s ease;
+    grid-column: auto;
+    grid-row: auto;
+  }
+  .admin-layout.is-nav-open::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    background: rgba(7, 24, 39, .45);
+  }
+  .admin-layout.is-nav-open .admin-sidebar {
+    transform: none;
+    visibility: visible;
+  }
+  .admin-layout .admin-sidebar .admin-tab {
+    width: 100%;
+    min-width: 0;
+    min-height: 3rem;
+    padding: .75rem .9rem;
+    border-left: 4px solid transparent;
+    border-bottom: 0;
+    text-align: left;
+  }
+  .admin-layout .admin-sidebar .admin-tab.selected {
+    border-left-color: var(--blue);
+    border-bottom-color: transparent;
+  }
+  .admin-layout > .admin-content {
+    grid-column: 1;
+    grid-row: auto;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .admin-layout .admin-sidebar,
+    .admin-layout .admin-group-toggle::after {
+      transition: none;
+    }
+  }
+}
+
+@media (max-width: 680px) {
+  .admin-layout .shell-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .admin-layout .shell-actions {
+    justify-content: flex-start;
+  }
+}

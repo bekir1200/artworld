@@ -1,0 +1,21 @@
+{
+  "name": "art-world-tv-newsroom",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Art World TV haber portalı ve yönetim paneli",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "db:check": "node scripts/check-db.js",
+    "db:migrate": "node scripts/migrate.js",
+    "admin:create": "node scripts/create-admin.js",
+    "data:import:artworld": "node scripts/import-artworld-archive.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "pg": "^8.23.1"
+  }
+}

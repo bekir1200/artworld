@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#071827">
+  <title>Yönetim Merkezi — Art World TV</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="admin-dashboard.css">
+  <link rel="stylesheet" href="admin-shell.css">
+  <link rel="stylesheet" href="admin-basinsoft.css">
+  <link rel="stylesheet" href="admin-modules.css">
+  <meta name="description" content="Art World TV haber, reklam, CRM, personel ve entegrasyon yönetimi">
+</head>
+<body>
+  <header class="shell masthead dashboard-header">
+    <a class="brand" href="/" aria-label="Art World TV ana sayfa"><img src="assets/art-world-logo.png" alt="Art World TV"></a>
+    <div class="admin-account"><span id="admin-user" aria-live="polite"></span><button class="login-link" id="logout-button" type="button">Oturumu kapat</button><a class="login-link" href="/">Haber sitesine dön</a></div>
+  </header>
+  <main class="shell dashboard-page">
+    <section class="admin-preview admin-layout" id="dashboard"><div class="admin-title"><div><span class="section-kicker">YAYIN MASASI</span><h2>Yönetim merkezi</h2><p>Haber, reklam, okur ilişkileri ve ekip operasyonları.</p></div><span class="admin-badge"><i></i> YÖNETİM PANELİ</span></div><button class="admin-nav-toggle" type="button" aria-controls="admin-sidebar" aria-expanded="false"><span class="admin-nav-toggle-bars" aria-hidden="true"></span>Yönetim menüsü</button><nav class="admin-tabs admin-sidebar" id="admin-sidebar" aria-label="Yönetim bölümleri"><button class="admin-tab selected" data-tab="genel">Kontrol Paneli</button><div class="admin-nav-group"><button class="admin-group-toggle" type="button" aria-expanded="false" aria-controls="admin-group-ayarlar">Ayarlar</button><div class="admin-group-items" id="admin-group-ayarlar"><button class="admin-tab" data-tab="site-kimligi" hidden>Genel / Site kimliği</button><button class="admin-tab" data-tab="ayarlar" hidden>API ve entegrasyonlar</button><button class="admin-tab" data-tab="hakkimizda-ayarlari" hidden>Hakkımızda ayarları</button><button class="admin-tab" data-tab="modul-ayarlari" hidden>Modül ayarları</button><button class="admin-tab" data-tab="tema-ayarlari" hidden>Tema ayarları</button><button class="admin-tab" data-tab="cron-ayarlari" hidden>Cron ayarları</button><button class="admin-tab" data-tab="sosyal-medya" hidden>Sosyal medya</button></div></div><div class="admin-nav-group"><button class="admin-group-toggle" type="button" aria-expanded="false" aria-controls="admin-group-kullanicilar">Kullanıcılar</button><div class="admin-group-items" id="admin-group-kullanicilar"><button class="admin-tab" data-tab="kullanicilar" hidden>Kullanıcılar ve roller</button></div></div><div class="admin-nav-group"><button class="admin-group-toggle" type="button" aria-expanded="false" aria-controls="admin-group-sayfalar">Sayfalar</button><div class="admin-group-items" id="admin-group-sayfalar"><button class="admin-tab" data-tab="sayfalar" hidden>Sayfa yönetimi</button></div></div><div class="admin-nav-group"><button class="admin-group-toggle" type="button" aria-expanded="false" aria-controls="admin-group-haberler">Haberler</button><div class="admin-group-items" id="admin-group-haberler"><button class="admin-tab" data-tab="haber">Haber Yönetimi</button></div></div><div class="admin-nav-group"><button class="admin-group-toggle" type="button" aria-expanded="false" aria-controls="admin-group-makaleler">Makaleler</button><div class="admin-group-items" id="admin-group-makaleler"><button class="admin-tab" data-tab="makaleler" hidden>Makale yönetimi</button></div></div><div class="admin-nav-group"><button class="admin-group-toggle" type="button" aria-expanded="false" aria-controls="admin-group-galeriler">Galeriler</button><div class="admin-group-items" id="admin-group-galeriler"><button class="admin-tab" data-tab="galeriler" hidden>Galeri yönetimi</button></div></div><div class="admin-nav-group"><button class="admin-group-toggle" type="button" aria-expanded="false" aria-controls="admin-group-videolar">Videolar</button><div class="admin-group-items" id="admin-group-videolar"><button class="admin-tab" data-tab="videolar" hidden>Video yönetimi</button></div></div><button class="admin-tab" data-tab="yorumlar" hidden>Yorumlar</button><button class="admin-tab" data-tab="crm">İletişim / Okur CRM</button><button class="admin-tab" data-tab="reklam">Reklamlar</button><button class="admin-tab" data-tab="resmi-ilanlar" hidden>Resmi İlanlar</button><button class="admin-tab" data-tab="footer-linkleri" hidden>Footer Linkleri</button><button class="admin-tab" data-tab="botlar" hidden>İçerik Botları</button><button class="admin-tab" data-tab="anketler" hidden>Anketler</button><button class="admin-tab" data-tab="burc-film" hidden>Burçlar ve filmler</button><button class="admin-tab" data-tab="ziyaretci-haberleri" hidden>Ziyaretçi Haberleri</button><button class="admin-tab" data-tab="aktivite" hidden>Kullanıcı Logları</button></nav><div class="admin-content" data-panel="genel">
+  <section class="dash-card dash-hero" aria-labelledby="dash-greeting-title">
+    <div>
+      <h3 id="dash-greeting-title"><span id="dash-greeting">İyi günler</span>, <span id="dash-admin-name">Super Admin</span>!</h3>
+      <p>Kontrol sizde, başarı sizinle.</p>
+    </div>
+    <div class="dash-hero-meta">
+      <span>Sunucu IP: <b id="dash-ip">-</b></span>
+      <strong class="dash-clock" id="dash-clock" aria-live="off">--:--:--</strong>
+      <span id="dash-date"></span>
+    </div>
+  </section>
+
+  <div class="dash-metrics">
+    <div class="metric"><span>Bugünkü içerikler</span><strong>24</strong><small><b>+6</b> dünle aynı saate göre</small></div>
+    <div class="metric"><span>Okur etkileşimi</span><strong>18.6K</strong><small><b>+12%</b> son 7 günde</small></div>
+    <div class="metric"><span>Aktif kampanyalar</span><strong>08</strong><small>2 kampanya planlandı</small></div>
+    <div class="metric"><span>CRM kayıtları</span><strong>3,248</strong><small>Son kayıt 4 dk önce</small></div>
+  </div>
+
+  <section class="dash-card" aria-labelledby="dash-visit-title">
+    <h4 id="dash-visit-title">Ziyaretçi istatistikleri <small>örnek veri</small></h4>
+    <div class="dash-visits" id="dash-visits"></div>
+  </section>
+
+  <section class="dash-card" aria-labelledby="dash-trend-title">
+    <h4 id="dash-trend-title">Son 30 Gün Ziyaretçi Trendi <small id="dash-trend-total"></small></h4>
+    <div class="dash-bars" id="dash-trend-bars" role="img" aria-label="Son 30 gün ziyaretçi grafiği"></div>
+    <div class="dash-bar-labels" id="dash-trend-labels" aria-hidden="true"></div>
+  </section>
+
+  <div class="dash-grid dash-grid-3">
+    <section class="dash-card" aria-labelledby="dash-weather-title">
+      <h4 id="dash-weather-title">Hava Durumu <small id="dash-weather-city">İstanbul</small></h4>
+      <div id="dash-weather"></div>
+    </section>
+    <section class="dash-card" aria-labelledby="dash-fx-title">
+      <h4 id="dash-fx-title">Döviz Kurları <small>örnek veri</small></h4>
+      <ul class="dash-list" id="dash-fx"></ul>
+    </section>
+    <section class="dash-card" aria-labelledby="dash-prayer-title">
+      <h4 id="dash-prayer-title">Namaz Vakitleri <small id="dash-prayer-city">İstanbul</small></h4>
+      <ul class="dash-list" id="dash-prayer"></ul>
+      <p class="dash-note" id="dash-prayer-next"></p>
+    </section>
+  </div>
+
+  <section class="dash-card" aria-labelledby="dash-counter-title">
+    <h4 id="dash-counter-title">İçerik sayaçları</h4>
+    <div class="dash-counters" id="dash-counters"></div>
+  </section>
+
+  <section class="dash-card" aria-labelledby="dash-quick-title">
+    <h4 id="dash-quick-title">Hızlı ekleme</h4>
+    <div class="dash-quick">
+      <button type="button" data-quick="haber"><span aria-hidden="true">+</span>Haber Ekle</button>
+      <button type="button" data-quick="makale"><span aria-hidden="true">+</span>Makale Ekle</button>
+      <button type="button" data-quick="galeri"><span aria-hidden="true">+</span>Galeri Ekle</button>
+      <button type="button" data-quick="video"><span aria-hidden="true">+</span>Video Ekle</button>
+      <button type="button" data-quick="ilan"><span aria-hidden="true">+</span>İlan Ekle</button>
+      <button type="button" data-quick="kullanici"><span aria-hidden="true">+</span>Kullanıcı Ekle</button>
+    </div>
+    <p class="dash-note" id="dash-note" role="status" aria-live="polite"></p>
+  </section>
+
+  <div class="dash-grid dash-grid-2">
+    <section class="dash-card" aria-labelledby="dash-active-title">
+      <h4 id="dash-active-title">Aktif Kullanıcılar <small>Şu anda sitede · <span id="dash-active-count"></span></small></h4>
+      <div id="dash-active"></div>
+    </section>
+    <section class="dash-card" aria-labelledby="dash-logs-title">
+      <h4 id="dash-logs-title">Sistem Logları</h4>
+      <div class="dash-logs" id="dash-logs"></div>
+    </section>
+  </div>
+
+  <div class="admin-table dash-news">
+    <div class="table-heading"><strong>Son Haberler</strong><button data-tab="haber" type="button">Tümünü gör →</button></div>
+    <p class="dialog-empty">Haber listesi yükleniyor…</p>
+  </div>
+</div><div class="admin-content hidden" data-panel="haber"><div class="panel-intro"><div><span class="section-kicker">İÇERİK OPERASYONU</span><h3>Haber yönetimi</h3><p>Haber taslağı, editör incelemesi, yayın takvimi ve güncelleme takibi.</p></div><button class="primary-action" type="button">Yeni haber oluştur</button></div><div class="workflow"><div><b>12</b><span>Taslak</span></div><div><b>4</b><span>Editör incelemesinde</span></div><div><b>3</b><span>Planlandı</span></div><div><b>86</b><span>Yayında</span></div></div><div class="admin-table"><div class="table-heading"><strong>İçerik kuyruğu</strong><div class="crm-filters"><label>Ara<input id="article-search" type="search" placeholder="Başlık veya yazar"></label><label>Durum<select aria-label="İçerik durumu" id="article-status-filter"><option value="all">Tüm durumlar</option><option value="draft">Taslak</option><option value="in_review">Editör incelemesinde</option><option value="approved">Onaylandı</option><option value="scheduled">Planlandı</option><option value="published">Yayında</option><option value="archived">Arşiv</option></select></label></div></div><div class="table-row"><span class="status-dot review"></span><span>İstanbul'un yaratıcı mahalleleri</span><small>Ayşe Demir</small><span class="pill review-pill">EDİTÖRDE</span><time>11:20</time></div><div class="table-row"><span class="status-dot draft"></span><span>Yeni kuşak seramik sanatçıları</span><small>Mert Kaya</small><span class="pill draft-pill">TASLAK</span><time>10:48</time></div></div></div><div class="admin-content hidden" data-panel="reklam">
+  <div class="panel-intro"><div><span class="section-kicker">TİCARİ YAYIN</span><h3>Reklam yönetimi</h3><p>Reklamverenleri, envanteri, kampanya dönemlerini ve teslimat raporunu yönetin.</p></div><button class="secondary-action" id="ads-refresh" type="button">Verileri yenile</button></div>
+  <div class="workflow"><div><b id="ads-active-count">—</b><span>Aktif kampanya</span></div><div><b id="ads-pending-count">—</b><span>Onay bekliyor</span></div><div><b id="ads-placement-count">—</b><span>Etkin reklam alanı</span></div><div><b id="ads-impressions-count">—</b><span>Gösterim</span></div></div>
+  <section class="ad-report" aria-labelledby="ad-report-title">
+    <div class="table-heading"><div><strong id="ad-report-title">Gösterim ve tıklama raporu</strong><span class="managed-summary">Tarih ve reklam alanına göre kampanya performansı</span></div></div>
+    <form id="ad-report-filters" class="ad-report-filters">
+      <label>Başlangıç tarihi<input name="from" type="date" required></label>
+      <label>Bitiş tarihi<input name="to" type="date" required></label>
+      <label>Reklam alanı<select name="placementId"><option value="">Tüm alanlar</option></select></label>
+      <button class="secondary-action" type="submit">Raporu göster</button>
+      <p id="ad-report-feedback" class="form-feedback" role="status" aria-live="polite"></p>
+    </form>
+    <div class="ad-report-totals" aria-live="polite">
+      <div><span>Gösterim</span><strong id="ad-report-impressions">—</strong></div>
+      <div><span>Tıklama</span><strong id="ad-report-clicks">—</strong></div>
+      <div><span>Tıklama oranı</span><strong id="ad-report-ctr">—</strong></div>
+    </div>
+    <div class="admin-table"><div class="table-heading"><strong>Kampanya ve alan kırılımı</strong></div><div id="ad-report-rows" class="admin-managed-list" aria-live="polite"></div></div>
+  </section>
+  <form id="campaign-form" class="admin-form-grid">
+    <label>Kampanya adı<input name="name" required maxlength="180"></label><label>Reklamveren / şirket<input name="companyName" required maxlength="180"></label>
+    <label>Yetkili kişi<input name="contactName" maxlength="120"></label><label>İletişim e-postası<input name="email" type="email" maxlength="254"></label>
+    <label>Telefon<input name="phone" type="tel" maxlength="40"></label><label>Reklam alanı<select name="placementId" id="campaign-placement" required></select></label>
+    <label class="form-wide">Basın İlan Kurumu ilan/yayın kodu<input name="regulatoryReference" maxlength="80" placeholder="Örn. ILN02589472 / INT-001727"></label>
+    <label>Başlangıç<input name="startsAt" type="date"></label><label>Bitiş<input name="endsAt" type="date"></label><label>Bütçe (₺)<input name="budget" type="number" min="0" step="0.01"></label>
+    <button class="primary-action" type="submit">Taslak kampanya oluştur</button><p id="campaign-feedback" class="form-feedback" role="status" aria-live="polite"></p>
+  </form>
+  <div class="admin-table"><div class="table-heading"><strong>Kampanyalar</strong><label class="table-filter">Durum<select id="campaign-status-filter"><option value="all">Tüm durumlar</option><option value="draft">Taslak</option><option value="awaiting_approval">Onay bekliyor</option><option value="scheduled">Planlandı</option><option value="active">Aktif</option><option value="paused">Duraklatıldı</option><option value="completed">Tamamlandı</option><option value="cancelled">İptal edildi</option></select></label></div><div id="campaign-list" class="admin-managed-list" aria-live="polite"></div></div>
+  <form id="creative-form" class="admin-form-grid"><div class="form-wide"><span class="section-kicker">KREATİF VE ONAY</span><h4>Reklam görseli ekle</h4><p>Her ölçüdeki varyantı aynı kampanya, başlık ve HTTPS hedefiyle ayrı kreatif olarak ekleyin. Görsel ölçüsü seçilen reklam alanına uymalı; yönetici onayından sonra uygun masaüstü/mobil görseli otomatik seçilir.</p></div><label>Kampanya<select name="campaignId" id="creative-campaign" required></select></label><label>Reklam başlığı<input name="headline" required maxlength="180"></label><p id="creative-format-help" class="provider-help form-wide">Kampanyanın seçili alanında kabul edilen görsel ölçüsü.</p><label class="form-wide">Hedef bağlantı (HTTPS)<input name="targetUrl" type="url" placeholder="https://ornek.com" required></label><label class="form-wide">Görsel (JPG, PNG veya WebP)<input name="creativeImage" type="file" accept="image/jpeg,image/png,image/webp" required></label><button class="primary-action" type="submit">İncelemeye gönder</button><p id="creative-feedback" class="form-feedback" role="status" aria-live="polite"></p></form>
+  <div class="admin-table"><div class="table-heading"><strong>Reklam kreatifleri</strong><span>Onay akışı</span></div><div id="creative-list" class="admin-managed-list" aria-live="polite"></div></div>
+  <div class="admin-table"><div class="table-heading"><strong>Reklam alanları</strong><span>Site içi envanter</span></div><div id="placement-list" class="admin-managed-list"></div></div>
+</div>
+<div class="admin-content hidden" data-panel="crm">
+  <div class="panel-intro"><div><span class="section-kicker">OKUR İLİŞKİLERİ</span><h3>Okur CRM</h3><p>Bülten izinlerini, reklam başvurularını, geri bildirim ve düzeltme taleplerini takip edin.</p></div><div class="panel-tools"><button class="secondary-action" id="crm-export" type="button">CRM CSV indir</button><button class="secondary-action" id="crm-refresh" type="button">Verileri yenile</button></div></div>
+  <div class="workflow"><div><b id="crm-total-count">—</b><span>Toplam kayıt</span></div><div><b id="crm-open-count">—</b><span>Açık kayıt</span></div><div><b id="crm-newsletter-count">—</b><span>Bülten izinli</span></div><div><b id="crm-adlead-count">—</b><span>Reklam başvurusu</span></div></div>
+  <form id="crm-form" class="admin-form-grid"><label>Ad soyad<input name="displayName" maxlength="120"></label><label>E-posta<input name="email" type="email" required maxlength="254"></label><label>Kayıt türü<select name="contactType"><option value="reader_feedback">Okur geri bildirimi</option><option value="advertising_lead">Reklam talebi</option><option value="correction_request">Düzeltme talebi</option><option value="newsletter">Bülten aboneliği</option></select></label><label class="crm-consent-label" hidden><span><input name="consent" type="checkbox"> Bülten iznini kaydet</span></label><label class="form-wide">Not / başvuru özeti<textarea name="notes" maxlength="5000" rows="3"></textarea></label><button class="primary-action" type="submit">CRM kaydı ekle</button><p id="crm-feedback" class="form-feedback" role="status" aria-live="polite"></p></form>
+  <form id="newsletter-send-form" class="admin-form-grid newsletter-send-form"><div class="form-wide"><span class="section-kicker">BÜLTEN GÖNDERİMİ</span><h4>İzinli abonelere e-posta gönder</h4><p>Güncel bülten izni bulunan en fazla 250 adrese gönderilir. Her iletide güvenli abonelikten ayrılma bağlantısı bulunur.</p></div><label class="form-wide">Konu<input name="subject" required maxlength="180"></label><label class="form-wide">E-posta metni<textarea name="body" required maxlength="20000" rows="5"></textarea></label><button class="primary-action" type="submit">Bülteni gönder</button><p id="newsletter-send-feedback" class="form-feedback" role="status" aria-live="polite"></p></form>
+  <div class="admin-table"><div class="table-heading"><strong>Okur ve talep kuyruğu</strong><div class="crm-filters"><label>Ara<input id="crm-search" type="search" placeholder="Ad, e-posta veya not"></label><label>Tür<select id="crm-type-filter"><option value="all">Tüm türler</option><option value="newsletter">Bülten</option><option value="advertising_lead">Reklam talebi</option><option value="reader_feedback">Geri bildirim</option><option value="correction_request">Düzeltme</option></select></label><label>Durum<select id="crm-status-filter"><option value="all">Tüm durumlar</option><option value="open">Açık</option><option value="in_progress">Takipte</option><option value="resolved">Çözüldü</option><option value="unsubscribed">Ayrıldı</option></select></label></div></div><div id="crm-list" class="admin-managed-list" aria-live="polite"></div></div>
+</div>
+<div class="admin-content hidden" data-panel="kullanicilar" hidden>
+  <div class="panel-intro"><div><span class="section-kicker">ERİŞİM YÖNETİMİ</span><h3>Kullanıcılar ve roller</h3><p>Her kullanıcıya görevine uygun erişim verin. Parolalar hiçbir listede gösterilmez.</p></div></div>
+  <form id="staff-create-form" class="admin-form-grid">
+    <label>Görünen ad<input name="displayName" required maxlength="100" autocomplete="name"></label>
+    <label>E-posta<input name="email" type="email" required autocomplete="email"></label>
+    <label>Rol<select name="role" required><option value="editor_in_chief">Yazı işleri müdürü</option><option value="editor">Editör</option><option value="reporter">Muhabir</option><option value="ad_sales">Reklam satış</option><option value="crm_manager">CRM sorumlusu</option><option value="admin">Yönetici</option></select></label>
+    <label>İlk parola<input name="password" type="password" required minlength="14" maxlength="256" autocomplete="new-password"></label>
+    <button class="primary-action" type="submit">Personel hesabı oluştur</button><p class="form-feedback" id="staff-create-feedback" role="status" aria-live="polite"></p>
+  </form>
+  <div class="admin-table"><div class="table-heading"><strong>Personel erişimleri</strong><button type="button" id="staff-refresh">Listeyi yenile</button></div><div id="staff-list" class="admin-managed-list" aria-live="polite"></div></div>
+</div>
+<div class="admin-content hidden" data-panel="resmi-ilanlar" hidden></div>
+<div class="admin-content hidden" data-panel="burc-film" hidden></div>
+<div class="admin-content hidden" data-panel="hakkimizda-ayarlari" hidden></div>
+<div class="admin-content hidden" data-panel="modul-ayarlari" hidden></div>
+<div class="admin-content hidden" data-panel="tema-ayarlari" hidden></div>
+<div class="admin-content hidden" data-panel="cron-ayarlari" hidden></div>
+<div class="admin-content hidden" data-panel="sosyal-medya" hidden></div>
+<div class="admin-content hidden" data-panel="aktivite" hidden><div class="panel-intro"><div><span class="section-kicker">GÜVENLİK VE ŞEFFAFLIK</span><h3>İşlem geçmişi</h3><p>Yönetim panelinde yapılan son 100 değişiklik. Gizli ayar değerleri bu kayıtta yer almaz.</p></div><button class="secondary-action" id="activity-refresh" type="button">Yenile</button></div><div class="admin-table"><div class="table-heading"><strong>Son işlemler</strong><span>Kullanıcı, kayıt türü ve zaman</span></div><div id="activity-list" class="admin-managed-list" aria-live="polite"></div></div></div>
+<div class="admin-content hidden" data-panel="site-kimligi" hidden>
+  <div class="panel-intro"><div><span class="section-kicker">YAYINCI BİLGİLERİ</span><h3>Site kimliği</h3><p>Logo, slogan, künye ve iletişim bilgilerini güncelle. Kaydettiğinde site sayfalarına uygulanır.</p></div></div>
+  <form id="site-identity-form" class="admin-form-grid">
+    <label class="form-wide">Logo<input id="site-logo-file" type="file" accept="image/jpeg,image/png,image/webp"><small class="form-help">JPG, PNG veya WebP; en fazla 6 MB.</small></label>
+    <img id="site-logo-preview" class="site-logo-preview" alt="Logo önizlemesi" hidden>
+    <label class="form-wide">Slogan<input name="slogan" maxlength="180" placeholder="İstersen boş bırak"></label>
+    <label>Ticaret unvanı<input name="publisher" maxlength="240" required></label><label>Yetkili temsilci<input name="representative" maxlength="140" required></label>
+    <label>Sorumlu yazı işleri müdürü<input name="editorInChief" maxlength="140" required></label><label>Web sitesi<input name="website" type="url" maxlength="240" required></label>
+    <label class="form-wide">Adres<input name="address" maxlength="300" required></label><label>Telefon<input name="phone" maxlength="60" required></label>
+    <label>E-posta adresleri<input name="emails" maxlength="320" placeholder="ornek@site.com, diger@site.com" required><small class="form-help">Birden fazla adresi virgülle ayır.</small></label>
+    <label>UETS<input name="uets" maxlength="80"></label><label>Yer sağlayıcı<input name="hostingProvider" maxlength="180"></label><label>Yer sağlayıcı adresi<input name="hostingAddress" maxlength="300"></label>
+    <label class="form-wide">Alt bilgi bağlantıları<textarea name="corporateLinks" rows="5" maxlength="1000" placeholder="Künye | /kunye&#10;İletişim | /iletisim"></textarea><small class="form-help">Her satıra Görünen ad | /site-yolu biçiminde bir bağlantı yaz.</small></label>
+    <button class="primary-action" type="submit">Site kimliğini kaydet</button><p class="form-feedback" id="site-identity-feedback" role="status" aria-live="polite"></p>
+  </form>
+</div>
+<div class="admin-content hidden" data-panel="ayarlar" hidden>
+  <div class="panel-intro"><div><span class="section-kicker">GİZLİ AYARLAR</span><h3>API ve entegrasyonlar</h3><p>Google hesapları, OAuth bilgileri ve canlı yayın anahtarları şifreli saklanır; kayıtlı değerler ekranda tekrar gösterilmez. Servis bağlantıları uygulama koduna eklendikçe etkinleşir.</p></div></div>
+  <p id="integration-encryption-status" class="integration-notice" role="status"></p>
+  <form id="integration-form" class="admin-form-grid">
+    <label class="form-wide" for="integration-provider">Servis türü<select id="integration-provider" name="provider" aria-describedby="integration-provider-help"><option value="google-ads">Google Ads</option><option value="google-gmail">Google Gmail (bülten gönderimi)</option><option value="google-analytics">Google Analytics 4</option><option value="search-console">Google Search Console</option><option value="youtube-live">YouTube API ve canlı yayın</option><option value="google-other">Diğer Google API</option><option value="live-stream">Diğer canlı yayın sağlayıcısı (RTMP)</option><option value="custom">Özel entegrasyon</option></select></label>
+    <p id="integration-provider-help" class="provider-help form-wide"></p>
+    <div id="integration-fields" class="provider-fields form-wide"></div>
+    <button class="primary-action" type="submit">Girilen bilgileri şifreli kaydet</button><p class="form-feedback" id="integration-feedback" role="status" aria-live="polite"></p>
+  </form>
+  <div class="admin-table"><div class="table-heading"><strong>Kayıtlı entegrasyon bilgileri</strong><button type="button" id="integration-refresh">Listeyi yenile</button></div><div id="integration-list" class="admin-managed-list" aria-live="polite"></div></div>
+</div>
+<div class="admin-content hidden" data-panel="sayfalar" hidden>
+  <p class="form-feedback">Bu modülün arka ucu bir sonraki aşamada bağlanacak.</p>
+  <div class="panel-intro"><div><span class="section-kicker">KURUMSAL İÇERİK</span><h3>Sayfa yönetimi</h3><p>Hakkımızda, künye ve benzeri sabit sayfaları oluşturun; başlık, slug ve içeriklerini düzenleyin.</p></div><button class="primary-action" type="button">Yeni ekle</button></div>
+  <form class="admin-form-grid" onsubmit="return false">
+    <label>Sayfa başlığı<input name="title" maxlength="180"></label>
+    <label>Slug (adres)<input name="slug" maxlength="120" placeholder="ornek-sayfa"></label>
+    <label>Yayın durumu<select name="status"><option value="draft">Taslak</option><option value="published">Yayında</option></select></label>
+    <label class="form-wide">İçerik<textarea name="content" rows="6"></textarea></label>
+    <button class="primary-action" type="button">Sayfayı kaydet</button>
+  </form>
+  <div class="admin-table"><div class="table-heading"><strong>Sayfa listesi</strong><span>Örnek satırlar</span></div>
+    <div class="table-row shell-row"><div><strong>Hakkımızda</strong><small>/hakkimizda</small></div><span class="pill">YAYINDA</span><div class="shell-actions"><button class="secondary-action" type="button">Düzenle</button></div></div>
+  </div>
+</div>
+<div class="admin-content hidden" data-panel="makaleler" hidden>
+  <p class="form-feedback">Bu modülün arka ucu bir sonraki aşamada bağlanacak.</p>
+  <div class="panel-intro"><div><span class="section-kicker">KÖŞE YAZILARI</span><h3>Makale yönetimi</h3><p>Yazar makalelerini taslaktan yayına taşıyın; kategori ve özet bilgilerini yönetin.</p></div><button class="primary-action" type="button">Yeni ekle</button></div>
+  <div class="workflow"><div><b>—</b><span>Taslak</span></div><div><b>—</b><span>Editörde</span></div><div><b>—</b><span>Planlandı</span></div><div><b>—</b><span>Yayında</span></div></div>
+  <form class="admin-form-grid" onsubmit="return false">
+    <label>Makale başlığı<input name="title" maxlength="220"></label>
+    <label>Yazar<input name="author" maxlength="120"></label>
+    <label>Kategori<select name="categoryId"><option value="">Kategori seçin</option><option>Sanat</option><option>Sergi</option><option>Söyleşi</option><option>Tasarım</option></select></label>
+    <label class="form-wide">Özet<textarea name="summary" rows="2" maxlength="500"></textarea></label>
+    <label class="form-wide">İçerik<textarea name="body" rows="6"></textarea></label>
+    <button class="primary-action" type="button">Taslağı kaydet</button>
+  </form>
+  <div class="admin-table"><div class="table-heading"><strong>Makale kuyruğu</strong><span>Örnek satırlar</span></div>
+    <div class="table-row shell-row"><div><strong>Örnek makale başlığı</strong><small>Yazar adı</small></div><span class="pill">TASLAK</span><div class="shell-actions"><button class="secondary-action" type="button">Düzenle</button></div></div>
+  </div>
+</div>
+<div class="admin-content hidden" data-panel="galeriler" hidden>
+  <p class="form-feedback">Bu modülün arka ucu bir sonraki aşamada bağlanacak.</p>
+  <div class="panel-intro"><div><span class="section-kicker">GÖRSEL ARŞİV</span><h3>Galeri yönetimi</h3><p>Galeri başlığı, kategori ve birden fazla görseli tek kayıtta yönetin.</p></div><button class="primary-action" type="button">Yeni ekle</button></div>
+  <form class="admin-form-grid" onsubmit="return false">
+    <label>Galeri başlığı<input name="title" maxlength="180"></label>
+    <label>Kategori<select name="categoryId"><option value="">Kategori seçin</option><option>Sanat</option><option>Sergi</option><option>Söyleşi</option><option>Tasarım</option></select></label>
+    <label class="form-wide">Açıklama<textarea name="description" rows="2" maxlength="1000"></textarea></label>
+    <label class="form-wide">Görseller (birden fazla seçilebilir)<input name="images" type="file" accept="image/jpeg,image/png,image/webp" multiple></label>
+    <button class="primary-action" type="button">Galeriyi kaydet</button>
+  </form>
+  <div class="admin-table"><div class="table-heading"><strong>Galeri listesi</strong><span>Örnek satırlar</span></div>
+    <div class="table-row shell-row"><div><strong>Örnek galeri</strong><small>Sanat · 0 görsel</small></div><span class="pill">YAYINDA</span><div class="shell-actions"><button class="secondary-action" type="button">Düzenle</button></div></div>
+  </div>
+</div>
+<div class="admin-content hidden" data-panel="videolar" hidden>
+  <p class="form-feedback">Bu modülün arka ucu bir sonraki aşamada bağlanacak.</p>
+  <div class="panel-intro"><div><span class="section-kicker">GÖRSEL İÇERİK</span><h3>Video yönetimi</h3><p>YouTube videolarını kategorilere ekleyin ve yayın durumunu takip edin.</p></div><button class="primary-action" type="button">Yeni ekle</button></div>
+  <form class="admin-form-grid" onsubmit="return false">
+    <label>Video başlığı<input name="title" maxlength="180"></label>
+    <label>Kategori<select name="categoryId"><option value="">Kategori seçin</option><option>Sanat</option><option>Sergi</option><option>Söyleşi</option><option>Tasarım</option></select></label>
+    <label class="form-wide">YouTube bağlantısı<input name="youtubeUrl" type="url" maxlength="500" placeholder="https://www.youtube.com/watch?v="></label>
+    <label class="form-wide">Açıklama<textarea name="description" rows="2" maxlength="1000"></textarea></label>
+    <button class="primary-action" type="button">Videoyu kaydet</button>
+  </form>
+  <div class="admin-table"><div class="table-heading"><strong>Video listesi</strong><span>Örnek satırlar</span></div>
+    <div class="table-row shell-row"><div><strong>Örnek video</strong><small>Söyleşi</small></div><span class="pill">TASLAK</span><div class="shell-actions"><button class="secondary-action" type="button">Düzenle</button></div></div>
+  </div>
+</div>
+<div class="admin-content hidden" data-panel="yorumlar" hidden>
+  <p class="form-feedback">Bu modülün arka ucu bir sonraki aşamada bağlanacak.</p>
+  <div class="panel-intro"><div><span class="section-kicker">MODERASYON</span><h3>Yorumlar</h3><p>Okur yorumlarını onaylayın, reddedin veya silin.</p></div></div>
+  <div class="workflow"><div><b>—</b><span>Bekleyen</span></div><div><b>—</b><span>Onaylanan</span></div><div><b>—</b><span>Reddedilen</span></div><div><b>—</b><span>Spam</span></div></div>
+  <div class="admin-table"><div class="table-heading"><strong>Moderasyon kuyruğu</strong><span>Örnek satırlar</span></div>
+    <div class="table-row shell-row"><div><strong>Örnek yorum metni</strong><small>Haber: örnek başlık</small></div><span class="pill">BEKLİYOR</span><div class="shell-actions"><button class="secondary-action" type="button">Onayla</button><button class="secondary-action" type="button">Sil</button></div></div>
+  </div>
+</div>
+<div class="admin-content hidden" data-panel="footer-linkleri" hidden>
+  <p class="form-feedback">Bu modülün arka ucu bir sonraki aşamada bağlanacak.</p>
+  <div class="panel-intro"><div><span class="section-kicker">SİTE ALT BİLGİ</span><h3>Footer linkleri</h3><p>Alt bilgi bağlantılarını kategorilere göre düzenleyin.</p></div><button class="primary-action" type="button">Yeni ekle</button></div>
+  <div class="workflow"><div><b>—</b><span>Kurumsal</span></div><div><b>—</b><span>Yasal</span></div><div><b>—</b><span>Hizmetler</span></div><div><b>—</b><span>Sosyal medya</span></div></div>
+  <form class="admin-form-grid" onsubmit="return false">
+    <label>Kategori<select name="category"><option>Kurumsal</option><option>Yasal</option><option>Hizmetler</option><option>Sosyal medya</option></select></label>
+    <label>Görünen ad<input name="label" maxlength="120"></label>
+    <label class="form-wide">Bağlantı (HTTPS veya /site-yolu)<input name="url" maxlength="500" placeholder="/iletisim"></label>
+    <button class="primary-action" type="button">Bağlantıyı ekle</button>
+  </form>
+  <div class="admin-table"><div class="table-heading"><strong>Bağlantı listesi</strong><span>Örnek satırlar</span></div>
+    <div class="table-row shell-row"><div><strong>İletişim</strong><small>Kurumsal · /iletisim</small></div><span class="pill">AKTİF</span><div class="shell-actions"><button class="secondary-action" type="button">Düzenle</button></div></div>
+  </div>
+</div>
+<div class="admin-content hidden" data-panel="botlar" hidden>
+  <p class="form-feedback">Bu modülün arka ucu bir sonraki aşamada bağlanacak.</p>
+  <div class="panel-intro"><div><span class="section-kicker">OTOMATİK İÇERİK</span><h3>İçerik botları</h3><p>Ajans haber akışlarını RSS adresiyle tanımlayın ve her botu aktif ya da pasif yapın.</p></div><button class="primary-action" type="button">Yeni bot ekle</button></div>
+  <form class="admin-form-grid" onsubmit="return false">
+    <label>Ajans<select name="agency"><option>Anka</option><option>DHA</option><option>Hibya</option><option>IGF</option><option>İHA</option><option>İlke</option></select></label>
+    <label>Durum<select name="active"><option value="false">Pasif</option><option value="true">Aktif</option></select></label>
+    <label class="form-wide">RSS adresi (HTTPS)<input name="rssUrl" type="url" maxlength="500" placeholder="https://"></label>
+    <button class="primary-action" type="button">Botu kaydet</button>
+  </form>
+  <div class="admin-table"><div class="table-heading"><strong>Ajans botları</strong><span>Örnek satırlar</span></div>
+    <div class="table-row shell-row"><div><strong>Anka</strong><small>RSS adresi arka uçta tanımlanacak</small></div><span class="pill">PASİF</span><div class="shell-actions"><button class="secondary-action" type="button">Aktif et</button></div></div>
+    <div class="table-row shell-row"><div><strong>DHA</strong><small>RSS adresi arka uçta tanımlanacak</small></div><span class="pill">PASİF</span><div class="shell-actions"><button class="secondary-action" type="button">Aktif et</button></div></div>
+    <div class="table-row shell-row"><div><strong>Hibya</strong><small>RSS adresi arka uçta tanımlanacak</small></div><span class="pill">PASİF</span><div class="shell-actions"><button class="secondary-action" type="button">Aktif et</button></div></div>
+    <div class="table-row shell-row"><div><strong>IGF</strong><small>RSS adresi arka uçta tanımlanacak</small></div><span class="pill">PASİF</span><div class="shell-actions"><button class="secondary-action" type="button">Aktif et</button></div></div>
+    <div class="table-row shell-row"><div><strong>İHA</strong><small>RSS adresi arka uçta tanımlanacak</small></div><span class="pill">PASİF</span><div class="shell-actions"><button class="secondary-action" type="button">Aktif et</button></div></div>
+    <div class="table-row shell-row"><div><strong>İlke</strong><small>RSS adresi arka uçta tanımlanacak</small></div><span class="pill">PASİF</span><div class="shell-actions"><button class="secondary-action" type="button">Aktif et</button></div></div>
+  </div>
+</div>
+<div class="admin-content hidden" data-panel="anketler" hidden>
+  <p class="form-feedback">Bu modülün arka ucu bir sonraki aşamada bağlanacak.</p>
+  <div class="panel-intro"><div><span class="section-kicker">OKUR GERİ BİLDİRİMİ</span><h3>Anketler</h3><p>Soru ve seçenekleri tanımlayın; anketin yayın durumunu takip edin.</p></div><button class="primary-action" type="button">Yeni anket</button></div>
+  <form class="admin-form-grid" onsubmit="return false">
+    <label class="form-wide">Soru<input name="question" maxlength="280"></label>
+    <label>Seçenek 1<input name="option1" maxlength="160"></label>
+    <label>Seçenek 2<input name="option2" maxlength="160"></label>
+    <label>Seçenek 3<input name="option3" maxlength="160"></label>
+    <label>Seçenek 4<input name="option4" maxlength="160"></label>
+    <button class="primary-action" type="button">Anketi kaydet</button>
+  </form>
+  <div class="admin-table"><div class="table-heading"><strong>Anket listesi</strong><span>Örnek satırlar</span></div>
+    <div class="table-row shell-row"><div><strong>Örnek anket sorusu</strong><small>Oy sayısı: —</small></div><span class="pill">YAYINDA</span><div class="shell-actions"><button class="secondary-action" type="button">Düzenle</button></div></div>
+  </div>
+</div>
+<div class="admin-content hidden" data-panel="ziyaretci-haberleri" hidden>
+  <p class="form-feedback">Bu modülün arka ucu bir sonraki aşamada bağlanacak.</p>
+  <div class="panel-intro"><div><span class="section-kicker">BAŞVURU KUYRUĞU</span><h3>Ziyaretçi haberleri</h3><p>Okurların gönderdiği haber başvurularını inceleyin, onaylayın veya reddedin.</p></div></div>
+  <div class="workflow"><div><b>—</b><span>Bekleyen</span></div><div><b>—</b><span>İncelemede</span></div><div><b>—</b><span>Yayınlanan</span></div><div><b>—</b><span>Reddedilen</span></div></div>
+  <div class="admin-table"><div class="table-heading"><strong>Başvuru kuyruğu</strong><span>Örnek satırlar</span></div>
+    <div class="table-row shell-row"><div><strong>Örnek başvuru başlığı</strong><small>Gönderen: okur adı</small></div><span class="pill">BEKLİYOR</span><div class="shell-actions"><button class="secondary-action" type="button">Onayla</button><button class="secondary-action" type="button">Reddet</button></div></div>
+  </div>
+</div></section>
+  </main>
+  <dialog class="article-dialog" id="article-dialog" aria-labelledby="article-dialog-title">
+    <form id="article-form" novalidate>
+      <div class="dialog-heading"><div><span class="section-kicker">YENİ İÇERİK</span><h2 id="article-dialog-title">Haber taslağı</h2></div><button type="button" class="dialog-close" data-close-dialog aria-label="Pencereyi kapat">Kapat</button></div>
+      <label for="article-headline">Başlık</label><input id="article-headline" name="headline" required minlength="8" maxlength="220" autocomplete="off">
+      <label for="article-standfirst">Spot</label><textarea id="article-standfirst" name="standfirst" maxlength="500" rows="2"></textarea>
+      <label for="article-category">Kategori</label><select id="article-category" name="categoryId"><option value="">Kategori seçin</option></select>
+      <label for="article-extra-categories">Ek kategoriler <span class="form-help">Bir haber birden fazla kategoriye bağlanabilir.</span></label><select id="article-extra-categories" name="categoryIds" multiple size="4" aria-describedby="article-category-help"></select><small id="article-category-help" class="form-help">Ana kategoriyi yukarıdan seçin; ek kategoriler için Ctrl veya ⌘ tuşuyla birden fazla seçim yapabilirsiniz.</small>
+      <label for="article-tags">Etiketler</label><input id="article-tags" name="tags" maxlength="600" placeholder="Örn. Antalya, belediye, ulaşım"><small class="form-help">Etiketleri virgülle ayırın; en fazla 10 etiket.</small>
+      <label for="article-cover">Kapak görseli</label><input id="article-cover" type="file" accept="image/jpeg,image/png,image/webp"><input id="article-cover-id" name="coverMediaId" type="hidden">
+      <div id="article-cover-preview" class="cover-preview" hidden><img id="article-cover-image" alt="Kapak görseli önizlemesi"><div><strong id="article-cover-name"></strong><button class="secondary-action" id="article-cover-remove" type="button">Görseli kaldır</button></div></div>
+      <p id="article-cover-status" class="cover-status" role="status" aria-live="polite"></p>
+      <label for="article-cover-alt">Görsel açıklaması</label><input id="article-cover-alt" name="coverAltText" maxlength="240" placeholder="Ekran okuyucu için kısa görsel tarifi">
+      <label for="article-body">Haber metni</label><textarea id="article-body" name="body" maxlength="50000" rows="8"></textarea>
+      <fieldset class="article-editor-options"><legend>Yayın yeri ve zamanı</legend>
+        <label for="article-slider-slot">Ana sayfa manşet alanı</label><select id="article-slider-slot" name="homepageSliderSlot"><option value="auto">Otomatik sırala</option><option value="main">Büyük manşet sliderı</option><option value="side_top">Sağ üst slider</option><option value="side_bottom">Sağ alt slider</option><option value="none">Sliderda gösterme</option></select>
+        <label class="article-check-option"><input type="checkbox" name="isBreaking"> Son dakika bandında göster</label>
+        <label class="article-check-option"><input type="checkbox" name="isInBriefing" checked> Günün Özeti’nde göster</label>
+        <label class="article-check-option"><input type="checkbox" name="isInLatest" checked> Günün seçkisinde göster</label>
+        <label for="article-scheduled-at">Planlanan yayın tarihi ve saati</label><input id="article-scheduled-at" name="scheduledAt" type="datetime-local"><small class="form-help">Planla düğmesi yalnızca yayın yetkisi olan editörlerde görünür.</small>
+      </fieldset>
+      <details id="article-editor-seo" class="article-editor-seo"><summary>Kaynak ve arama motoru ayarları</summary>
+        <label for="article-source-name">Kaynak adı</label><input id="article-source-name" name="sourceName" maxlength="180">
+        <label for="article-source-url">Kaynak bağlantısı</label><input id="article-source-url" name="sourceUrl" type="url" maxlength="1000" placeholder="https://">
+        <label for="article-seo-title">SEO başlığı</label><input id="article-seo-title" name="seoTitle" maxlength="220">
+        <label for="article-seo-description">SEO açıklaması</label><textarea id="article-seo-description" name="seoDescription" maxlength="320" rows="3"></textarea>
+      </details>
+      <section id="article-history" class="revision-history" aria-label="Haber sürüm geçmişi" hidden><h3>Sürüm geçmişi</h3><ol></ol></section>
+      <p class="dialog-error" id="article-error" role="alert" aria-live="polite"></p>
+      <div class="dialog-actions"><button class="secondary-action" type="button" data-close-dialog>Vazgeç</button><button class="primary-action" type="submit" name="status" value="draft">Taslağı kaydet</button><button class="primary-action" type="submit" name="status" value="in_review">Editöre gönder</button><button class="primary-action" type="submit" name="status" value="scheduled" hidden>Planla</button></div>
+    </form>
+  </dialog>
+  <footer class="dashboard-footer"><div class="shell footer-bottom"><span>© 2026 Art World TV</span><a href="/">Haber sitesine dön →</a></div></footer>
+  <div class="toast" role="status" aria-live="polite"></div><script src="app.js"></script><script src="admin-dashboard.js" defer></script><script src="admin-shell.js" defer></script><script src="admin-columns.js" defer></script><script src="admin-galleries.js" defer></script><script src="admin-videos.js" defer></script><script src="admin-comments.js" defer></script><script src="admin-polls.js" defer></script><script src="admin-sayfalar.js" defer></script><script src="admin-footer.js" defer></script><script src="admin-visitor.js" defer></script><script src="admin-bots.js" defer></script><script src="admin-announcements.js" defer></script><script src="admin-burc-film.js" defer></script><script src="admin-settings-ext.js" defer></script><script src="admin-user-reset.js" defer></script>
+</body>
+</html>

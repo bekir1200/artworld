@@ -1,0 +1,6 @@
+/* BSX ana sayfasında BİK reklam alanı (renderAdSlot çıktısı). */
+.bsx-ad .ad-slot{position:relative;display:block;background:var(--bsx-card,#fff);padding:8px;text-align:center}
+.bsx-ad .ad-slot > span{display:block;font-size:10px;letter-spacing:.12em;color:var(--bsx-muted,#6b7280);margin-bottom:4px}
+.bsx-ad .ad-slot a{display:block;color:inherit;text-decoration:none}
+.bsx-ad .ad-slot picture,.bsx-ad .ad-slot img{display:block;max-width:100%;height:auto;margin:0 auto}
+.bsx-ad .ad-slot b,.bsx-ad .ad-slot i,.bsx-ad .ad-slot small{display:none}

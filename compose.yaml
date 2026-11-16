@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-artworldtv}
+      POSTGRES_USER: ${POSTGRES_USER:-artworld}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    ports:
+      - "${POSTGRES_PORT:-5433}:5432"
+    volumes:
+      - artworld_postgres:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-artworld} -d ${POSTGRES_DB:-artworldtv}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  artworld_postgres:

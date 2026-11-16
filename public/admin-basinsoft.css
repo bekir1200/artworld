@@ -1,0 +1,924 @@
+/* Yönetim paneli - Basınsoft admin görünümü.
+   yonetim.html içinde admin-shell.css ve admin-dashboard.css'ten SONRA yüklenmelidir.
+   Yalnızca görsel katman: markup, JS ve davranış (accordion, mobil overlay) değişmez.
+   Tasarım: Poppins, açık gri zemin (#f1f5f9), koyu lacivert sol sidebar (#1e293b),
+   beyaz kartlar (radius 10px, yumuşak gölge), renkli istatistik kartları. */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+/* ---------- Jetonlar ---------- */
+:root {
+  --bs-bg: #f1f5f9;
+  --bs-card: #ffffff;
+  --bs-side: #1e293b;
+  --bs-side-hover: #273549;
+  --bs-side-active: #334155;
+  --bs-side-text: #cbd5e1;
+  --bs-ink: #1f2937;
+  --bs-ink-strong: #1e293b;
+  --bs-muted: #6b7280;
+  --bs-line: #e5e7eb;
+  --bs-red: #e02424;
+  --bs-red-deep: #c81e1e;
+  --bs-blue: #2563eb;
+  --bs-blue-deep: #1d4ed8;
+  --bs-green: #16a34a;
+  --bs-teal: #0d9488;
+  --bs-amber: #f59e0b;
+  --bs-indigo: #4f46e5;
+  --bs-shadow: 0 1px 3px rgba(15, 23, 42, .08), 0 4px 14px rgba(15, 23, 42, .05);
+  --bs-radius: 10px;
+}
+
+/* ---------- Genel zemin ve font ---------- */
+html,
+body {
+  background: var(--bs-bg) !important;
+  color: var(--bs-ink) !important;
+}
+body,
+.dashboard-header,
+.dashboard-page,
+.dashboard-page *,
+.dashboard-footer,
+.toast,
+.article-dialog {
+  font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif !important;
+}
+.dashboard-page {
+  padding-top: 1.25rem;
+  padding-bottom: 2rem;
+}
+
+/* ---------- Üst bar ---------- */
+.dashboard-header {
+  background: var(--bs-card) !important;
+  border-bottom: 1px solid var(--bs-line) !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, .06);
+  color: var(--bs-ink) !important;
+}
+.dashboard-header .brand img {
+  max-height: 2.75rem;
+  width: auto;
+}
+.admin-account {
+  color: var(--bs-muted);
+  font-size: 13px;
+}
+.admin-account .login-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.4rem;
+  padding: .5rem .9rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  text-decoration: none;
+  cursor: pointer;
+  border: 1px solid var(--bs-line) !important;
+  background: var(--bs-card) !important;
+  color: var(--bs-ink) !important;
+}
+.admin-account .login-link:hover {
+  border-color: #cbd5e1 !important;
+  background: #f8fafc !important;
+}
+.admin-account #logout-button {
+  background: var(--bs-red) !important;
+  border-color: var(--bs-red) !important;
+  color: #fff !important;
+}
+.admin-account #logout-button:hover {
+  background: var(--bs-red-deep) !important;
+  border-color: var(--bs-red-deep) !important;
+}
+.admin-account .login-link:focus-visible,
+.admin-account button:focus-visible {
+  outline: 3px solid rgba(224, 36, 36, .3);
+  outline-offset: 2px;
+}
+
+/* ---------- Başlık ---------- */
+.admin-layout > .admin-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem 1rem;
+  padding-bottom: .25rem;
+}
+.admin-layout > .admin-title h2 {
+  font-family: 'Poppins', sans-serif !important;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--bs-ink-strong);
+  letter-spacing: -.01em;
+}
+.admin-layout > .admin-title p {
+  color: var(--bs-muted);
+  font-size: 14px;
+}
+.admin-layout .section-kicker,
+.admin-content .section-kicker,
+.dash-card .section-kicker {
+  display: inline-block;
+  color: var(--bs-red) !important;
+  font-size: 11px !important;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.admin-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  padding: .35rem .75rem;
+  border-radius: 999px;
+  background: #fef2f2;
+  color: var(--bs-red) !important;
+  border: 1px solid #fecaca;
+  font-size: 11px !important;
+  font-weight: 700;
+  letter-spacing: .04em;
+}
+.admin-badge i {
+  width: .45rem;
+  height: .45rem;
+  border-radius: 50%;
+  background: var(--bs-red);
+  display: inline-block;
+}
+
+/* ---------- Sol sidebar (koyu lacivert) ---------- */
+.admin-layout .admin-sidebar {
+  background: var(--bs-side) !important;
+  border: 0 !important;
+  border-radius: var(--bs-radius) !important;
+  box-shadow: var(--bs-shadow);
+  padding: .9rem .65rem !important;
+  color: var(--bs-side-text);
+}
+/* Üstte marka başlığı (logo header'da; burada yazılı ad) */
+.admin-layout .admin-sidebar::before {
+  content: "Art World TV";
+  display: block;
+  margin: .1rem .35rem .85rem;
+  padding-bottom: .8rem;
+  border-bottom: 1px solid rgba(148, 163, 184, .25);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: .02em;
+}
+.admin-layout .admin-sidebar .admin-tab,
+.admin-layout .admin-group-toggle {
+  color: var(--bs-side-text) !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-left: 4px solid transparent !important;
+  border-radius: 6px !important;
+  font-family: 'Poppins', sans-serif !important;
+  font-weight: 500 !important;
+  font-size: 13.5px !important;
+  letter-spacing: 0;
+  box-shadow: none !important;
+}
+.admin-layout .admin-group-toggle {
+  justify-content: flex-start !important;
+  min-height: 2.9rem !important;
+  padding: .6rem .8rem !important;
+}
+/* Grup başlığı ikonu (saf CSS) */
+.admin-layout .admin-group-toggle::before {
+  content: "";
+  flex: 0 0 auto;
+  width: .55rem;
+  height: .55rem;
+  border-radius: 2px;
+  background: currentColor;
+  opacity: .7;
+  margin-right: .65rem;
+}
+/* Chevron sağa itilir */
+.admin-layout .admin-group-toggle::after {
+  margin-left: auto !important;
+  margin-right: .1rem !important;
+  border-color: #94a3b8 !important;
+}
+.admin-layout .admin-group-toggle[aria-expanded="true"]::after {
+  border-color: #fff !important;
+}
+.admin-layout .admin-sidebar .admin-tab:hover,
+.admin-layout .admin-group-toggle:hover {
+  background: var(--bs-side-hover) !important;
+  color: #fff !important;
+  border-left-color: rgba(224, 36, 36, .55) !important;
+}
+.admin-layout .admin-group-toggle[aria-expanded="true"] {
+  color: #fff !important;
+}
+.admin-layout .admin-group-items {
+  margin: .15rem 0 .4rem .9rem !important;
+  padding-left: .55rem !important;
+  border-left: 1px solid rgba(148, 163, 184, .3) !important;
+}
+.admin-layout .admin-sidebar .admin-group-items .admin-tab {
+  font-size: 12.5px !important;
+  font-weight: 400 !important;
+  min-height: 2.5rem !important;
+}
+/* Aktif öğe: koyu zemin, beyaz metin, kırmızı şerit */
+.admin-layout .admin-sidebar .admin-tab.selected {
+  background: var(--bs-side-active) !important;
+  color: #fff !important;
+  font-weight: 600 !important;
+  border-left-color: var(--bs-red) !important;
+  box-shadow: none !important;
+}
+.admin-layout .admin-sidebar .admin-tab:focus-visible,
+.admin-layout .admin-group-toggle:focus-visible {
+  outline: 2px solid rgba(96, 165, 250, .6) !important;
+  outline-offset: 1px;
+}
+
+/* ---------- Ana içerik: beyaz kartlar ---------- */
+.admin-layout > .admin-content > .panel-intro,
+.admin-layout > .admin-content > .admin-table,
+.admin-layout > .admin-content > .admin-form-grid,
+.admin-layout > .admin-content > .workflow,
+.admin-layout > .admin-content > .ad-report,
+.admin-layout > .admin-content > section,
+.admin-layout > .admin-content > form,
+.admin-layout > .admin-content > .dash-card {
+  background: var(--bs-card) !important;
+  border: 1px solid var(--bs-line) !important;
+  border-radius: var(--bs-radius) !important;
+  box-shadow: var(--bs-shadow) !important;
+  color: var(--bs-ink);
+}
+.panel-intro {
+  padding: 1.25rem 1.35rem !important;
+  align-items: center;
+}
+.panel-intro h3,
+.dash-card h3,
+.dash-card h4 {
+  font-family: 'Poppins', sans-serif !important;
+  color: var(--bs-ink-strong) !important;
+}
+.panel-intro h3 {
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  margin: .2rem 0 .25rem !important;
+}
+.panel-intro p {
+  color: var(--bs-muted);
+  font-size: 13.5px;
+  margin: 0;
+}
+.admin-layout > .admin-content > .admin-table {
+  overflow: hidden;
+  padding: 0 !important;
+}
+.admin-table .table-heading {
+  background: #f8fafc !important;
+  border-bottom: 1px solid var(--bs-line) !important;
+  padding: .85rem 1.15rem !important;
+  color: var(--bs-ink-strong);
+}
+.admin-table .table-heading strong {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: var(--bs-ink-strong);
+}
+.admin-table .table-heading > span,
+.admin-table .table-heading .managed-summary {
+  color: var(--bs-muted) !important;
+  font-size: 12px !important;
+}
+.table-row {
+  border-bottom: 1px solid #eef2f7 !important;
+  padding-inline: 1.15rem !important;
+  color: var(--bs-ink);
+  transition: background .12s ease;
+}
+.table-row:last-child {
+  border-bottom: 0 !important;
+}
+.table-row:hover {
+  background: #f8fafc !important;
+}
+.table-row small,
+.table-row time {
+  color: var(--bs-muted) !important;
+}
+.table-row strong {
+  font-weight: 600;
+}
+
+/* Durum noktaları */
+.status-dot {
+  background: #cbd5e1 !important;
+  box-shadow: 0 0 0 3px rgba(203, 213, 225, .3);
+}
+.status-dot.published,
+.status-dot.live { background: var(--bs-green) !important; box-shadow: 0 0 0 3px rgba(22, 163, 74, .18); }
+.status-dot.review { background: var(--bs-amber) !important; box-shadow: 0 0 0 3px rgba(245, 158, 11, .2); }
+.status-dot.draft { background: #9ca3af !important; box-shadow: 0 0 0 3px rgba(156, 163, 175, .2); }
+.status-dot.spam,
+.status-dot.rejected { background: var(--bs-red) !important; box-shadow: 0 0 0 3px rgba(224, 36, 36, .18); }
+
+/* ---------- Durum rozetleri (.pill) ---------- */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: .3rem .6rem !important;
+  border-radius: 999px;
+  font-size: 10.5px !important;
+  font-weight: 600 !important;
+  letter-spacing: .04em !important;
+  line-height: 1.2;
+  white-space: nowrap;
+  background: #f1f5f9 !important;
+  color: #475569 !important;
+  border: 1px solid #e2e8f0 !important;
+}
+.pill.live-pill,
+.pill.published-pill,
+.pill.yayinda,
+.pill.active-pill {
+  background: #dcfce7 !important;
+  color: #15803d !important;
+  border-color: #bbf7d0 !important;
+}
+.pill.review-pill,
+.pill.in-review-pill {
+  background: #ffedd5 !important;
+  color: #c2410c !important;
+  border-color: #fed7aa !important;
+}
+.pill.draft-pill {
+  background: #f1f5f9 !important;
+  color: #475569 !important;
+  border-color: #e2e8f0 !important;
+}
+.pill.spam-pill,
+.pill.rejected-pill,
+.pill.danger-pill {
+  background: #fee2e2 !important;
+  color: #b91c1c !important;
+  border-color: #fecaca !important;
+}
+
+/* ---------- Butonlar ---------- */
+.primary-action,
+.admin-content .primary-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.6rem;
+  padding: .55rem 1.1rem !important;
+  border: 1px solid var(--bs-blue) !important;
+  border-radius: 8px !important;
+  background: var(--bs-blue) !important;
+  color: #fff !important;
+  font-family: 'Poppins', sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(37, 99, 235, .25);
+  transition: background .15s ease, border-color .15s ease;
+}
+.primary-action:hover {
+  background: var(--bs-blue-deep) !important;
+  border-color: var(--bs-blue-deep) !important;
+}
+.secondary-action,
+.admin-content .secondary-action,
+.table-heading button,
+.dash-quick button {
+  font-family: 'Poppins', sans-serif !important;
+}
+.secondary-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.5rem;
+  padding: .5rem .95rem !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 8px !important;
+  background: var(--bs-card) !important;
+  color: var(--bs-ink) !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  cursor: pointer;
+  transition: background .15s ease, border-color .15s ease, color .15s ease;
+}
+.secondary-action:hover {
+  background: #f8fafc !important;
+  border-color: #9ca3af !important;
+}
+.table-heading button {
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: var(--bs-card);
+  color: var(--bs-ink);
+  font-size: 12px;
+  font-weight: 500;
+  padding: .4rem .75rem;
+  cursor: pointer;
+}
+.table-heading button:hover {
+  border-color: var(--bs-red);
+  color: var(--bs-red);
+}
+button:focus-visible,
+a:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, .3);
+  outline-offset: 2px;
+}
+
+/* ---------- Formlar ---------- */
+.admin-form-grid {
+  gap: .9rem 1rem !important;
+  padding: 1.25rem !important;
+  font-family: 'Poppins', sans-serif;
+}
+.admin-form-grid label {
+  color: var(--bs-ink);
+  font-size: 12.5px;
+  font-weight: 500;
+}
+.admin-form-grid input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+.admin-form-grid select,
+.admin-form-grid textarea,
+.crm-filters input,
+.crm-filters select,
+.table-filter select,
+.ad-report-filters input,
+.ad-report-filters select,
+.admin-content input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]),
+.admin-content select,
+.admin-content textarea {
+  width: 100%;
+  min-height: 2.6rem;
+  padding: .5rem .75rem;
+  border: 1px solid #d1d5db !important;
+  border-radius: 8px !important;
+  background: var(--bs-card) !important;
+  color: var(--bs-ink) !important;
+  font-family: 'Poppins', sans-serif !important;
+  font-size: 13px !important;
+  box-sizing: border-box;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.admin-form-grid textarea,
+.admin-content textarea {
+  min-height: 0;
+  line-height: 1.5;
+}
+.admin-form-grid input:focus,
+.admin-form-grid select:focus,
+.admin-form-grid textarea:focus,
+.admin-content input:focus,
+.admin-content select:focus,
+.admin-content textarea:focus {
+  outline: none !important;
+  border-color: var(--bs-red) !important;
+  box-shadow: 0 0 0 3px rgba(224, 36, 36, .15) !important;
+}
+.admin-content input[type="search"] {
+  min-width: 12rem;
+}
+.form-feedback {
+  color: var(--bs-muted) !important;
+  font-size: 12.5px;
+}
+.form-help,
+.provider-help {
+  color: var(--bs-muted) !important;
+  font-size: 11.5px !important;
+}
+
+/* ---------- İstatistik kartları (renkli sol kenar + ikon) ---------- */
+.dash-metrics .metric,
+.metric {
+  --bs-c: var(--bs-blue);
+  position: relative;
+  overflow: hidden;
+  background: var(--bs-card) !important;
+  border: 1px solid var(--bs-line) !important;
+  border-left: 4px solid var(--bs-c) !important;
+  border-radius: var(--bs-radius) !important;
+  box-shadow: var(--bs-shadow) !important;
+  padding: 1.1rem 1.2rem !important;
+  color: var(--bs-ink);
+}
+.metric::after {
+  content: "";
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--bs-c) 14%, #fff);
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--bs-c) 35%, #fff);
+}
+.metric > span {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--bs-muted);
+  padding-right: 3rem;
+}
+.metric > strong {
+  font-family: 'Poppins', sans-serif !important;
+  font-size: 30px !important;
+  font-weight: 700 !important;
+  line-height: 1.15 !important;
+  color: var(--bs-ink-strong) !important;
+  font-variant-numeric: tabular-nums;
+}
+.metric > small {
+  font-size: 12px;
+  color: var(--bs-muted);
+}
+.metric > small b {
+  color: var(--bs-green);
+  font-weight: 600;
+}
+.dash-metrics .metric:nth-child(4n+1),
+.workflow > div:nth-child(4n+1) { --bs-c: var(--bs-green); }
+.dash-metrics .metric:nth-child(4n+2),
+.workflow > div:nth-child(4n+2) { --bs-c: var(--bs-teal); }
+.dash-metrics .metric:nth-child(4n+3),
+.workflow > div:nth-child(4n+3) { --bs-c: var(--bs-amber); }
+.dash-metrics .metric:nth-child(4n+4),
+.workflow > div:nth-child(4n+4) { --bs-c: var(--bs-blue); }
+
+/* Sayaç şeridi (.workflow) */
+.workflow {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0 !important;
+  padding: 0 !important;
+  overflow: hidden;
+}
+.workflow > div {
+  display: grid;
+  gap: .15rem;
+  padding: 1rem 1.1rem;
+  background: color-mix(in srgb, var(--bs-c) 9%, #fff);
+  border-left: 4px solid var(--bs-c);
+  min-width: 0;
+}
+.workflow > div b {
+  font-family: 'Poppins', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--bs-c);
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+}
+.workflow > div span {
+  font-size: 12px;
+  color: var(--bs-ink);
+  font-weight: 500;
+}
+
+/* Ziyaretçi ve sayaç kartları */
+.dash-visit,
+.dash-counter {
+  background: #f8fafc !important;
+  border: 1px solid var(--bs-line) !important;
+  border-left: 4px solid var(--bs-c, var(--bs-blue)) !important;
+  border-radius: 8px !important;
+}
+.dash-visits > .dash-visit:nth-child(4n+1),
+.dash-counters > .dash-counter:nth-child(4n+1) { --bs-c: var(--bs-green); }
+.dash-visits > .dash-visit:nth-child(4n+2),
+.dash-counters > .dash-counter:nth-child(4n+2) { --bs-c: var(--bs-teal); }
+.dash-visits > .dash-visit:nth-child(4n+3),
+.dash-counters > .dash-counter:nth-child(4n+3) { --bs-c: var(--bs-amber); }
+.dash-visits > .dash-visit:nth-child(4n+4),
+.dash-counters > .dash-counter:nth-child(4n+4) { --bs-c: var(--bs-blue); }
+.dash-visit strong,
+.dash-counter strong,
+.dash-weather-now strong {
+  font-family: 'Poppins', sans-serif !important;
+  font-weight: 700 !important;
+  color: var(--bs-ink-strong) !important;
+}
+.dash-visit small b,
+.dash-visit small { color: var(--bs-muted) !important; }
+
+/* ---------- Dashboard kartları ---------- */
+.dash-card {
+  padding: 1.15rem 1.25rem !important;
+  color: var(--bs-ink) !important;
+}
+.dash-card h4 {
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  margin-bottom: .9rem !important;
+}
+.dash-card h4 small {
+  font-size: 11.5px !important;
+  font-weight: 400 !important;
+  color: var(--bs-muted) !important;
+}
+/* Hoşgeldin kartı: beyaz, kırmızı sol şerit */
+.dash-hero {
+  background: var(--bs-card) !important;
+  border-left: 4px solid var(--bs-red) !important;
+  color: var(--bs-ink) !important;
+}
+.dash-hero h3 {
+  font-family: 'Poppins', sans-serif !important;
+  font-size: 21px !important;
+  font-weight: 600 !important;
+  color: var(--bs-ink-strong) !important;
+}
+.dash-hero p,
+.dash-hero-meta {
+  color: var(--bs-muted) !important;
+}
+.dash-clock {
+  color: var(--bs-red) !important;
+  font-family: 'Poppins', sans-serif !important;
+}
+.dash-bars {
+  border-bottom: 1px solid var(--bs-line) !important;
+}
+.dash-bar {
+  background: linear-gradient(to top, var(--bs-blue-deep), #60a5fa) !important;
+  border-radius: 4px 4px 0 0 !important;
+}
+.dash-bar-labels {
+  color: var(--bs-muted) !important;
+}
+.dash-list li {
+  border-bottom-color: #eef2f7 !important;
+}
+.dash-list .dash-value {
+  color: var(--bs-ink-strong) !important;
+}
+.dash-up { color: var(--bs-green) !important; }
+.dash-down { color: var(--bs-red) !important; }
+.dash-next {
+  background: #f8fafc !important;
+  border-radius: 8px !important;
+}
+.dash-next span:first-child {
+  color: var(--bs-red) !important;
+}
+
+/* Hızlı ekleme düğmeleri */
+.dash-quick button {
+  background: var(--bs-card) !important;
+  border: 1px solid var(--bs-line) !important;
+  border-radius: 8px !important;
+  color: var(--bs-ink) !important;
+  font-weight: 500 !important;
+}
+.dash-quick button:hover,
+.dash-quick button:focus-visible {
+  border-color: var(--bs-red) !important;
+  color: var(--bs-red) !important;
+}
+.dash-quick button > span {
+  background: var(--bs-red) !important;
+}
+.dash-logs,
+.dash-logs * {
+  font-family: 'Poppins', sans-serif;
+}
+
+/* ---------- Footer ---------- */
+.dashboard-footer {
+  background: var(--bs-side) !important;
+  color: #94a3b8 !important;
+  margin-top: 1rem;
+  padding: 1rem 0 !important;
+  font-size: 12.5px;
+}
+.dashboard-footer a {
+  color: #cbd5e1 !important;
+  text-decoration: none;
+}
+.dashboard-footer a:hover {
+  color: #fff !important;
+}
+.dashboard-footer .footer-bottom {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: .5rem 1rem;
+}
+
+/* ---------- Mobil navigasyon düğmesi (overlay davranışı korunur) ---------- */
+@media (max-width: 900px) {
+  .admin-layout .admin-nav-toggle {
+    background: var(--bs-side) !important;
+    border: 1px solid var(--bs-side) !important;
+    color: #fff !important;
+    border-radius: 8px !important;
+    font-family: 'Poppins', sans-serif !important;
+    font-weight: 600 !important;
+    box-shadow: var(--bs-shadow);
+  }
+  .admin-layout .admin-nav-toggle:focus-visible {
+    outline-color: rgba(96, 165, 250, .6) !important;
+  }
+  .admin-nav-toggle-bars {
+    border-color: #fff !important;
+  }
+  .admin-layout .admin-sidebar {
+    background: var(--bs-side) !important;
+    border-radius: 0 !important;
+    box-shadow: 8px 0 24px rgba(15, 23, 42, .25) !important;
+    width: min(19rem, 86vw);
+  }
+  .admin-layout.is-nav-open::before {
+    background: rgba(15, 23, 42, .5) !important;
+  }
+  .admin-layout .admin-sidebar .admin-tab {
+    font-size: 14px !important;
+  }
+  .admin-layout .admin-sidebar .admin-tab.selected {
+    border-left-color: var(--bs-red) !important;
+  }
+  .admin-layout > .admin-content > .workflow {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  .panel-intro {
+    flex-direction: column;
+    align-items: flex-start !important;
+  }
+}
+
+/* ---------- Dar ekranlar ---------- */
+@media (max-width: 680px) {
+  .dashboard-page {
+    padding-inline: 16px;
+    overflow-x: hidden;
+  }
+  .dashboard-header {
+    flex-wrap: wrap;
+    gap: .6rem;
+  }
+  .admin-account {
+    flex-wrap: wrap;
+  }
+  .admin-layout > .admin-title h2 {
+    font-size: 22px;
+  }
+  .metric > strong {
+    font-size: 26px !important;
+  }
+  .workflow > div b {
+    font-size: 19px;
+  }
+  .workflow > div {
+    padding: .8rem .85rem;
+  }
+  .admin-table .table-heading {
+    flex-wrap: wrap;
+    gap: .5rem;
+  }
+  .admin-content input[type="search"] {
+    min-width: 0;
+    width: 100%;
+  }
+  .table-row {
+    padding-inline: .9rem !important;
+  }
+  .dash-hero {
+    flex-direction: column;
+    align-items: flex-start !important;
+  }
+}
+
+/* Çok dar ekranlarda sayaç şeridi tek kolon */
+@media (max-width: 420px) {
+  .workflow {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  .workflow > div + div {
+    border-top: 1px solid var(--bs-line);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .primary-action,
+  .secondary-action,
+  .table-row {
+    transition: none !important;
+  }
+}
+
+/* ===== Onay kutusu ve radyo düğmeleri ===== */
+/* styles.css, .admin-form-grid / .admin-managed-row altındaki genel input (width:100%,
+   min-height:3rem, border, padding) ve label (display:grid) kurallarını checkbox/radio
+   için !important ile geçersiz kılar. Kapsam: admin içeriği, dashboard, diyaloglar,
+   form ızgaraları ve yönetilen satırlar. */
+
+/* Kutu */
+:is(.admin-content, #dashboard, dialog, .admin-form-grid, .admin-managed-row) input[type="checkbox"],
+:is(.admin-content, #dashboard, dialog, .admin-form-grid, .admin-managed-row) input[type="radio"] {
+  appearance: auto !important;
+  box-sizing: border-box !important;
+  width: 18px !important;
+  height: 18px !important;
+  min-width: 18px !important;
+  min-height: 0 !important;
+  flex: 0 0 18px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+  accent-color: var(--bs-blue) !important;
+  cursor: pointer !important;
+  box-shadow: none !important;
+}
+
+/* Odak halkası (genel input:focus kuralındaki box-shadow ve outline:none'ı geçer) */
+:is(.admin-content, #dashboard, dialog, .admin-form-grid, .admin-managed-row) input[type="checkbox"]:focus-visible,
+:is(.admin-content, #dashboard, dialog, .admin-form-grid, .admin-managed-row) input[type="radio"]:focus-visible {
+  outline: 2px solid var(--bs-blue) !important;
+  outline-offset: 2px !important;
+  box-shadow: none !important;
+}
+
+/* Etiket ve kutu aynı satırda (kutu solda, metin sağda) */
+:is(.admin-content, #dashboard, dialog, .admin-form-grid, .admin-managed-row)
+  :is(
+    label:has(> input[type="checkbox"]),
+    label:has(> input[type="radio"]),
+    label:has(> span > input[type="checkbox"]),
+    label:has(> span > input[type="radio"]),
+    label > span:has(> input[type="checkbox"]),
+    label > span:has(> input[type="radio"])
+  ) {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* Form ızgarasında her onay kutusu etiketi tam satır; ardışık olanlar arası 4px */
+.admin-form-grid > :is(
+    label:has(> input[type="checkbox"]),
+    label:has(> input[type="radio"]),
+    label:has(> span > input[type="checkbox"]),
+    label:has(> span > input[type="radio"])
+  ) {
+  grid-column: 1 / -1;
+}
+.admin-form-grid > :is(
+    label:has(> input[type="checkbox"]),
+    label:has(> input[type="radio"]),
+    label:has(> span > input[type="checkbox"]),
+    label:has(> span > input[type="radio"])
+  ) + :is(
+    label:has(> input[type="checkbox"]),
+    label:has(> input[type="radio"]),
+    label:has(> span > input[type="checkbox"]),
+    label:has(> span > input[type="radio"])
+  ) {
+  margin-top: calc(4px - .9rem);
+}
+
+/* Gizli etiket (ör. CRM bülten izni, hidden) flex kuralıyla görünmeye zorlanmaz */
+:is(.admin-content, #dashboard, dialog, .admin-form-grid, .admin-managed-row) label[hidden],
+.crm-consent-label[hidden] {
+  display: none !important;
+}
+
+/* Devre dışı durum */
+:is(.admin-content, #dashboard, dialog, .admin-form-grid, .admin-managed-row) input[type="checkbox"]:disabled,
+:is(.admin-content, #dashboard, dialog, .admin-form-grid, .admin-managed-row) input[type="radio"]:disabled,
+:is(.admin-content, #dashboard, dialog, .admin-form-grid, .admin-managed-row) label:has(> input[type="checkbox"]:disabled),
+:is(.admin-content, #dashboard, dialog, .admin-form-grid, .admin-managed-row) label:has(> input[type="radio"]:disabled),
+:is(.admin-content, #dashboard, dialog, .admin-form-grid, .admin-managed-row) label:has(> span > input[type="checkbox"]:disabled),
+:is(.admin-content, #dashboard, dialog, .admin-form-grid, .admin-managed-row) label:has(> span > input[type="radio"]:disabled) {
+  opacity: .5 !important;
+  cursor: not-allowed !important;
+}
+
+/* ===== Panel düzeni: tam genişlik ===== */
+/* .admin-content her panelde 4 eşit kolonlu grid. Bu düzen yalnız Kontrol Paneli
+   (data-panel="genel") içindeki 4 istatistik kartı için; diğer panellerin doğrudan
+   çocukları tam genişlikte olmalı. */
+.admin-content:not([data-panel="genel"]) > * {
+  grid-column: 1 / -1 !important;
+}
+
+/* Kısa ayar formları çok yayılmasın (Hakkımızda formu tam genişlik kalır) */
+.admin-content[data-panel="tema-ayarlari"] > form,
+.admin-content[data-panel="cron-ayarlari"] > form,
+.admin-content[data-panel="sosyal-medya"] > form {
+  max-width: 640px;
+  width: 100%;
+}
