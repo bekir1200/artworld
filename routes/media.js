@@ -22,7 +22,7 @@ async function serveMedia(req, res, pathname) {
   }
 
   const { rows } = await pool.query(
-    `SELECT m.storage_key, m.mime_type, m.byte_size,
+    `SELECT m.storage_key, m.mime_type, m.byte_size, m.content,
             EXISTS (SELECT 1 FROM articles a WHERE a.cover_media_id = m.id AND a.status = 'published' AND a.published_at <= NOW()) AS is_public
        FROM media_assets m WHERE m.storage_key = $1`, [match[1]]
   );
@@ -40,11 +40,15 @@ async function serveMedia(req, res, pathname) {
 
   const filePath = path.join(mediaDir, media.storage_key);
   const cacheControl = media.is_public ? 'public, max-age=31536000, immutable' : 'private, no-store';
-  try { await fs.promises.access(filePath); }
-  catch {
-    res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' });
-    res.end('Görsel bulunamadı.');
-    return true;
+  // Yeni yüklenen görseller veritabanında (content); eski görseller disk klasöründe durur.
+  const inDatabase = Buffer.isBuffer(media.content);
+  if (!inDatabase) {
+    try { await fs.promises.access(filePath); }
+    catch {
+      res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' });
+      res.end('Görsel bulunamadı.');
+      return true;
+    }
   }
   res.writeHead(200, {
     'Content-Type': media.mime_type,
@@ -56,6 +60,10 @@ async function serveMedia(req, res, pathname) {
   });
   if (req.method === 'HEAD') {
     res.end();
+    return true;
+  }
+  if (inDatabase) {
+    res.end(media.content);
     return true;
   }
   const stream = fs.createReadStream(filePath);

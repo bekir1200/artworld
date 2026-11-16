@@ -851,22 +851,15 @@ async function uploadMedia(user, req) {
   const safeName = (typeof input.originalName === 'string' ? input.originalName : 'kapak-gorseli')
     .replace(/[\u0000-\u001f\u007f]/g, '').replace(/[\\/]/g, '-').trim().slice(0, 160) || 'kapak-gorseli';
   const storageKey = `${randomBytes(20).toString('hex')}.${detected.extension}`;
-  await fs.mkdir(mediaDir, { recursive: true });
-  const filePath = path.join(mediaDir, storageKey);
-  await fs.writeFile(filePath, bytes, { flag: 'wx', mode: 0o640 });
-  try {
-    const { width, height } = imageDimensions(bytes, detected.mime);
-    const { rows } = await pool.query(
-      `INSERT INTO media_assets (storage_key, original_name, mime_type, byte_size, width, height, uploaded_by)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)
-       RETURNING id, storage_key, original_name, mime_type, byte_size, width, height, created_at`,
-      [storageKey, safeName, detected.mime, bytes.length, width, height, user.id]
-    );
-    return rows[0];
-  } catch (error) {
-    await fs.unlink(filePath).catch(() => {});
-    throw error;
-  }
+  // Görsel doğrudan veritabanına yazılır: Vercel'de yerel disk kalıcı değildir.
+  const { width, height } = imageDimensions(bytes, detected.mime);
+  const { rows } = await pool.query(
+    `INSERT INTO media_assets (storage_key, original_name, mime_type, byte_size, width, height, uploaded_by, content)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+     RETURNING id, storage_key, original_name, mime_type, byte_size, width, height, created_at`,
+    [storageKey, safeName, detected.mime, bytes.length, width, height, user.id, bytes]
+  );
+  return rows[0];
 }
 
 function loginBucket(ip) {
