@@ -8,6 +8,7 @@ const homeModules = require('./home-modules');
 const publicModules = require('./public-modules');
 const { trackVisit } = require('./analytics');
 const settingsStore = require('./settings-store');
+const bsxInner = require('./bsx-inner');
 
 const publicDir = path.join(__dirname, '..', 'public');
 const siteUrl = (process.env.SITE_URL || 'http://localhost:3003').replace(/\/$/, '');
@@ -551,6 +552,12 @@ function renderShell({ title = '', description = '', path: pagePath = '/', bodyH
 
 const publicModuleHelpers = { renderShell, sendHtml, escapeHtml };
 
+// BSX iç sayfaları için ortak kabuk verisi (site adı, menü, altbilgi) — ana sayfayla aynı kaynak.
+async function innerShell() {
+  const data = await require('./home-data').load();
+  return { site: data.site, nav: data.nav || [], footer: data.footer || { columns: [] } };
+}
+
 async function servePublicPage(req, res, pathname, url) {
   if (req.method !== 'GET') return false;
   await getSiteIdentity();
@@ -817,7 +824,15 @@ async function servePublicPage(req, res, pathname, url) {
     const ad = layout.modules.some((module) => module.enabled && module.type === 'adInline') ? await getActiveAd('article-inline') : null;
     const sidebarAd = layout.modules.some((module) => module.enabled && module.type === 'adSidebar') ? await getActiveAd('article-sidebar') : null;
     const cover = taxonomy[0];
-    let storyHtml = storyTemplate({ ...article, ...cover, cover_url: cover.cover_storage_key ? `/media/${cover.cover_storage_key}` : '' }, related, layout, ad, popular, sidebarAd);
+    const articleView = { ...article, ...cover, cover_url: cover.cover_storage_key ? `/media/${cover.cover_storage_key}` : '' };
+    try {
+      const shell = await innerShell();
+      const commentsHtml = await publicModules.renderComments(article.id).catch((error) => { console.error('Yorum bölümü çizilemedi:', error.message); return ''; });
+      const adHtml = ad ? renderAdSlot(ad, '', 'article-inline') : '';
+      sendHtml(res, 200, bsxInner.renderArticlePage({ shell, article: articleView, related, popular, ad: adHtml, commentsHtml: commentsHtml || '' }));
+      return true;
+    } catch (error) { console.error('BSX haber sayfası çizilemedi, eski düzene düşülüyor:', error?.stack || error); }
+    let storyHtml = storyTemplate(articleView, related, layout, ad, popular, sidebarAd);
     try {
       const commentsHtml = await publicModules.renderComments(article.id);
       if (commentsHtml) storyHtml = storyHtml.replace('</article></main>', `</article>${commentsHtml}</main>`);
@@ -844,6 +859,12 @@ async function servePublicPage(req, res, pathname, url) {
     );
     const content = articles.map((article) => renderNewsCard({ ...article, cover_url: article.cover_storage_key ? `/media/${article.cover_storage_key}` : '', read_minutes: 1 })).join('') || '<p class="public-empty">Bu kategoride henüz yayımlanmış haber yok.</p>';
     const categoryAd = await getActiveAd('category-top');
+    try {
+      const shell = await innerShell();
+      const cards = articles.map((article) => ({ ...article, cover_url: article.cover_storage_key ? `/media/${article.cover_storage_key}` : '' }));
+      sendHtml(res, 200, bsxInner.renderCategoryPage({ shell, category, articles: cards, ad: categoryAd ? renderAdSlot(categoryAd, 'Sponsorlu içerik', 'category-top') : '' }));
+      return true;
+    } catch (error) { console.error('BSX kategori sayfası çizilemedi, eski düzene düşülüyor:', error?.stack || error); }
     const categoryContent = categoryAd ? `${renderAdSlot(categoryAd, 'Sponsorlu içerik', 'category-top')}${content}` : content;
     sendHtml(res, 200, listingTemplate({ title: category.name, description: `${category.name} kategorisinden güncel haberler.`, canonical: `${siteUrl}/kategori/${encodeURIComponent(category.slug)}`, content: categoryContent, activePath: `/kategori/${encodeURIComponent(category.slug)}` }));
     return true;
@@ -852,6 +873,7 @@ async function servePublicPage(req, res, pathname, url) {
   if (pathname === '/arama') {
     const query = String(url.searchParams.get('q') || '').trim().slice(0, 100);
     let content = '<p class="public-empty">Aramak için en az 2 karakter yazın.</p>';
+    let searchRows = [];
     if (query.length >= 2) {
       const term = `%${query}%`;
       const { rows } = await pool.query(
@@ -862,8 +884,15 @@ async function servePublicPage(req, res, pathname, url) {
           WHERE a.status = 'published' AND a.published_at <= NOW() AND (a.headline ILIKE $1 OR a.standfirst ILIKE $1)
           ORDER BY a.published_at DESC LIMIT 50`, [term]
       );
+      searchRows = rows;
       content = rows.map((article) => renderNewsCard({ ...article, cover_url: article.cover_storage_key ? `/media/${article.cover_storage_key}` : '', read_minutes: 1 })).join('') || '<p class="public-empty">Bu aramayla eşleşen haber bulunamadı.</p>';
     }
+    try {
+      const shell = await innerShell();
+      const results = searchRows.map((article) => ({ ...article, cover_url: article.cover_storage_key ? `/media/${article.cover_storage_key}` : '' }));
+      sendHtml(res, 200, bsxInner.renderSearchPage({ shell, query, articles: results }));
+      return true;
+    } catch (error) { console.error('BSX arama sayfası çizilemedi, eski düzene düşülüyor:', error?.stack || error); }
     sendHtml(res, 200, listingTemplate({ title: query ? `“${query}” arama sonuçları` : 'Haber ara', description: 'Art World TV haber arama sonuçları.', canonical: `${siteUrl}/arama`, content }));
     return true;
   }
