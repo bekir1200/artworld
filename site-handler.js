@@ -76,8 +76,18 @@ async function handleCron(req, res) {
   return sendJson(res, 200, { ok: true, ...result });
 }
 
+// Vercel yönlendirmesi (vercel.json) istekleri /api/index?path=<yol> adresine çevirir; gerçek yol burada geri yüklenir.
+function restoreVercelPath(req) {
+  const url = new URL(req.url, 'http://vercel.local');
+  if (url.pathname !== '/api/index') return;
+  const original = url.searchParams.get('path') || '';
+  url.searchParams.delete('path');
+  req.url = `/${original}${url.search}`;
+}
+
 async function handleRequest(req, res) {
   try {
+    restoreVercelPath(req);
     const requestUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
     if (requestUrl.pathname === '/api/cron/run') return await handleCron(req, res);
     if (requestUrl.pathname.startsWith('/api/')) return await handleApi(req, res, requestUrl.pathname, requestUrl);
