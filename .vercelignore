@@ -1,3 +1,2 @@
-# Vercel kök dizinindeki server.js dosyasını giriş noktası sanmasın (giriş api/index.js).
-server.js
+# Vercel dağıtımında dışarıda kalacaklar (giriş: api/index.js, package.json main).
 scripts/
