@@ -5,23 +5,18 @@
 .bsx-ad .ad-slot picture,.bsx-ad .ad-slot img{display:block;max-width:100%;height:auto;margin:0 auto}
 .bsx-ad .ad-slot b,.bsx-ad .ad-slot i,.bsx-ad .ad-slot small{display:none}
 
-/* Ana sayfa reklamları: merkezde yatay banner, iki yanda dikey kreatif. */
-.bsx-hero-ad-layout>.bsx-wrap{display:grid;grid-template-columns:minmax(120px,160px) minmax(0,1fr) minmax(120px,160px);gap:16px;align-items:stretch}
-.bsx-hero-ad-layout>.bsx-wrap:not(:has(.bsx-ad-rail-left)){grid-template-columns:minmax(0,1fr) minmax(120px,160px)}
-.bsx-hero-ad-layout>.bsx-wrap:not(:has(.bsx-ad-rail-left)) .bsx-hero-ad-center{grid-column:1}
-.bsx-hero-ad-layout>.bsx-wrap:not(:has(.bsx-ad-rail-right)){grid-template-columns:minmax(120px,160px) minmax(0,1fr)}
-.bsx-hero-ad-layout>.bsx-wrap:not(:has(.bsx-ad-rail-right)) .bsx-hero-ad-center{grid-column:2}
-.bsx-hero-ad-layout>.bsx-wrap:not(:has(.bsx-ad-rail-left)):not(:has(.bsx-ad-rail-right)){grid-template-columns:minmax(0,1fr)}
-.bsx-hero-ad-layout>.bsx-wrap:not(:has(.bsx-ad-rail-left)):not(:has(.bsx-ad-rail-right)) .bsx-hero-ad-center{grid-column:1}
-.bsx-hero-ad-center{min-width:0}
-.bsx-ad-leaderboard .ad-slot{padding:0;background:transparent;margin:0 0 12px}
-.bsx-ad-leaderboard .ad-slot>span{margin:0 0 4px;text-align:right}
-.bsx-ad-leaderboard .ad-slot img{width:100%;max-height:110px;object-fit:contain}
-.bsx-ad-rail{min-width:0}
-.bsx-ad-rail .ad-slot{height:100%;min-height:320px;padding:8px;background:var(--bsx-navy,#102a43);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;overflow:hidden}
-.bsx-ad-rail .ad-slot>span{color:#d7e5f1}
-.bsx-ad-rail .ad-slot a{display:flex;flex:1;min-height:0;width:100%;align-items:center;justify-content:center}
-.bsx-ad-rail .ad-slot picture,.bsx-ad-rail .ad-slot img{width:100%;height:100%;max-height:600px;object-fit:contain}
-.bsx-ad-rail .ad-slot:not(.delivered-ad){font-size:clamp(1rem,2vw,1.65rem);font-weight:800;line-height:1.2}
-@media(max-width:900px){.bsx-hero-ad-layout>.bsx-wrap,.bsx-hero-ad-layout>.bsx-wrap:not(:has(.bsx-ad-rail-left)),.bsx-hero-ad-layout>.bsx-wrap:not(:has(.bsx-ad-rail-right)){grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}.bsx-hero-ad-center{grid-column:1/-1!important;grid-row:1}.bsx-ad-rail{grid-row:2}.bsx-ad-rail .ad-slot{min-height:180px}.bsx-ad-rail .ad-slot img{max-height:260px}}
-@media(max-width:560px){.bsx-hero-ad-layout>.bsx-wrap{grid-template-columns:minmax(0,1fr);gap:10px}.bsx-hero-ad-center,.bsx-ad-rail{grid-column:1;grid-row:auto}.bsx-ad-leaderboard .ad-slot img{max-height:none}.bsx-ad-rail .ad-slot{min-height:130px}.bsx-ad-rail .ad-slot img{max-height:240px}}
+/* Ana sayfa yan reklamları: sayfa düzenine dokunmadan içeriğin sağ ve solundaki boşlukta durur.
+   Yalnız içerik + iki yan boşluk sığıyorsa (geniş ekran) görünür; dar ekranda gizlenir. */
+.bsx-main{position:relative}
+.bsx-ad-rail{display:none}
+@media(min-width:1540px){
+  .bsx-main{--rail-w:min(160px,calc((100vw - var(--bsx-w) - 32px) / 2 - 24px))}
+  .bsx-ad-rail{display:block;position:absolute;top:0;bottom:0;width:var(--rail-w);pointer-events:none}
+  .bsx-ad-rail-left{left:calc(50% - var(--bsx-w) / 2 - 16px - 8px - var(--rail-w))}
+  .bsx-ad-rail-right{left:calc(50% + var(--bsx-w) / 2 + 16px + 8px)}
+  .bsx-ad-rail-in{position:sticky;top:16px;pointer-events:auto}
+  .bsx-ad-rail .ad-slot{display:block;padding:0;background:transparent;overflow:hidden}
+  .bsx-ad-rail .ad-slot>span{display:block;font-size:10px;letter-spacing:.12em;color:var(--bsx-muted,#6b7280);margin:0 0 4px;text-align:center}
+  .bsx-ad-rail .ad-slot a{display:block}
+  .bsx-ad-rail .ad-slot picture,.bsx-ad-rail .ad-slot img{display:block;width:100%;height:auto}
+}
