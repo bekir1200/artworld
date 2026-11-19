@@ -583,6 +583,7 @@ async function refreshAdminUsers() {
   }
   result.users.forEach((person) => {
     const row = document.createElement('form'); row.className = 'admin-managed-row staff-managed-row';
+    const username = document.createElement('input'); username.type = 'hidden'; username.name = 'username'; username.autocomplete = 'username'; username.value = person.email;
     const identity = document.createElement('div'); identity.className = 'managed-identity';
     const name = document.createElement('strong'); name.textContent = person.display_name;
     const email = document.createElement('span'); email.textContent = person.email;
@@ -600,7 +601,7 @@ async function refreshAdminUsers() {
     const feedback = document.createElement('p'); feedback.className = 'form-feedback'; feedback.setAttribute('role', 'status');
     const self = Number(person.id) === Number(window.currentAdminUserId);
     if (self) { select.disabled = true; active.disabled = true; }
-    row.append(identity, role, activeLabel, password, save, feedback);
+    row.append(username, identity, role, activeLabel, password, save, feedback);
     row.addEventListener('submit', async (event) => {
       event.preventDefault(); save.disabled = true; feedback.textContent = '';
       const changes = { isActive: active.checked };

@@ -21,6 +21,11 @@
   form.className = 'admin-form-grid';
   form.setAttribute('novalidate', '');
 
+  var username = document.createElement('input');
+  username.type = 'hidden';
+  username.name = 'username';
+  username.autocomplete = 'username';
+
   var userLabel = document.createElement('label');
   userLabel.textContent = 'Personel';
   var userSelect = document.createElement('select');
@@ -70,6 +75,7 @@
   feedback.setAttribute('aria-live', 'polite');
 
   form.appendChild(userLabel);
+  form.appendChild(username);
   form.appendChild(passwordLabel);
   form.appendChild(confirmLabel);
   form.appendChild(warning);
@@ -98,15 +104,21 @@
         users.forEach(function (user) {
           var option = document.createElement('option');
           option.value = String(user.id);
+          option.dataset.email = user.email || '';
           option.textContent = (user.display_name || user.email) + ' (' + user.email + ')' + (user.is_active ? '' : ' - pasif');
           userSelect.appendChild(option);
         });
         if (selected) userSelect.value = selected;
+        username.value = userSelect.selectedOptions[0] ? userSelect.selectedOptions[0].dataset.email || '' : '';
       })
       .catch(function (error) {
         setFeedback(error.message || 'Personel listesi alınamadı.');
       });
   }
+
+  userSelect.addEventListener('change', function () {
+    username.value = userSelect.selectedOptions[0] ? userSelect.selectedOptions[0].dataset.email || '' : '';
+  });
 
   form.addEventListener('submit', function (event) {
     event.preventDefault();
