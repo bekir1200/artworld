@@ -1,2 +1,3 @@
 # Vercel dağıtımında dışarıda kalacaklar (giriş: api/index.js, package.json main).
-scripts/
+scripts/*
+!scripts/migrate.js
