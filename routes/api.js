@@ -531,11 +531,14 @@ async function adminAdvertising(user, req, res, method, pathname) {
     const regulatoryReference = String(input.regulatoryReference || '').trim().slice(0, 80);
     const placementId = Number(input.placementId);
     const budget = input.budget === '' || input.budget == null ? null : Number(input.budget);
+    const maxBudgetCents = 99_999_999_999_999; // NUMERIC(14,2): 12 tam ve 2 ondalık basamak.
     const startsAt = input.startsAt ? new Date(/^\d{4}-\d{2}-\d{2}$/.test(input.startsAt) ? `${input.startsAt}T00:00:00+03:00` : input.startsAt) : null;
     const endsAt = input.endsAt ? new Date(/^\d{4}-\d{2}-\d{2}$/.test(input.endsAt) ? `${input.endsAt}T23:59:59.999+03:00` : input.endsAt) : null;
     if (name.length < 2 || company.length < 2) throw new HttpError(400, 'Kampanya ve reklamveren adı gerekli.');
     if (!Number.isSafeInteger(placementId) || placementId < 1) throw new HttpError(400, 'Reklam alanı seçin.');
-    if (budget !== null && (!Number.isFinite(budget) || budget < 0)) throw new HttpError(400, 'Bütçe sıfır veya daha büyük olmalı.');
+    if (budget !== null && (!Number.isFinite(budget) || budget < 0 || Math.round(budget * 100) > maxBudgetCents)) {
+      throw new HttpError(400, 'Bütçe 0 ile 999.999.999.999,99 ₺ arasında olmalı.');
+    }
     if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new HttpError(400, 'E-posta adresini kontrol edin.');
     if (startsAt && Number.isNaN(startsAt.valueOf()) || endsAt && Number.isNaN(endsAt.valueOf()) || startsAt && endsAt && endsAt <= startsAt) throw new HttpError(400, 'Kampanya tarih aralığını kontrol edin.');
     const client = await pool.connect();
