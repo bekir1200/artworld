@@ -724,7 +724,13 @@ async function servePublicPage(req, res, pathname, url) {
       const homeData = await require('./home-data').load();
       const settings = await settingsStore.getSettings();
       const adHtml = renderAdSlot(await getActiveAd('home-leaderboard'), 'Markanız için güçlü bir yayın alanı', 'home-leaderboard');
-      // "home-feature" alanı: yalnız aktif reklam varsa gösterilir (ikinci bir yer tutucu basılmaz).
+      // Yan reklam rayları ayrı kampanya alanlarıdır; biri yoksa diğeri bağımsız görünür.
+      const [leftRailAd, rightRailAd] = await Promise.all([
+        getActiveAd('home-rail-left').catch(() => null),
+        getActiveAd('home-rail-right').catch(() => null)
+      ]);
+      const leftRailAdHtml = leftRailAd ? renderAdSlot(leftRailAd, '', 'home-rail-left') : '';
+      const rightRailAdHtml = rightRailAd ? renderAdSlot(rightRailAd, '', 'home-rail-right') : '';
       const featureAd = await getActiveAd('home-feature').catch(() => null);
       const featureAdHtml = featureAd ? renderAdSlot(featureAd, '', 'home-feature') : '';
       // Popup Reklam modülü açıksa ve "popup" alanında aktif bir reklam varsa (yer tutucu banner gösterilmez).
@@ -733,7 +739,7 @@ async function servePublicPage(req, res, pathname, url) {
         const popupAd = await getActiveAd('popup').catch(() => null);
         if (popupAd) popupAdHtml = renderAdSlot(popupAd, '', 'popup');
       }
-      sendHtml(res, 200, require('./home-page').render(homeData, { adHtml, featureAdHtml, popupAdHtml, settings }));
+      sendHtml(res, 200, require('./home-page').render(homeData, { adHtml, leftRailAdHtml, rightRailAdHtml, featureAdHtml, popupAdHtml, settings }));
       return true;
     } catch (error) {
       console.error('Yeni ana sayfa çizilemedi, eski düzene düşülüyor:', error?.stack || error);

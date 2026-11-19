@@ -43,13 +43,14 @@ function themeStyle(settings) {
 
 // adHtml: BİK üst reklam alanı; popupAdHtml: "popup" alanındaki aktif reklam (Popup Reklam modülü açıksa);
 // settings: settings-store çıktısı (bölüm aç/kapa). Hepsi boş olabilir.
-function render(data, { adHtml = '', featureAdHtml = '', popupAdHtml = '', settings = null } = {}) {
+function render(data, { adHtml = '', leftRailAdHtml = '', rightRailAdHtml = '', featureAdHtml = '', popupAdHtml = '', settings = null } = {}) {
   const site = data.site || { brand: 'Art World TV', logoUrl: '/assets/art-world-logo.png', slogan: '', social: [] };
   const sections = ORDER.map(([name, fn]) => {
     if (!isEnabled(name, settings)) return '';
     const html = renderSection(name, fn, data);
-    // Reklam alanı son dakika şeridinin hemen altına (eski düzende de en üstteydi).
-    if (name === 'breaking' && adHtml) return `${html}<section class="bsx-sec bsx-ad"><div class="bsx-wrap">${adHtml}</div></section>`;
+    // Üst bant ve manşet slider'ı yan reklam raylarıyla aynı satırda göster.
+    if (name === 'breaking' && adHtml) return html;
+    if (name === 'hero' && (adHtml || leftRailAdHtml || rightRailAdHtml)) return `<section class="bsx-sec bsx-hero-ad-layout"><div class="bsx-wrap">${leftRailAdHtml ? `<aside class="bsx-ad-rail bsx-ad-rail-left" aria-label="Sol reklam">${leftRailAdHtml}</aside>` : ''}<div class="bsx-hero-ad-center">${adHtml ? `<div class="bsx-ad-leaderboard">${adHtml}</div>` : ''}${html}</div>${rightRailAdHtml ? `<aside class="bsx-ad-rail bsx-ad-rail-right" aria-label="Sağ reklam">${rightRailAdHtml}</aside>` : ''}</div></section>`;
     // "home-feature" reklamı ilk haber ızgarasının altına (ızgara her zaman açık, reklam kaybolmaz).
     if (name === 'gridA' && featureAdHtml) return `${html}<section class="bsx-sec bsx-ad bsx-ad-feature"><div class="bsx-wrap">${featureAdHtml}</div></section>`;
     return html;
