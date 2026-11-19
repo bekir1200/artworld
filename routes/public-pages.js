@@ -252,7 +252,8 @@ async function getActiveAd(placementKey) {
                                           'alt_text', vm.alt_text, 'width', vm.width, 'height', vm.height,
                                           'is_mobile', EXISTS (
                                             SELECT 1 FROM jsonb_array_elements(COALESCE(p.supported_sizes->'mobile', '[]'::jsonb)) mobile_size
-                                             WHERE (mobile_size->>0)::integer = vm.width AND (mobile_size->>1)::integer = vm.height
+                                             WHERE EXISTS (SELECT 1 FROM generate_series(1, 3) scale
+                                                            WHERE (mobile_size->>0)::integer * scale = vm.width AND (mobile_size->>1)::integer * scale = vm.height)
                                           ))
                          ORDER BY vm.width DESC, vm.height DESC) AS items
            FROM ad_creatives variant JOIN media_assets vm ON vm.id = variant.media_id
@@ -261,7 +262,9 @@ async function getActiveAd(placementKey) {
             AND EXISTS (
               SELECT 1 FROM jsonb_each(COALESCE(p.supported_sizes, '{}'::jsonb)) size_group
               CROSS JOIN LATERAL jsonb_array_elements(size_group.value) size_value
-              WHERE (size_value->>0)::integer = vm.width AND (size_value->>1)::integer = vm.height
+              -- Yüklemede kabul edilen kurala uygun: tam ölçü ya da aynı oranda 2x/3x.
+              WHERE EXISTS (SELECT 1 FROM generate_series(1, 3) scale
+                             WHERE (size_value->>0)::integer * scale = vm.width AND (size_value->>1)::integer * scale = vm.height)
             )
        ) variants ON TRUE
       WHERE p.placement_key = $1 AND p.is_active = TRUE AND cr.status = 'approved' AND c.status = 'active'
@@ -286,8 +289,10 @@ function renderAdSlot(ad, fallbackTitle = 'Markanızı doğru kitleyle buluştur
       click: `/api/ads/${item.id}/click?placement=${encodeURIComponent(placement)}`
     }));
     const mobileSource = srcset(mobile); const desktopSource = srcset(desktop);
-    const imageSizes = '(max-width: 680px) calc(100vw - 30px), (max-width: 900px) calc(100vw - 36px), 1192px';
-    const picture = `<picture>${mobileSource ? `<source media="(max-width: 680px)" srcset="${mobileSource}" sizes="${imageSizes}">` : ''}${desktopSource ? `<source media="(min-width: 681px)" srcset="${desktopSource}" sizes="${imageSizes}">` : ''}<img src="/media/${escapeHtml(fallback.storage_key || '')}" alt="${escapeHtml(ad.alt_text || ad.headline)}" loading="lazy" data-ad-creative-image></picture>`;
+    // Ana sayfa yan rayları dar (en fazla 160px) ve sayfanın en üstünde: hemen yüklenir.
+    const rail = placement === 'home-rail-left' || placement === 'home-rail-right';
+    const imageSizes = rail ? '160px' : '(max-width: 680px) calc(100vw - 30px), (max-width: 900px) calc(100vw - 36px), 1192px';
+    const picture = `<picture>${mobileSource ? `<source media="(max-width: 680px)" srcset="${mobileSource}" sizes="${imageSizes}">` : ''}${desktopSource ? `<source media="(min-width: 681px)" srcset="${desktopSource}" sizes="${imageSizes}">` : ''}<img src="/media/${escapeHtml(fallback.storage_key || '')}" alt="${escapeHtml(ad.alt_text || ad.headline)}" loading="${rail ? 'eager' : 'lazy'}" data-ad-creative-image></picture>`;
     return `<div class="ad-slot delivered-ad ad-placement-${escapeHtml(placement)} ${placement === 'home-leaderboard' ? 'ad-banner' : ''}" data-ad-impression="/api/ads/${ad.id}/impression?placement=${encodeURIComponent(placement)}" data-ad-variants="${escapeHtml(JSON.stringify(tracking))}"><span>REKLAM</span><a data-ad-click href="/api/ads/${ad.id}/click?placement=${encodeURIComponent(placement)}" rel="sponsored">${picture}<b>${escapeHtml(ad.headline)}</b></a></div>`;
   }
   const banner = ['home-leaderboard', 'article-inline', 'category-top'].includes(placement);
@@ -726,8 +731,8 @@ async function servePublicPage(req, res, pathname, url) {
       const adHtml = renderAdSlot(await getActiveAd('home-leaderboard'), 'Markanız için güçlü bir yayın alanı', 'home-leaderboard');
       // Yan reklam rayları ayrı kampanya alanlarıdır; biri yoksa diğeri bağımsız görünür.
       const [leftRailAd, rightRailAd] = await Promise.all([
-        getActiveAd('home-rail-left').catch(() => null),
-        getActiveAd('home-rail-right').catch(() => null)
+        getActiveAd('home-rail-left').catch((error) => { console.error('Sol yan reklam okunamadı:', error.message); return null; }),
+        getActiveAd('home-rail-right').catch((error) => { console.error('Sağ yan reklam okunamadı:', error.message); return null; })
       ]);
       const leftRailAdHtml = leftRailAd ? renderAdSlot(leftRailAd, '', 'home-rail-left') : '';
       const rightRailAdHtml = rightRailAd ? renderAdSlot(rightRailAd, '', 'home-rail-right') : '';

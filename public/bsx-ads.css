@@ -6,11 +6,11 @@
 .bsx-ad .ad-slot b,.bsx-ad .ad-slot i,.bsx-ad .ad-slot small{display:none}
 
 /* Ana sayfa yan reklamları: sayfa düzenine dokunmadan içeriğin sağ ve solundaki boşlukta durur.
-   Yalnız içerik + iki yan boşluk sığıyorsa (geniş ekran) görünür; dar ekranda gizlenir. */
+   Yalnız içerik + iki yan boşluk sığıyorsa (≥1480px, örn. 1920 ekran %125 ölçek = 1536px) görünür; dar ekranda gizlenir. */
 .bsx-main{position:relative}
 .bsx-ad-rail{display:none}
-@media(min-width:1540px){
-  .bsx-main{--rail-w:min(160px,calc((100vw - var(--bsx-w) - 32px) / 2 - 24px))}
+@media(min-width:1480px){
+  .bsx-main{--rail-w:min(160px,calc((100vw - var(--bsx-w) - 32px) / 2 - 20px))}
   .bsx-ad-rail{display:block;position:absolute;top:0;bottom:0;width:var(--rail-w);pointer-events:none}
   .bsx-ad-rail-left{left:calc(50% - var(--bsx-w) / 2 - 16px - 8px - var(--rail-w))}
   .bsx-ad-rail-right{left:calc(50% + var(--bsx-w) / 2 + 16px + 8px)}
