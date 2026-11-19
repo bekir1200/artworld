@@ -23,7 +23,9 @@ async function serveMedia(req, res, pathname) {
 
   const { rows } = await pool.query(
     `SELECT m.storage_key, m.mime_type, m.byte_size, m.content,
-            EXISTS (SELECT 1 FROM articles a WHERE a.cover_media_id = m.id AND a.status = 'published' AND a.published_at <= NOW()) AS is_public
+            (EXISTS (SELECT 1 FROM articles a WHERE a.cover_media_id = m.id AND a.status = 'published' AND a.published_at <= NOW())
+             OR EXISTS (SELECT 1 FROM ad_creatives cr JOIN ad_campaigns c ON c.id = cr.campaign_id
+                         WHERE cr.media_id = m.id AND cr.status = 'approved' AND c.status = 'active')) AS is_public
        FROM media_assets m WHERE m.storage_key = $1`, [match[1]]
   );
   const media = rows[0];
