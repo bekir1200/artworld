@@ -498,7 +498,9 @@ async function adminAdvertising(user, req, res, method, pathname) {
     const dimensions = media.rows[0];
     const supportedSizes = [...new Map(placement.rows.flatMap((item) => Object.values(item.supported_sizes || {}).flat())
       .map(([width, height]) => [`${width}x${height}`, [width, height]])).values()];
-    const sizeAllowed = supportedSizes.some(([width, height]) => Number(width) === Number(dimensions.width) && Number(height) === Number(dimensions.height));
+    // Tam ölçü ya da aynı oranda 2x/3x (retina) büyük görsel kabul edilir.
+    const sizeAllowed = supportedSizes.some(([width, height]) => [1, 2, 3].some((scale) =>
+      Number(width) * scale === Number(dimensions.width) && Number(height) * scale === Number(dimensions.height)));
     if (!sizeAllowed) {
       const available = supportedSizes.map(([width, height]) => `${width}×${height}`).join(', ');
       const placementNames = placement.rows.map((item) => item.display_name).join(', ');
