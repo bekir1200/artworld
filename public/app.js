@@ -788,7 +788,7 @@ async function setupAdvertisingManagement() {
   form.addEventListener('submit', async (event) => {
     event.preventDefault(); const values = Object.fromEntries(new FormData(form)); const feedback = $('#campaign-feedback');
     const button = $('button[type="submit"]', form); button.disabled = true; feedback.textContent = '';
-    try { await apiRequest('/api/admin/advertising/campaigns', adminJson('POST', values)); form.reset(); feedback.textContent = 'Kampanya taslağı oluşturuldu.'; await refresh(); }
+    try { await apiRequest('/api/admin/advertising/campaigns', adminJson('POST', values)); form.reset(); feedback.textContent = currentAdminRole === 'admin' ? 'Kampanya oluşturuldu. Şimdi aşağıdan reklam görselini ekleyin.' : 'Kampanya taslağı oluşturuldu.'; await refresh(); }
     catch (error) { feedback.textContent = error.message; } finally { button.disabled = false; }
   });
   $('#ads-refresh').addEventListener('click', () => refresh().catch((error) => toast(error.message)));
@@ -809,7 +809,7 @@ async function setupAdvertisingManagement() {
       const dataUrl = await new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(reader.result); reader.onerror = () => reject(new Error('Görsel okunamadı.')); reader.readAsDataURL(file); });
       const uploaded = await apiRequest('/api/media', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ originalName: file.name, dataUrl }) });
       await apiRequest('/api/admin/advertising/creatives', adminJson('POST', { campaignId: values.campaignId, headline: values.headline, targetUrl: values.targetUrl, mediaId: uploaded.media.id }));
-      creativeForm.reset(); feedback.textContent = 'Kreatif yönetici incelemesine gönderildi.'; await refresh();
+      creativeForm.reset(); feedback.textContent = currentAdminRole === 'admin' ? 'Reklam yayına alındı.' : 'Kreatif yönetici incelemesine gönderildi.'; await refresh();
     } catch (error) { feedback.textContent = error.message; } finally { button.disabled = false; }
   });
   try { await refresh(); } catch (error) { toast(error.message); }

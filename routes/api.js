@@ -506,7 +506,8 @@ async function adminAdvertising(user, req, res, method, pathname) {
       const placementNames = placement.rows.map((item) => item.display_name).join(', ');
       throw new HttpError(400, `Görsel ölçüsü ${dimensions.width && dimensions.height ? `${dimensions.width}×${dimensions.height}` : 'okunamadı'}. Kampanyanın (${placementNames}) reklam alanlarında kabul edilen ölçüler: ${available}.`);
     }
-    const { rows } = await pool.query(`INSERT INTO ad_creatives (campaign_id, media_id, headline, target_url) VALUES ($1, $2, $3, $4) RETURNING id, campaign_id, headline, target_url, status, created_at`, [campaignId, mediaId, headline, target.href]);
+    // Yönetici yüklediği görseli doğrudan onaylı ekler; diğer roller için yönetici onayı gerekir.
+    const { rows } = await pool.query(`INSERT INTO ad_creatives (campaign_id, media_id, headline, target_url, status) VALUES ($1, $2, $3, $4, $5) RETURNING id, campaign_id, headline, target_url, status, created_at`, [campaignId, mediaId, headline, target.href, user.role === 'admin' ? 'approved' : 'pending']);
     await pool.query(`INSERT INTO audit_logs (actor_id, action, entity_type, entity_id, after_data) VALUES ($1, 'ad.creative.created', 'ad_creative', $2, $3::jsonb)`, [user.id, rows[0].id, JSON.stringify({ campaignId, headline })]);
     return sendJson(res, 201, { creative: rows[0] });
   }
@@ -554,8 +555,9 @@ async function adminAdvertising(user, req, res, method, pathname) {
         : await client.query(`INSERT INTO advertisers (company_name, contact_name, email, phone) VALUES ($1,$2,$3,$4) RETURNING id`, [company, contact, email, phone]);
       const campaign = await client.query(
         `INSERT INTO ad_campaigns (advertiser_id, name, status, starts_at, ends_at, budget, regulatory_reference, sales_owner_id, created_by)
-         VALUES ($1, $2, 'draft', $3, $4, $5, $6, $7, $7) RETURNING id`,
-        [advertiser.rows[0].id, name, startsAt?.toISOString() || null, endsAt?.toISOString() || null, budget, regulatoryReference, user.id]
+         VALUES ($1, $2, $8, $3, $4, $5, $6, $7, $7) RETURNING id`,
+        // Yönetici kampanyayı doğrudan yayın durumunda açar; diğer roller taslak olarak oluşturur ve onay bekler.
+        [advertiser.rows[0].id, name, startsAt?.toISOString() || null, endsAt?.toISOString() || null, budget, regulatoryReference, user.id, user.role === 'admin' ? 'active' : 'draft']
       );
       await client.query('INSERT INTO ad_campaign_placements (campaign_id, placement_id) VALUES ($1, $2)', [campaign.rows[0].id, placementId]);
       await client.query(`INSERT INTO audit_logs (actor_id, action, entity_type, entity_id, after_data) VALUES ($1, 'ad.campaign.created', 'ad_campaign', $2, $3::jsonb)`, [user.id, campaign.rows[0].id, JSON.stringify({ name, company, placementId, budget, regulatoryReference })]);
