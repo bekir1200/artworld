@@ -6,10 +6,10 @@
 .bsx-ad .ad-slot b,.bsx-ad .ad-slot i,.bsx-ad .ad-slot small{display:none}
 
 /* Ana sayfa reklamları: merkezde yatay banner, iki yanda dikey kreatif. */
-.bsx-hero-ad-layout>.bsx-wrap{display:grid;grid-template-columns:minmax(120px,160px) minmax(0,1fr) minmax(120px,160px);gap:16px;align-items:stretch}
-.bsx-hero-ad-layout>.bsx-wrap:not(:has(.bsx-ad-rail-left)){grid-template-columns:minmax(0,1fr) minmax(120px,160px)}
+.bsx-hero-ad-layout>.bsx-wrap{display:grid;grid-template-columns:160px minmax(0,1fr) 160px;gap:16px;align-items:stretch}
+.bsx-hero-ad-layout>.bsx-wrap:not(:has(.bsx-ad-rail-left)){grid-template-columns:minmax(0,1fr) 160px}
 .bsx-hero-ad-layout>.bsx-wrap:not(:has(.bsx-ad-rail-left)) .bsx-hero-ad-center{grid-column:1}
-.bsx-hero-ad-layout>.bsx-wrap:not(:has(.bsx-ad-rail-right)){grid-template-columns:minmax(120px,160px) minmax(0,1fr)}
+.bsx-hero-ad-layout>.bsx-wrap:not(:has(.bsx-ad-rail-right)){grid-template-columns:160px minmax(0,1fr)}
 .bsx-hero-ad-layout>.bsx-wrap:not(:has(.bsx-ad-rail-right)) .bsx-hero-ad-center{grid-column:2}
 .bsx-hero-ad-layout>.bsx-wrap:not(:has(.bsx-ad-rail-left)):not(:has(.bsx-ad-rail-right)){grid-template-columns:minmax(0,1fr)}
 .bsx-hero-ad-layout>.bsx-wrap:not(:has(.bsx-ad-rail-left)):not(:has(.bsx-ad-rail-right)) .bsx-hero-ad-center{grid-column:1}
