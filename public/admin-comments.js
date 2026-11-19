@@ -102,7 +102,7 @@
     }).join('');
     actions += '<button class="secondary-action" type="button" data-action="delete" data-id="' + id + '">Sil</button>';
 
-    return '<div class="table-row comment-row">' +
+    return '<div class="table-row shell-row comment-row">' +
       '<div><strong>' + esc(item.author_name) + '</strong>' +
       (item.author_email ? ' <small>' + esc(item.author_email) + '</small>' : '') +
       '<p style="white-space:pre-wrap;margin:6px 0">' + esc(item.body) + '</p>' +
