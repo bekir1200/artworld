@@ -458,7 +458,7 @@ async function adminAdvertising(user, req, res, method, pathname) {
   if (method === 'GET' && pathname === '/api/admin/advertising') {
     const [campaigns, advertisers, placements, creatives] = await Promise.all([
       pool.query(`SELECT c.id, c.name, c.status, c.starts_at, c.ends_at, c.budget, c.regulatory_reference, a.company_name,
-                         COALESCE(string_agg(p.display_name, ', ' ORDER BY p.display_name), '') AS placements,
+                         COALESCE(string_agg(DISTINCT p.display_name, ', ' ORDER BY p.display_name), '') AS placements,
                          COALESCE(string_agg(DISTINCT p.format, ' · ' ORDER BY p.format), '') AS formats,
                          COUNT(DISTINCT d.id) FILTER (WHERE d.event_type = 'impression')::int AS impressions,
                          COUNT(DISTINCT d.id) FILTER (WHERE d.event_type = 'click')::int AS clicks
@@ -571,7 +571,7 @@ async function adminAdvertising(user, req, res, method, pathname) {
     checkSameOrigin(req);
     const { status } = await readJson(req);
     if (!['draft', 'awaiting_approval', 'scheduled', 'active', 'paused', 'completed', 'cancelled'].includes(status)) throw new HttpError(400, 'Kampanya durumu geçersiz.');
-    if (user.role === 'ad_sales' && ['active', 'completed', 'cancelled', 'paused'].includes(status)) throw new HttpError(403, 'Bu kampanya durumunu yalnız yönetici değiştirebilir.');
+    if (user.role === 'ad_sales' && ['scheduled', 'active', 'completed', 'cancelled', 'paused'].includes(status)) throw new HttpError(403, 'Bu kampanya durumunu yalnız yönetici değiştirebilir.');
     const current = await pool.query('SELECT status FROM ad_campaigns WHERE id = $1', [match[1]]);
     if (!current.rowCount) throw new HttpError(404, 'Kampanya bulunamadı.');
     const allowedTransitions = {

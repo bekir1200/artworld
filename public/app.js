@@ -754,7 +754,7 @@ async function setupAdvertisingManagement() {
     list.replaceChildren();
     const selected = $('#campaign-status-filter').value;
     const visible = campaigns.filter((campaign) => selected === 'all' || campaign.status === selected);
-    if (!visible.length) { const empty = document.createElement('p'); empty.className = 'dialog-empty'; empty.textContent = 'Bu filtrede kampanya yok. Yeni kampanya taslak olarak ekleyin.'; list.append(empty); return; }
+    if (!visible.length) { const empty = document.createElement('p'); empty.className = 'dialog-empty'; empty.textContent = 'Bu filtrede kampanya yok. Yukarıdaki formdan yeni kampanya ekleyin.'; list.append(empty); return; }
     visible.forEach((campaign) => {
       const row = document.createElement('div'); row.className = 'admin-managed-row campaign-row';
       const identity = document.createElement('div'); identity.className = 'managed-identity';
@@ -773,10 +773,10 @@ async function setupAdvertisingManagement() {
         catch (error) { toast(error.message); removeCampaign.disabled = false; }
       });
       const transitions = allowed[campaign.status] || [];
-      if (transitions.length && (currentAdminRole === 'admin' || transitions.some((status) => !(currentAdminRole === 'ad_sales' && ['active', 'paused', 'completed', 'cancelled'].includes(status))))) {
+      if (transitions.length && (currentAdminRole === 'admin' || transitions.some((status) => !(currentAdminRole === 'ad_sales' && ['scheduled', 'active', 'paused', 'completed', 'cancelled'].includes(status))))) {
         const select = document.createElement('select'); select.setAttribute('aria-label', `${campaign.name} kampanya durumu`);
         select.add(new Option(statusLabels[campaign.status], campaign.status));
-        transitions.filter((status) => currentAdminRole === 'admin' || !['active', 'paused', 'completed', 'cancelled'].includes(status)).forEach((status) => select.add(new Option(statusLabels[status], status)));
+        transitions.filter((status) => currentAdminRole === 'admin' || !['scheduled', 'active', 'paused', 'completed', 'cancelled'].includes(status)).forEach((status) => select.add(new Option(statusLabels[status], status)));
         select.addEventListener('change', async () => { select.disabled = true; try { await apiRequest(`/api/admin/advertising/campaigns/${campaign.id}`, adminJson('PATCH', { status: select.value })); await refresh(); } catch (error) { toast(error.message); select.value = campaign.status; } finally { select.disabled = false; } });
         row.append(identity, budget, events, select);
       } else row.append(identity, budget, events);
