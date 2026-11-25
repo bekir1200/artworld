@@ -9,7 +9,7 @@
   if(!panel) return;
 
   const API = '/api/admin/bots';
-  const NOTE = 'Aktif ajanlar Cron ayarlarındaki aralıkla otomatik çekilir. Çekilen haberler TASLAK olarak Haber Yönetimi\'ne düşer; editör onayıyla yayımlanır.';
+  const NOTE = 'Aktif ajanlar Cron ayarlarındaki aralıkla otomatik çekilir. Çekilen haberler TASLAK olarak Haber Yönetimi\'ne düşer; editör onayıyla yayımlanır. "Otomatik yayınla" işaretli ajansların haberleri onay beklemeden doğrudan yayına girer.';
 
   const state = { bots: [], busy: false };
   const refs = {};
@@ -72,6 +72,7 @@
     refs.newName = el('input', { type: 'text', className: 'bot-new-name', maxlength: 100, required: true, placeholder: 'Ajans adı', 'aria-label': 'Yeni ajans adı' });
     refs.newUrl = el('input', { type: 'url', className: 'bot-new-rss', placeholder: 'https://ajans.example/rss', 'aria-label': 'Yeni ajans RSS adresi' });
     refs.newActive = el('input', { type: 'checkbox', className: 'bot-new-active', 'aria-label': 'Yeni ajans aktif durumu' });
+    refs.newAutoPublish = el('input', { type: 'checkbox', className: 'bot-new-auto-publish', 'aria-label': 'Yeni ajans haberlerini otomatik yayınla' });
     panel.appendChild(el('p', { className: 'section-kicker', text: 'Yeni ajans ekle' }));
     panel.appendChild(el('form', {
       className: 'bot-create-form',
@@ -79,7 +80,10 @@
     }, [
       refs.newName,
       refs.newUrl,
-      el('label', { className: 'bot-toggle' }, [refs.newActive, ' Aktif']),
+      el('div', { className: 'bot-status' }, [
+        el('label', { className: 'bot-toggle' }, [refs.newActive, ' Aktif']),
+        el('label', { className: 'bot-toggle' }, [refs.newAutoPublish, ' Otomatik yayınla'])
+      ]),
       el('button', { type: 'submit', className: 'primary-action', text: 'Yeni bot' })
     ]));
     panel.appendChild(el('p', { className: 'section-kicker', text: 'Haber Ajansları' }));
@@ -124,8 +128,15 @@
       statePill.textContent = toggle.checked ? 'AKTİF' : 'PASİF';
     });
 
+    const autoPublish = el('input', {
+      type: 'checkbox',
+      className: 'bot-auto-publish-toggle',
+      'aria-label': bot.agency_name + ' haberlerini otomatik yayınla'
+    });
+    autoPublish.checked = bot.auto_publish === true;
+
     const saveButton = el('button', { type: 'button', className: 'primary-action', text: 'Kaydet' });
-    saveButton.addEventListener('click', () => saveBot(bot.id, urlInput, toggle, saveButton));
+    saveButton.addEventListener('click', () => saveBot(bot.id, urlInput, toggle, autoPublish, saveButton));
 
     const runButton = el('button', { type: 'button', className: 'secondary-action', text: 'Şimdi çek' });
     runButton.addEventListener('click', () => runAgency(bot, runButton));
@@ -138,7 +149,10 @@
     return el('div', { className: 'admin-managed-row', 'data-bot-id': bot.id }, [
       el('strong', { text: bot.agency_name }),
       urlInput,
-      el('label', { className: 'bot-toggle' }, [toggle, ' Aktif', statePill]),
+      el('div', { className: 'bot-status' }, [
+        el('label', { className: 'bot-toggle' }, [toggle, ' Aktif', statePill]),
+        el('label', { className: 'bot-toggle' }, [autoPublish, ' Otomatik yayınla'])
+      ]),
       el('div', { className: 'bot-actions' }, [saveButton, runButton, deleteButton, meta])
     ]);
   }
@@ -160,7 +174,7 @@
     }
   }
 
-  async function saveBot(id, urlInput, toggle, button){
+  async function saveBot(id, urlInput, toggle, autoPublish, button){
     if(state.busy) return;
     const rssUrl = urlInput.value.trim();
     if(rssUrl !== '' && !/^https?:\/\/\S+$/i.test(rssUrl)){
@@ -171,7 +185,7 @@
     try {
       await api(API + '/' + encodeURIComponent(id), {
         method: 'PATCH',
-        body: { rssUrl: rssUrl, isActive: toggle.checked }
+        body: { rssUrl: rssUrl, isActive: toggle.checked, autoPublish: autoPublish.checked }
       });
       showFeedback('Ajans ayarları kaydedildi.', false);
       await loadBots();
@@ -193,7 +207,7 @@
       if(result.error){
         showFeedback(result.error, true);
       } else {
-        showFeedback(bot.agency_name + ': ' + (result.inserted || 0) + ' yeni taslak eklendi, ' + (result.skipped || 0) + ' mevcut veya atlandı.', false);
+        showFeedback(bot.agency_name + ': ' + (result.inserted || 0) + (bot.auto_publish === true ? ' yeni haber yayınlandı, ' : ' yeni taslak eklendi, ') + (result.skipped || 0) + ' mevcut veya atlandı.', false);
       }
       await loadBots();
     } catch(err){
@@ -221,11 +235,12 @@
     try {
       await api(API, {
         method: 'POST',
-        body: { name: name, rssUrl: rssUrl, isActive: refs.newActive.checked }
+        body: { name: name, rssUrl: rssUrl, isActive: refs.newActive.checked, autoPublish: refs.newAutoPublish.checked }
       });
       refs.newName.value = '';
       refs.newUrl.value = '';
       refs.newActive.checked = false;
+      refs.newAutoPublish.checked = false;
       showFeedback('Yeni ajans eklendi.', false);
       await loadBots();
     } catch(err){

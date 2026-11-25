@@ -301,31 +301,37 @@ async function importItem(bot, item, categoryId) {
     const bodyText = (description ? `${description}\n\n` : '') + sourceLine;
     const body = [{ type: 'paragraph', text: bodyText }];
 
+    // Ajansta "otomatik yayınla" açıksa haber doğrudan yayına girer, değilse editör onayı bekler.
+    const status = bot.auto_publish === true ? 'published' : 'draft';
     const inserted = await client.query(
       `INSERT INTO articles
          (slug, headline, standfirst, body, status, primary_category_id,
-          source_name, source_url, seo_title, seo_description)
-       VALUES ($1, $2, $3, $4::jsonb, 'draft', $5, $6, $7, $8, $9)
+          source_name, source_url, seo_title, seo_description, published_at)
+       VALUES ($1, $2, $3, $4::jsonb, $10, $5, $6, $7, $8, $9,
+               CASE WHEN $10 = 'published' THEN NOW() END)
        RETURNING id`,
       [slug, headline, standfirst, JSON.stringify(body), categoryId,
-        bot.agency_name, sourceUrl, headline, standfirst]
+        bot.agency_name, sourceUrl, headline, standfirst, status]
     );
     const articleId = inserted.rows[0].id;
+    const note = status === 'published'
+      ? 'İçerik botu tarafından otomatik yayınlandı'
+      : 'İçerik botu tarafından taslak olarak eklendi';
 
     await client.query(
       `INSERT INTO article_revisions (article_id, revision_number, snapshot, change_note)
-       VALUES ($1, 1, $2::jsonb, 'İçerik botu tarafından taslak olarak eklendi')`,
-      [articleId, JSON.stringify({ headline, standfirst, body, status: 'draft', primary_category_id: categoryId })]
+       VALUES ($1, 1, $2::jsonb, $3)`,
+      [articleId, JSON.stringify({ headline, standfirst, body, status, primary_category_id: categoryId }), note]
     );
     await client.query(
       `INSERT INTO article_workflow_events (article_id, from_status, to_status, note)
-       VALUES ($1, NULL, 'draft', 'İçerik botu tarafından taslak olarak eklendi')`,
-      [articleId]
+       VALUES ($1, NULL, $2, $3)`,
+      [articleId, status, note]
     );
     await client.query(
       `INSERT INTO audit_logs (action, entity_type, entity_id, after_data)
        VALUES ('bot.article.imported', 'article', $1, $2::jsonb)`,
-      [articleId, JSON.stringify({ source_url: sourceUrl, agency_key: bot.agency_key, status: 'draft', source_published_at: item.publishedAt })]
+      [articleId, JSON.stringify({ source_url: sourceUrl, agency_key: bot.agency_key, status, source_published_at: item.publishedAt })]
     );
     await client.query('COMMIT');
     return 'inserted';
@@ -385,7 +391,7 @@ async function executeBot(bot, categoryId) {
 
 async function findBotById(id) {
   const result = await pool.query(
-    'SELECT id, agency_key, agency_name, rss_url FROM content_bots WHERE id = $1',
+    'SELECT id, agency_key, agency_name, rss_url, auto_publish FROM content_bots WHERE id = $1',
     [id]
   );
   return result.rows[0] || null;
@@ -428,7 +434,7 @@ async function runDueBots() {
     const cron = await loadCronSettings();
     if (!cron.enabled) return [];
     const due = await pool.query(
-      `SELECT id, agency_key, agency_name, rss_url
+      `SELECT id, agency_key, agency_name, rss_url, auto_publish
          FROM content_bots
         WHERE is_active = TRUE
           AND rss_url IS NOT NULL

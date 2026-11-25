@@ -47,7 +47,7 @@ async function handle(user, req, res, method, pathname, url){
     // GET /api/admin/bots : tüm ajans yapılandırmaları
     if(method === 'GET' && rest === ''){
       const result = await pool.query(
-        `SELECT id, agency_key, agency_name, rss_url, is_active, last_run_at, last_result, last_inserted
+        `SELECT id, agency_key, agency_name, rss_url, is_active, auto_publish, last_run_at, last_result, last_inserted
            FROM content_bots
           ORDER BY agency_name ASC`
       );
@@ -68,6 +68,10 @@ async function handle(user, req, res, method, pathname, url){
         throw httpError(400, 'isActive boolean olmalıdır.');
       }
       const isActive = body.isActive === true;
+      if(body.autoPublish !== undefined && typeof body.autoPublish !== 'boolean'){
+        throw httpError(400, 'autoPublish boolean olmalıdır.');
+      }
+      const autoPublish = body.autoPublish === true;
       const rssUrl = await normalizeRssUrl(body.rssUrl);
       const baseKey = slugifyAgencyKey(name);
       let created = null;
@@ -76,10 +80,10 @@ async function handle(user, req, res, method, pathname, url){
         const agencyKey = attempt === 1 ? baseKey : `${baseKey}-${attempt}`;
         try {
           const inserted = await pool.query(
-            `INSERT INTO content_bots (agency_key, agency_name, rss_url, is_active)
-             VALUES ($1, $2, $3, $4)
-             RETURNING id, agency_key, agency_name, rss_url, is_active, last_run_at, last_result, last_inserted`,
-            [agencyKey, name, rssUrl, isActive]
+            `INSERT INTO content_bots (agency_key, agency_name, rss_url, is_active, auto_publish)
+             VALUES ($1, $2, $3, $4, $5)
+             RETURNING id, agency_key, agency_name, rss_url, is_active, auto_publish, last_run_at, last_result, last_inserted`,
+            [agencyKey, name, rssUrl, isActive, autoPublish]
           );
           created = inserted.rows[0];
         } catch (error) {
@@ -116,14 +120,20 @@ async function handle(user, req, res, method, pathname, url){
       // rssUrl gönderilmezse mevcut değer korunur.
       const hasRssUrl = body.rssUrl !== undefined;
       const rssUrl = hasRssUrl ? await normalizeRssUrl(body.rssUrl) : null;
+      // autoPublish gönderilmezse mevcut değer korunur.
+      if(body.autoPublish !== undefined && typeof body.autoPublish !== 'boolean'){
+        throw httpError(400, 'autoPublish boolean olmalıdır.');
+      }
+      const autoPublish = typeof body.autoPublish === 'boolean' ? body.autoPublish : null;
       const result = await pool.query(
         `UPDATE content_bots
             SET rss_url = CASE WHEN $4::boolean THEN $2::text ELSE rss_url END,
                 is_active = $3,
+                auto_publish = COALESCE($5::boolean, auto_publish),
                 updated_at = NOW()
           WHERE id = $1
           RETURNING id`,
-        [id, rssUrl, body.isActive, hasRssUrl]
+        [id, rssUrl, body.isActive, hasRssUrl, autoPublish]
       );
       if(result.rowCount === 0) throw httpError(404, 'Ajans bulunamadı.');
       sendJson(res, 200, { ok: true });
