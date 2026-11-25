@@ -52,7 +52,7 @@ const STATIC_FOOTER = [
       { label: 'Hava Durumu', href: '/#bsx-weather' },
       { label: 'Namaz Vakitleri', href: '/#bsx-prayer' },
       { label: 'Burç Yorumları', href: '/burclar' },
-      { label: 'Vizyondaki Filmler', href: '/#bsx-movies' },
+      { label: 'Vizyondaki Filmler', href: '/filmler' },
       { label: 'Foto Galeri', href: '/galeri' },
       { label: 'Video Galeri', href: '/video' },
       { label: 'Resmi İlanlar', href: '/resmi-ilanlar' }
@@ -499,7 +499,7 @@ async function loadVideos() {
 
 async function loadMovies() {
   const { rows } = await pool.query(`
-    SELECT title, to_char(release_date, 'YYYY-MM-DD') AS release_date, poster_url
+    SELECT id, title, to_char(release_date, 'YYYY-MM-DD') AS release_date, poster_url
       FROM movies
      WHERE status = 'published'
      ORDER BY release_date DESC NULLS LAST, id DESC
@@ -508,7 +508,7 @@ async function loadMovies() {
     title: row.title,
     date: row.release_date || null,
     image: safeUrl(row.poster_url),
-    href: null
+    href: require('./public-modules').movieHref(row.id, row.title)
   }));
 }
 

@@ -399,7 +399,8 @@ function renderMovies(module, extra) {
       .filter(Boolean)
       .map((part) => escapeHtml(part))
       .join(' · ');
-    return `<article class="bs-card"><div class="bs-thumb">${thumb}</div><h3>${escapeHtml(movie.title)}</h3>${meta ? `<small>${meta}</small>` : ''}${Number.isFinite(rating) && rating > 0 ? `<span class="bs-rating">★ ${rating.toFixed(1)}</span>` : ''}</article>`;
+    const href = require('./public-modules').movieHref(movie.id, movie.title);
+    return `<article class="bs-card"><a href="${escapeHtml(href)}"><div class="bs-thumb">${thumb}</div><h3>${escapeHtml(movie.title)}</h3></a>${meta ? `<small>${meta}</small>` : ''}${Number.isFinite(rating) && rating > 0 ? `<span class="bs-rating">★ ${rating.toFixed(1)}</span>` : ''}</article>`;
   }).join('');
   return section('bs-films', 'VİZYON', module.title || 'Vizyondaki filmler', `<div class="bs-card-grid">${cards || empty('Vizyondaki film bilgisi henüz yok.')}</div>`, '/filmler');
 }

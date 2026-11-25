@@ -524,6 +524,121 @@ async function listHoroscopes() {
   };
 }
 
+// ---------------------------------------------------------------------------
+// Vizyondaki filmler
+// ---------------------------------------------------------------------------
+
+// Film adresi: /film/<id>-<ad>. Sayfa numarayla bulunur; ad kısmı okunabilirlik içindir.
+function movieSlug(title) {
+  return String(title || '').toLocaleLowerCase('tr-TR')
+    .replaceAll('ı', 'i').replaceAll('ğ', 'g').replaceAll('ü', 'u')
+    .replaceAll('ş', 's').replaceAll('ö', 'o').replaceAll('ç', 'c')
+    .normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 80);
+}
+
+function movieHref(id, title) {
+  const slug = movieSlug(title);
+  return `/film/${Number(id)}${slug ? `-${slug}` : ''}`;
+}
+
+function formatDay(value) {
+  const text = String(value ?? '');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(text)) return '';
+  return new Date(`${text}T12:00:00Z`).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+}
+
+const MOVIE_FIELDS = `id, title, genre, duration_min, to_char(release_date, 'YYYY-MM-DD') AS release_date,
+  rating::float8 AS rating, poster_url, summary, source`;
+
+function moviePoster(row, cls) {
+  const url = cleanUrl(row.poster_url);
+  return url
+    ? `<img class="${cls}" src="${esc(url)}" alt="${esc(row.title)} afişi" loading="lazy">`
+    : `<div class="${cls} movie-poster-empty" aria-hidden="true">${esc(row.title)}</div>`;
+}
+
+function movieMeta(row) {
+  return [
+    row.genre,
+    row.duration_min ? `${Number(row.duration_min)} dk` : '',
+    formatDay(row.release_date) ? `Vizyon: ${formatDay(row.release_date)}` : ''
+  ].filter(Boolean).map(esc).join(' · ');
+}
+
+function movieCard(row) {
+  const rating = Number(row.rating);
+  const ratingHtml = Number.isFinite(rating) && rating > 0 ? `<span class="movie-rating">★ ${rating.toFixed(1)}</span>` : '';
+  const meta = movieMeta(row);
+  return `<article class="movie-card"><a href="${esc(movieHref(row.id, row.title))}"><div class="movie-card-poster">${moviePoster(row, 'movie-poster')}${ratingHtml}</div><h2>${esc(row.title)}</h2>${meta ? `<p>${meta}</p>` : ''}</a></article>`;
+}
+
+const TMDB_NOTE = '<p class="movie-source">Film bilgileri ve afişler <a href="https://www.themoviedb.org/" target="_blank" rel="noopener noreferrer">TMDB</a> kaynaklıdır. Bu ürün TMDB API\'sini kullanır ancak TMDB tarafından onaylanmamış veya sertifikalandırılmamıştır.</p>';
+
+async function listMovies() {
+  if (!(await moduleOn('module.movies'))) return null;
+  const { rows } = await pool.query(`
+    SELECT ${MOVIE_FIELDS} FROM movies
+     WHERE status = 'published'
+     ORDER BY release_date DESC NULLS LAST, id DESC
+     LIMIT 120`);
+  const fromTmdb = rows.some((row) => row.source === 'tmdb');
+  return {
+    title: 'Vizyondaki filmler',
+    description: 'Sinemalarda vizyondaki filmler: tür, süre, vizyon tarihi ve konu özetleri.',
+    bodyHtml: layout({
+      trail: [{ label: 'Vizyondaki filmler' }],
+      kicker: 'SİNEMA',
+      title: 'Vizyondaki filmler',
+      inner: rows.length
+        ? `<div class="movie-grid">${rows.map(movieCard).join('')}</div>${fromTmdb ? TMDB_NOTE : ''}`
+        : emptyState('Vizyondaki film bilgisi henüz yok.')
+    })
+  };
+}
+
+async function movieDetail(slug) {
+  if (!(await moduleOn('module.movies'))) return null;
+  const match = /^(\d{1,9})(?:-[a-z0-9-]*)?$/.exec(slug);
+  if (!match) return notFoundPage();
+  const { rows } = await pool.query(
+    `SELECT ${MOVIE_FIELDS} FROM movies WHERE id = $1 AND status = 'published'`, [Number(match[1])]
+  );
+  const row = rows[0];
+  if (!row) return notFoundPage();
+
+  const { rows: others } = await pool.query(`
+    SELECT ${MOVIE_FIELDS} FROM movies
+     WHERE status = 'published' AND id <> $1
+     ORDER BY release_date DESC NULLS LAST, id DESC
+     LIMIT 8`, [row.id]);
+
+  const rating = Number(row.rating);
+  const facts = [
+    ['Tür', row.genre],
+    ['Süre', row.duration_min ? `${Number(row.duration_min)} dakika` : ''],
+    ['Vizyon tarihi', formatDay(row.release_date)],
+    ['Puan', Number.isFinite(rating) && rating > 0 ? `${rating.toFixed(1)} / 10${row.source === 'tmdb' ? ' (TMDB)' : ''}` : '']
+  ].filter(([, value]) => value)
+    .map(([label, value]) => `<div><dt>${esc(label)}</dt><dd>${esc(value)}</dd></div>`).join('');
+
+  const summary = textToHtml(row.summary) || '<p class="public-empty">Bu film için özet henüz eklenmedi.</p>';
+  const othersHtml = others.length
+    ? `<section class="movie-others"><h2>Vizyondaki diğer filmler</h2><div class="movie-grid movie-grid--compact">${others.map(movieCard).join('')}</div><p><a class="text-link" href="/filmler">Tüm vizyondaki filmler ›</a></p></section>`
+    : '';
+
+  return {
+    title: row.title,
+    description: String(row.summary || `${row.title} filmi hakkında bilgiler.`).slice(0, 300),
+    bodyHtml: layout({
+      trail: [{ label: 'Vizyondaki filmler', href: '/filmler' }, { label: row.title }],
+      kicker: 'VİZYONDA',
+      title: row.title,
+      inner: `<div class="movie-detail"><div class="movie-detail-poster">${moviePoster(row, 'movie-poster')}</div><div class="movie-detail-body">${facts ? `<dl class="movie-facts">${facts}</dl>` : ''}<h2>Konusu</h2>${summary}</div></div>${row.source === 'tmdb' ? TMDB_NOTE : ''}${othersHtml}`
+    })
+  };
+}
+
 async function visitorPostForm() {
   if (!(await moduleOn('module.visitorPosts'))) return null;
 
@@ -549,6 +664,7 @@ const EXACT_ROUTES = {
   '/yazarlar': listAuthors,
   '/resmi-ilanlar': listAnnouncements,
   '/burclar': listHoroscopes,
+  '/filmler': listMovies,
   '/haber-gonder': visitorPostForm,
   '/hakkimizda': aboutPage
 };
@@ -556,6 +672,7 @@ const EXACT_ROUTES = {
 const PREFIX_ROUTES = [
   ['/galeri/', galleryDetail],
   ['/video/', videoDetail],
+  ['/film/', movieDetail],
   ['/yazi/', columnDetail],
   ['/sayfa/', staticDetail],
   ['/resmi-ilanlar/', announcementDetail]
@@ -617,4 +734,4 @@ async function serve(req, res, pathname, url, helpers) {
   return true;
 }
 
-module.exports = { serve, renderComments, refreshFooterCache, footerLinksHtml };
+module.exports = { serve, renderComments, refreshFooterCache, footerLinksHtml, movieHref };

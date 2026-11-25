@@ -67,3 +67,32 @@ form :focus-visible{outline:3px solid color-mix(in srgb,var(--blue) 35%,transpar
   .gallery-grid,.video-grid,.horoscope-grid{grid-template-columns:1fr}
 }
 @media (prefers-reduced-motion:reduce){.poll-result-bar{transition:none}}
+
+/* Vizyondaki filmler (/filmler, /film/<id>-<ad>) */
+.movie-grid{display:grid;gap:18px;grid-template-columns:repeat(auto-fill,minmax(min(100%,170px),1fr));margin:18px 0}
+.movie-grid--compact{grid-template-columns:repeat(auto-fill,minmax(min(100%,140px),1fr));gap:14px}
+.movie-card{background:var(--paper);border:1px solid var(--line);border-radius:8px;overflow:hidden;box-shadow:var(--shadow);min-width:0}
+.movie-card a{display:block;color:inherit;text-decoration:none;height:100%}
+.movie-card-poster{position:relative}
+.movie-poster{width:100%;aspect-ratio:2/3;object-fit:cover;display:block;background:var(--soft)}
+.movie-poster-empty{display:grid;place-items:center;padding:12px;text-align:center;font-weight:700;color:var(--muted)}
+.movie-rating{position:absolute;right:8px;top:8px;background:rgba(7,24,39,.82);color:#fff;font-size:.8rem;font-weight:700;padding:3px 7px;border-radius:6px}
+.corporate-page .movie-card h2{font-size:1rem;line-height:1.3;margin:10px 12px 4px;overflow-wrap:anywhere}
+.corporate-page .movie-card p{margin:0 12px 12px;font-size:.82rem;color:var(--muted);line-height:1.45;max-width:none}
+.movie-card a:hover h2{color:var(--red,#d71920)}
+.movie-detail{display:grid;grid-template-columns:minmax(0,280px) minmax(0,1fr);gap:28px;align-items:start;margin:18px 0}
+.movie-detail-poster .movie-poster{border-radius:8px;box-shadow:var(--shadow)}
+.movie-detail-body h2{font-size:1.2rem;margin:18px 0 8px}
+.movie-detail-body p{line-height:1.7;max-width:70ch}
+.movie-facts{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin:0}
+.movie-facts div{background:var(--soft);border-radius:8px;padding:10px 12px}
+.movie-facts dt{font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.movie-facts dd{margin:4px 0 0;font-weight:700}
+.movie-others{border-top:1px solid var(--line);margin-top:28px;padding-top:18px}
+.movie-others h2{font-size:1.25rem;margin:0}
+.movie-source{font-size:.8rem;color:var(--muted);margin-top:18px}
+@media (max-width:640px){
+  .movie-detail{grid-template-columns:1fr}
+  .movie-detail-poster{max-width:240px}
+  .movie-grid,.movie-grid--compact{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+}

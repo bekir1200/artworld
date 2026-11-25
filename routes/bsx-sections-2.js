@@ -104,7 +104,7 @@ function movies(data) {
     return `<a class="bsx-mv-item" href="${hrefOf(m.href)}"><div class="bsx-mv-img">${img(m.image, m.title, 'bsx-mv-pic')}${chip}</div><div class="bsx-mv-body"><h3 class="bsx-mv-title">${esc(m.title)}</h3></div></a>`;
   }).join('');
   const carousel = `<div class="bsx-mv-carousel" data-bsx-carousel><button class="bsx-arrow bsx-arrow--prev" type="button" data-bsx-prev aria-label="Önceki">‹</button><div class="bsx-mv-track" data-bsx-track>${slides}</div><button class="bsx-arrow bsx-arrow--next" type="button" data-bsx-next aria-label="Sonraki">›</button></div>`;
-  return section('bsx-movies', title('VİZYONDAKİ FİLMLER', '') + carousel);
+  return section('bsx-movies', title('VİZYONDAKİ FİLMLER', '/filmler') + carousel);
 }
 
 // ---------- Foto galeri (3 kolon: sol 2 / orta 1 büyük / sağ 2) ----------
