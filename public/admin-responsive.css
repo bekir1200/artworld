@@ -123,3 +123,22 @@
   .dash-metrics .metric::after { display: none; }
   .dash-metrics .metric > span { padding-right: 0; }
 }
+
+/* Liste sayfalama (admin-pager.js). */
+.pager-hidden { display: none !important; }
+.admin-pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 16px;
+}
+.admin-pager[hidden] { display: none; }
+.admin-pager button { min-width: 2.5rem; }
+.admin-pager-gap { padding: 0 2px; color: var(--muted, #64748b); }
+.admin-pager-info { margin-left: auto; font-size: 13px; color: var(--muted, #64748b); }
+
+/* Haber kuyruğu: orta genişlikte başlık sütunu yer kazansın (kategori/durum/tarih içerik kadar). */
+@container admin-panel (min-width: 521px) and (max-width: 900px) {
+  [data-panel="haber"] .article-row { grid-template-columns: 8px minmax(0, 1fr) auto auto auto auto; }
+}

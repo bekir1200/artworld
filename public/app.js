@@ -1035,7 +1035,7 @@ function renderArticleLists(articles) {
       empty.textContent = 'Bu listede henüz haber yok.';
       table.append(empty);
     } else {
-      filtered.slice(0, selector.includes('[data-panel="genel"]') ? 5 : 100).forEach((article) => table.append(makeArticleRow(article)));
+      filtered.slice(0, selector.includes('[data-panel="genel"]') ? 5 : filtered.length).forEach((article) => table.append(makeArticleRow(article)));
     }
   }
 }
