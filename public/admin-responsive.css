@@ -178,3 +178,19 @@
   min-height: 2.25rem !important;
   font-size: 12.5px !important;
 }
+
+/* Ayar formları (Tema, Cron vb.): açıklama metni küçük ve gri, Kaydet butonu kart içinde boşluklu. */
+.admin-layout > .admin-content > form > p.panel-intro {
+  display: block;
+  margin: 0;
+  padding: 14px 20px 4px;
+  color: var(--muted, #64748b);
+  font-size: 13px;
+  line-height: 1.55;
+}
+.admin-layout > .admin-content > form > .form-wide:has(> button[type="submit"]) {
+  padding: 12px 20px 20px;
+}
+.admin-layout > .admin-content > form > .form-feedback:not(:empty) {
+  margin: 0 20px 16px;
+}
