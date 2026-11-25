@@ -100,6 +100,15 @@ function isSameStory(a, b, weight = UNIT) {
   const numbersB = b.tokens.filter((t) => /^\d+$/.test(t));
   if (numbersA.length && numbersB.length && !numbersA.some((n) => numbersB.includes(n))) return false;
 
+  // Biri başlangıç, öteki bitiş haberiyse ("… yarışları başlıyor" / "… yarışları sona erdi") ayrı haberdir.
+  const phase = (info) => ({
+    start: info.tokens.some((t) => /^(basl|acili|acild|start)/.test(t)),
+    end: info.tokens.some((t) => /^(sona|bitti|bitiy|tamam|kapan|final)/.test(t))
+  });
+  const pa = phase(a);
+  const pb = phase(b);
+  if ((pa.start && !pa.end && pb.end && !pb.start) || (pb.start && !pb.end && pa.end && !pa.start)) return false;
+
   const s = similarity(a.tokens, b.tokens, weight);
   if (s.common < 3) return false;
 
