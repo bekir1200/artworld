@@ -399,10 +399,45 @@ body:not(.dark) .corporate-footer .corporate-footer-bottom a {
     height: 40px;
   }
 
-  body:not(.dark) .masthead.shell .masthead-tools {
+  /* Menü | logo | arama + Yönetim tek satırda; styles.css'teki sabit 77px yükseklik
+     ikinci satıra inen araçları başlığın dışına taşırıyordu (iç sayfalarda sayfa yoluna biniyordu). */
+  body:not(.dark) .masthead.shell {
+    height: auto;
+    flex-wrap: nowrap;
     gap: 10px;
-    justify-content: flex-start;
-    width: 100%;
+  }
+
+  body:not(.dark) .masthead.shell .brand {
+    flex: 0 1 auto;
+    min-width: 80px;
+  }
+
+  body:not(.dark) .masthead.shell .brand img {
+    max-width: 100%;
+  }
+
+  body:not(.dark) .masthead.shell .masthead-tools {
+    gap: 8px;
+    justify-content: flex-end;
+    flex-wrap: nowrap;
+    width: auto;
+    margin-left: auto;
+    flex: 0 0 auto;
+  }
+
+  /* Dar ekranda arama yalnız büyüteç ikonu (erişilebilir ad aria-label'da). */
+  body:not(.dark) .masthead.shell .search-button {
+    font-size: 0;
+    gap: 0;
+    width: 40px;
+    height: 40px;
+    justify-content: center;
+    padding: 0;
+  }
+
+  body:not(.dark) .masthead.shell .search-button > span {
+    font-size: 22px;
+    line-height: 1;
   }
 
   body:not(.dark) .masthead.shell .edition {
@@ -432,5 +467,23 @@ body:not(.dark) .corporate-footer .corporate-footer-bottom a {
     grid-template-columns: 1fr;
     gap: 24px;
     padding-bottom: 24px;
+  }
+}
+
+/* Çok dar telefonlarda (≤380px) logo küçülmesin diye Yönetim butonu sıkılaşır. */
+@media (max-width: 380px) {
+  body:not(.dark) .masthead.shell {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  body:not(.dark) .masthead.shell .masthead-tools {
+    gap: 4px;
+  }
+
+  body:not(.dark) .masthead.shell .masthead-tools .login-link,
+  body:not(.dark) .masthead.shell a.login-link {
+    padding: 7px 10px;
+    font-size: 13px;
   }
 }
