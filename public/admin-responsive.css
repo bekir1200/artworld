@@ -18,8 +18,61 @@
   .staff-managed-row { grid-template-columns: minmax(0, 1fr); }
 }
 
-/* Bot satırı: "Son çalışma" bilgisi butonların altına insin. */
-.bot-actions .bot-run-meta { flex-basis: 100%; }
+/* İçerik botları: başlık ve tüm satırlar aynı sütunlara otursun; "Son çalışma"
+   bilgisi butonların altına insin. */
+.bot-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.bot-actions .bot-run-meta {
+  flex-basis: 100%;
+  color: var(--muted, #64748b);
+  overflow-wrap: anywhere;
+}
+[data-panel="botlar"] .admin-table > [hidden] { display: none; }
+@container admin-panel (min-width: 821px) {
+  [data-panel="botlar"] .table-heading,
+  [data-panel="botlar"] .admin-managed-row {
+    display: grid;
+    grid-template-columns: minmax(9rem, 1fr) minmax(12rem, 1.3fr) 9.5rem minmax(16rem, 1.2fr);
+    gap: 16px;
+    align-items: center;
+  }
+  [data-panel="botlar"] .table-heading { padding-left: 16px; padding-right: 16px; }
+  /* Satır üstten hizalı; ad ve durum, 42px'lik input/buton yüksekliğinde ortalanır. */
+  [data-panel="botlar"] .admin-managed-row { align-items: start; }
+  [data-panel="botlar"] .admin-managed-row > strong,
+  [data-panel="botlar"] .admin-managed-row > .bot-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 42px;
+  }
+  [data-panel="botlar"] .admin-managed-row > .bot-rss-input { width: 100%; }
+}
+
+/* Darda satırlar alt alta dizildiği için sütun başlıkları anlamsız; gizle. */
+@container admin-panel (max-width: 820px) {
+  [data-panel="botlar"] .table-heading { display: none; }
+}
+
+/* Yeni ajans formu: ad | RSS | aktif | buton tek satırda, darda alt alta. */
+.bot-create-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+  margin-bottom: 1.25rem;
+}
+.bot-create-form .bot-toggle { display: flex; align-items: center; gap: 6px; }
+.bot-create-form button { justify-self: start; }
+@container admin-panel (min-width: 821px) {
+  .bot-create-form {
+    grid-template-columns: minmax(9rem, 1fr) minmax(12rem, 1.4fr) auto auto;
+    align-items: center;
+  }
+}
 
 /* Ziyaretçi haberleri: metin | durum | işlemler (3 sütun). */
 [data-panel="ziyaretci-haberleri"] .admin-managed-row { grid-template-columns: minmax(0, 1fr) auto auto; }
