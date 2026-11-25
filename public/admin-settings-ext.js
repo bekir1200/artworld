@@ -478,7 +478,7 @@
         el('label', { className: 'form-wide' }, [botsEnabled, ' İçerik botları otomatik çalışsın']),
         el('label', null, ['Çekme aralığı (dakika)', interval])
       ]),
-      el('p', { className: 'panel-intro', text: 'Canlı sitede (Vercel) zamanlayıcı günde bir kez, 03:00\'te çalışır: o saatte çekim zamanı gelen ajanslar çekilir ve zamanı gelmiş planlı içerikler yayımlanır. Çekme aralığı ancak daha sık çalışan harici bir zamanlayıcıyla etkili olur. Bir ajansı istediğiniz an İçerik Botları sayfasındaki "Şimdi çek" ile çekebilirsiniz.' }),
+      el('p', { className: 'panel-intro', text: 'Planlı (ileri tarihli) içerikler, zamanı geldikten sonra siteye gelen ilk ziyaretle (en geç birkaç dakika içinde) yayımlanır. Bot çekimi ise canlı sitede (Vercel) günde bir kez, 03:00\'te çalışır; çekme aralığı ancak daha sık çalışan harici bir zamanlayıcıyla etkili olur. Bir ajansı istediğiniz an İçerik Botları sayfasındaki "Şimdi çek" ile çekebilirsiniz.' }),
       el('div', { className: 'form-wide' }, [submit]),
       feedback
     ]);

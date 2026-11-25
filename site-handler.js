@@ -4,7 +4,7 @@ const path = require('node:path');
 const { handleApi, isAuthenticated } = require('./routes/api');
 const { servePublicPage } = require('./routes/public-pages');
 const { serveMedia } = require('./routes/media');
-const { runScheduledTasks } = require('./routes/scheduled-tasks');
+const { runScheduledTasks, publishDueContentThrottled } = require('./routes/scheduled-tasks');
 
 // İstek işleyicisi: hem yerel sunucu (server.js) hem Vercel (api/index.js) bunu kullanır.
 const publicDir = path.join(__dirname, 'public');
@@ -95,6 +95,8 @@ async function handleRequest(req, res) {
     let pathname;
     try { pathname = decodeURIComponent(requestUrl.pathname); } catch { return sendText(res, 400, 'Adres biçimi geçersiz.'); }
     if (await serveMedia(req, res, pathname)) return;
+    // Zamanı gelmiş planlı haber/içerik varsa sayfa çizilmeden önce yayına alınır (dakikada en fazla bir kontrol).
+    await publishDueContentThrottled();
     if (await servePublicPage(req, res, pathname, requestUrl)) return;
     await serveStatic(req, res, pathname);
   } catch (error) {
