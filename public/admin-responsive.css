@@ -211,3 +211,22 @@
   color: var(--muted, #64748b);
   overflow-wrap: anywhere;
 }
+
+/* Modül Ayarları kartları: sütun sayısı ekrana değil panel genişliğine göre; kart en az 220px,
+   sığmayan alt satıra iner (sol menü açıkken ya da tarayıcı yakınlaştırmasında sıkışmasın). */
+.admin-content[data-panel="modul-ayarlari"] .mod-grid {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+}
+.admin-content[data-panel="modul-ayarlari"] .mod-card { min-width: 0; }
+.admin-content[data-panel="modul-ayarlari"] .mod-card-title,
+.admin-content[data-panel="modul-ayarlari"] .mod-card-sub,
+.admin-content[data-panel="modul-ayarlari"] .mod-hint,
+.admin-content[data-panel="modul-ayarlari"] .mod-check-list label { overflow-wrap: anywhere; }
+.admin-content[data-panel="modul-ayarlari"] .mod-check-list { overflow-x: hidden; }
+.admin-content[data-panel="modul-ayarlari"] .mod-check-list label {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  min-width: 0;
+}
+.admin-content[data-panel="modul-ayarlari"] .mod-check-list input { flex: 0 0 auto; margin-top: 3px; }
