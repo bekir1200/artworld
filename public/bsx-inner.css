@@ -272,6 +272,21 @@
   color: var(--bsx-ink);
 }
 .bsx-side-item:last-child { padding-bottom: 0; border-bottom: 0; }
+/* Satırda yalnız başlık bağlantısı var: numaralı listede (Çok Okunanlar) ilk sütuna sıra numarası
+   yazılır; numarasız listelerde (İlgili Haberler, kategori menüsü) tek sütun kullanılır. Aksi halde
+   başlık 28px'lik numara sütununa düşüp kelime kelime alt satıra iniyordu. */
+ol.bsx-side-list { counter-reset: bsx-side; }
+ol.bsx-side-list > .bsx-side-item::before {
+  counter-increment: bsx-side;
+  content: counter(bsx-side);
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 22px;
+  color: var(--bsx-red);
+  text-align: center;
+}
+ul.bsx-side-list > .bsx-side-item { grid-template-columns: minmax(0, 1fr); }
+.bsx-side-item a { min-width: 0; overflow-wrap: anywhere; }
 .bsx-side-item a { font-weight: 600; color: var(--bsx-ink); }
 .bsx-side-item:hover a { color: var(--bsx-red); }
 
