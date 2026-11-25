@@ -55,7 +55,7 @@
       el('div', null, [
         el('span', { className:'section-kicker', text:'İÇERİK OPERASYONU' }),
         el('h3', { text:'Burçlar ve vizyondaki filmler' }),
-        el('p', { text:'Günlük burç yorumlarını ve vizyondaki film listesini editörler buradan günceller.' })
+        el('p', { text:'Burç yorumları her sabah yapay zekâyla yazılır, vizyondaki filmler her gün TMDB’den çekilir. Gerekirse buradan elle düzenleyebilir ya da hemen yeniletebilirsiniz.' })
       ]),
       refresh
     ]));
@@ -73,6 +73,9 @@
     ]));
     ui.horoscopeFeedback = el('p', { className:'form-feedback', id:'horoscope-feedback', role:'status' });
     panel.appendChild(ui.horoscopeFeedback);
+    ui.horoscopeAuto = buildAutoBar('Şimdi üret', `${HOROSCOPE_API}/generate`, ui.horoscopeFeedback, loadHoroscopes,
+      'Otomatik yorum kapalı: isterseniz Ayarlar > API ve entegrasyonlar\'dan Anthropic anahtarı girin. Yorumlar burada elle de düzenlenebilir.');
+    ui.horoscopeList.parentNode.insertBefore(ui.horoscopeAuto.node, ui.horoscopeList);
 
     // ---- Vizyondaki filmler ----
     ui.movieFeedback = el('p', { className:'form-feedback', id:'movie-feedback', role:'status' });
@@ -116,6 +119,9 @@
       ]),
       ui.movieList
     ]));
+    ui.movieAuto = buildAutoBar('TMDB’den çek', `${MOVIE_API}/sync`, ui.movieFeedback, loadMovies,
+      'Otomatik film çekimi için Ayarlar > API ve entegrasyonlar\'dan TMDB anahtarı girin.');
+    ui.movieList.parentNode.insertBefore(ui.movieAuto.node, ui.movieList);
 
     ui.movieForm.addEventListener('submit', async (event) => {
       event.preventDefault();
@@ -147,6 +153,44 @@
         ui.movieSubmit.disabled = false;
       }
     });
+  }
+
+  // ---------- Otomatik içerik durumu ----------
+
+  // Liste başında: son otomatik çalışma bilgisi ve "hemen çalıştır" butonu.
+  function buildAutoBar(label, path, feedbackNode, reload, missingText){
+    const info = el('small', { className:'auto-feed-info', text:'Otomatik içerik durumu yükleniyor…' });
+    const button = el('button', { className:'secondary-action', type:'button', text:label });
+    const node = el('div', { className:'auto-feed-bar' }, [info, button]);
+    button.addEventListener('click', async () => {
+      button.disabled = true;
+      button.textContent = 'Çalışıyor…';
+      setFeedback(feedbackNode, '', false);
+      try {
+        const data = await request(path, { method:'POST', headers:{ 'Accept':'application/json' } });
+        setFeedback(feedbackNode, data.result || '', !data.ok);
+        await reload();
+      } catch (error) {
+        setFeedback(feedbackNode, error.message, true);
+      } finally {
+        button.textContent = label;
+        button.disabled = !bar.configured;
+      }
+    });
+    const bar = {
+      node,
+      configured: false,
+      update(auto){
+        bar.configured = Boolean(auto && auto.configured);
+        button.disabled = !bar.configured;
+        if (!auto) { info.textContent = ''; return; }
+        if (!auto.configured) { info.textContent = missingText; return; }
+        info.textContent = auto.last_run_at
+          ? `Otomatik: son çalışma ${formatDateTime(auto.last_run_at)} — ${auto.last_result}`
+          : 'Otomatik: henüz çalışmadı.';
+      }
+    };
+    return bar;
   }
 
   // ---------- Burç satırları ----------
@@ -231,7 +275,8 @@
       const details = [
         movie.genre,
         movie.duration_min ? `${movie.duration_min} dk` : null,
-        movie.release_date ? `Vizyon: ${movie.release_date}` : null
+        movie.release_date ? `Vizyon: ${movie.release_date}` : null,
+        movie.source === 'tmdb' ? 'TMDB' : null
       ].filter(Boolean).join(' · ');
 
       ui.movieList.appendChild(el('div', { className:'admin-managed-row' }, [
@@ -285,6 +330,7 @@
     try {
       const data = await request(HOROSCOPE_API);
       horoscopes = Array.isArray(data.horoscopes) ? data.horoscopes : [];
+      ui.horoscopeAuto.update(data.auto);
       renderHoroscopes();
     } catch (error) {
       setFeedback(ui.horoscopeFeedback, error.message, true);
@@ -295,6 +341,7 @@
     try {
       const data = await request(MOVIE_API);
       movies = Array.isArray(data.movies) ? data.movies : [];
+      ui.movieAuto.update(data.auto);
       renderMovies();
     } catch (error) {
       setFeedback(ui.movieFeedback, error.message, true);

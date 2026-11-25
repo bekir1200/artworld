@@ -138,6 +138,20 @@ const integrationProviders = {
       ['stream-password', 'RTMP parolası (varsa)', 'password']
     ]
   },
+  tmdb: {
+    name: 'TMDB (vizyondaki filmler)',
+    help: 'Burçlar ve Filmler sayfasındaki vizyon listesi her gün TMDB\'den çekilir. themoviedb.org > Ayarlar > API sayfasındaki "API Okuma Erişim Anahtarı" (uzun olan) ya da "API Anahtarı" girilebilir.',
+    fields: [
+      ['api-key', 'TMDB API anahtarı', 'password']
+    ]
+  },
+  anthropic: {
+    name: 'Anthropic (günlük burç yorumları)',
+    help: 'İsteğe bağlı. Girilirse 12 burcun günlük yorumu her sabah yapay zekâyla yazılır; girilmezse burçlar elle düzenlenir. Anahtar console.anthropic.com adresinden alınır ve kullanım ücretlidir.',
+    fields: [
+      ['api-key', 'Anthropic API anahtarı', 'password']
+    ]
+  },
   custom: { name: '', help: 'Yeni bir API ya da entegrasyon için servis adını, bilgi adını ve değerini gir.', fields: [] }
 };
 

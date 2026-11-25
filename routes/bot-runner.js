@@ -556,6 +556,7 @@ async function runDueBots() {
 module.exports = {
   runBot,
   runDueBots,
+  downloadImage,
   _parseFeed: parseFeed,
   _assertPublicHttpUrl: assertPublicHttpUrl,
   _isPrivateIp: isPrivateIp,

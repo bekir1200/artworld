@@ -194,3 +194,20 @@
 .admin-layout > .admin-content > form > .form-feedback:not(:empty) {
   margin: 0 20px 16px;
 }
+
+/* Burç & Film: otomatik içerik durumu ve "hemen çalıştır" butonu. */
+.auto-feed-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--line, #e2e8f0);
+}
+.auto-feed-bar .auto-feed-info {
+  flex: 1 1 16rem;
+  min-width: 0;
+  color: var(--muted, #64748b);
+  overflow-wrap: anywhere;
+}

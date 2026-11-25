@@ -3,6 +3,7 @@
 const { publishScheduledArticles } = require('./api');
 const { publishDue } = require('./scheduler');
 const { runDueBots } = require('./bot-runner');
+const { runDueFeeds } = require('./auto-feeds');
 const pool = require('../db/pool');
 
 async function runScheduledTasks() {
@@ -10,7 +11,8 @@ async function runScheduledTasks() {
   for (const [name, task] of [
     ['articles', publishScheduledArticles],
     ['modules', publishDue],
-    ['bots', runDueBots]
+    ['bots', runDueBots],
+    ['feeds', runDueFeeds]
   ]) {
     try {
       const value = await task();

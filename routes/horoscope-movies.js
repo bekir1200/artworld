@@ -1,4 +1,5 @@
 const pool = require('../db/pool');
+const { runFeed, getFeedStatus } = require('./auto-feeds');
 
 // Burçlar: /api/admin/horoscopes  |  Vizyondaki filmler: /api/admin/movies
 const HOROSCOPE_BASE = '/api/admin/horoscopes';
@@ -11,7 +12,7 @@ const MOVIE_STATUSES = ['draft', 'published'];
 const HOROSCOPE_COLUMNS = 'sign_key, sign_name, date_range, symbol, daily_text, sort_order, updated_at';
 // DATE ve NUMERIC tipleri JSON'a güvenli biçimde çevrilir (tarih saat dilimi kaymaz, puan sayı olur).
 const MOVIE_COLUMNS = `id, title, genre, duration_min, release_date::text AS release_date, rating::float8 AS rating,
-  poster_url, summary, status, created_at, updated_at`;
+  poster_url, summary, status, source, created_at, updated_at`;
 const DATE_ONLY_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 function sendJson(res, status, data) {
@@ -130,7 +131,7 @@ async function listHoroscopes(res) {
   const { rows } = await pool.query(
     `SELECT ${HOROSCOPE_COLUMNS} FROM horoscopes ORDER BY sort_order ASC, sign_key ASC`
   );
-  sendJson(res, 200, { horoscopes: rows });
+  sendJson(res, 200, { horoscopes: rows, auto: await getFeedStatus('horoscopes') });
 }
 
 async function updateHoroscope(req, res, signKey) {
@@ -165,7 +166,7 @@ async function listMovies(res) {
   const { rows } = await pool.query(
     `SELECT ${MOVIE_COLUMNS} FROM movies ORDER BY created_at DESC, id DESC`
   );
-  sendJson(res, 200, { movies: rows });
+  sendJson(res, 200, { movies: rows, auto: await getFeedStatus('movies') });
 }
 
 // POST için (current = null) zorunlu alanlar doğrulanır; PATCH için yalnızca gönderilen alanlar değişir.
@@ -243,6 +244,12 @@ async function deleteMovie(res, id) {
   sendJson(res, 200, { ok: true });
 }
 
+// "Şimdi üret / TMDB'den çek": işi hemen çalıştırır, sonucu ve güncel durumu döner.
+async function runAutoFeed(res, feedKey) {
+  const outcome = await runFeed(feedKey);
+  sendJson(res, 200, { ok: outcome.ok, result: outcome.result, auto: await getFeedStatus(feedKey) });
+}
+
 function parseMovieId(raw) {
   const id = Number(raw);
   if (!Number.isInteger(id) || id <= 0) throw httpError(400, 'Geçersiz film kimliği.');
@@ -269,6 +276,8 @@ async function handle(user, req, res, method, pathname) {
       const rest = pathname.slice(HOROSCOPE_BASE.length);
       if (rest === '' || rest === '/') {
         if (method === 'GET') { await listHoroscopes(res); return true; }
+      } else if (rest === '/generate') {
+        if (method === 'POST') { await runAutoFeed(res, 'horoscopes'); return true; }
       } else {
         const match = /^\/([a-z_]{1,40})$/.exec(rest);
         if (match && method === 'PATCH') { await updateHoroscope(req, res, match[1]); return true; }
@@ -280,6 +289,8 @@ async function handle(user, req, res, method, pathname) {
       if (rest === '' || rest === '/') {
         if (method === 'GET') { await listMovies(res); return true; }
         if (method === 'POST') { await createMovie(req, res); return true; }
+      } else if (rest === '/sync') {
+        if (method === 'POST') { await runAutoFeed(res, 'movies'); return true; }
       } else {
         const match = /^\/(\d+)$/.exec(rest);
         if (match) {
