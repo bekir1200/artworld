@@ -1,12 +1,15 @@
 'use strict';
 /* İçerik botu çekim motoru.
-   Aktif ajansların RSS/Atom beslemesini çeker ve yeni haberleri articles tablosuna TASLAK olarak ekler.
-   Otomatik yayın yoktur: status her zaman 'draft'. Harici kütüphane yok; ayrıştırma regex ile yapılır. */
+   Aktif ajansların RSS/Atom beslemesini çeker ve yeni haberleri articles tablosuna ekler: ajansta
+   "otomatik yayınla" açıksa yayında, değilse TASLAK. Beslemedeki haber görseli indirilip kapak olarak
+   veritabanına (media_assets.content) yazılır. Harici kütüphane yok; ayrıştırma regex ile yapılır. */
 
 const dns = require('node:dns/promises');
 const net = require('node:net');
+const { randomBytes } = require('node:crypto');
 const pool = require('../db/pool');
 const { getSettings } = require('./settings-store');
+const { imageType, imageDimensions } = require('./media-utils');
 
 const FETCH_TIMEOUT_MS = 15000;
 const MAX_BYTES = 2 * 1024 * 1024;
@@ -18,6 +21,8 @@ const SPOT_MAX = 300;
 const BODY_MAX = 20000;
 const RESULT_MAX = 500;
 const URL_MAX = 2000;
+const IMAGE_MAX_BYTES = 6 * 1024 * 1024; // yönetim paneli yükleme sınırıyla aynı
+const IMAGE_TIMEOUT_MS = 10000;
 
 // Modül düzeyinde kilit: aynı anda tek çekim (zamanlayıcı ya da manuel).
 let running = false;
@@ -100,16 +105,16 @@ const MAX_REDIRECTS = 3;
 const REDIRECT_CODES = new Set([301, 302, 303, 307, 308]);
 
 // Yönlendirmeler elle izlenir; her adım isteğten önce herkese açık adres kontrolünden geçer.
-async function fetchWithValidatedRedirects(rawUrl) {
+async function fetchWithValidatedRedirects(rawUrl, options = {}) {
   let current = String(rawUrl);
   for (let hop = 0; ; hop += 1) {
     await assertPublicHttpUrl(current);
     const response = await fetch(current, {
       redirect: 'manual',
-      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+      signal: AbortSignal.timeout(options.timeoutMs || FETCH_TIMEOUT_MS),
       headers: {
         'User-Agent': USER_AGENT,
-        Accept: 'application/rss+xml, application/atom+xml, application/xml, text/xml;q=0.9, */*;q=0.5'
+        Accept: options.accept || 'application/rss+xml, application/atom+xml, application/xml, text/xml;q=0.9, */*;q=0.5'
       }
     });
     if (!REDIRECT_CODES.has(response.status)) {
@@ -230,6 +235,31 @@ function extractLink(block) {
   return toPlainText(getTagContent(block, 'link')).replace(/\s+/g, ' ').trim();
 }
 
+// Haber görseli: media:content / media:thumbnail / görsel enclosure, yoksa açıklamadaki ilk <img>.
+function extractImageUrl(block) {
+  const candidates = [];
+  for (const match of block.matchAll(/<(media:content|media:thumbnail|enclosure)\b([^>]*?)\/?>/gi)) {
+    const attrs = match[2];
+    const url = attrs.match(/\burl\s*=\s*["']([^"']+)["']/i);
+    if (!url) continue;
+    const type = (attrs.match(/\btype\s*=\s*["']([^"']+)["']/i) || [])[1] || '';
+    const medium = (attrs.match(/\bmedium\s*=\s*["']([^"']+)["']/i) || [])[1] || '';
+    const isImage = match[1].toLowerCase() === 'media:thumbnail' || /^image\//i.test(type) || medium.toLowerCase() === 'image'
+      || (!type && !medium && /\.(jpe?g|png|webp)(\?|$)/i.test(url[1]));
+    if (isImage) candidates.push(url[1]);
+  }
+  if (!candidates.length) {
+    const html = decodeEntities(unwrapCdata(getTagContent(block, 'content:encoded') || getTagContent(block, 'description')));
+    const img = html.match(/<img\b[^>]*?\bsrc\s*=\s*["']([^"']+)["']/i);
+    if (img) candidates.push(img[1]);
+  }
+  for (const candidate of candidates) {
+    const value = decodeEntities(candidate).trim();
+    if (/^https?:\/\//i.test(value) && value.length <= URL_MAX) return value;
+  }
+  return null;
+}
+
 function parseFeed(xml) {
   const text = String(xml || '');
   const blocks = [...text.matchAll(/<(item|entry)\b[^>]*>([\s\S]*?)<\/\1\s*>/gi)].map((match) => match[2]);
@@ -246,7 +276,8 @@ function parseFeed(xml) {
       description,
       pubDate: dateRaw || null,
       publishedAt: publishedAt && !Number.isNaN(publishedAt.valueOf()) ? publishedAt.toISOString() : null,
-      guid: toPlainText(getTagContent(block, 'guid') || getTagContent(block, 'id')).replace(/\s+/g, ' ').trim() || null
+      guid: toPlainText(getTagContent(block, 'guid') || getTagContent(block, 'id')).replace(/\s+/g, ' ').trim() || null,
+      imageUrl: extractImageUrl(block)
     };
   });
 }
@@ -259,6 +290,52 @@ function slugify(text) {
     .replaceAll('ş', 's').replaceAll('ö', 'o').replaceAll('ç', 'c')
     .normalize('NFKD').replace(/[̀-ͯ]/g, '')
     .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 180) || 'haber';
+}
+
+/* ---------- Kapak görseli ---------- */
+// Görseli indirir ve doğrular. Başarısızsa null döner: haber görselsiz eklenir, çekim durmaz.
+async function downloadImage(rawUrl) {
+  if (!rawUrl) return null;
+  try {
+    const response = await fetchWithValidatedRedirects(rawUrl, {
+      accept: 'image/webp, image/jpeg, image/png;q=0.9, */*;q=0.1',
+      timeoutMs: IMAGE_TIMEOUT_MS
+    });
+    if (!response.ok || !response.body) {
+      await response.body?.cancel().catch(() => {});
+      return null;
+    }
+    const declared = Number(response.headers.get('content-length'));
+    if (Number.isFinite(declared) && declared > IMAGE_MAX_BYTES) {
+      await response.body.cancel().catch(() => {});
+      return null;
+    }
+    const reader = response.body.getReader();
+    const chunks = [];
+    let total = 0;
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      total += value.byteLength;
+      if (total > IMAGE_MAX_BYTES) {
+        await reader.cancel().catch(() => {});
+        return null;
+      }
+      chunks.push(value);
+    }
+    const bytes = Buffer.concat(chunks);
+    const detected = imageType(bytes); // içerik gerçekten PNG/JPEG/WebP mi (başlığa güvenilmez)
+    if (!detected) return null;
+    let name = 'kapak';
+    try { name = decodeURIComponent(new URL(rawUrl).pathname.split('/').pop() || '') || name; } catch { /* varsayılan ad */ }
+    name = name.replace(/[\u0000-\u001f\u007f\\/]/g, '-').slice(0, 160) || 'kapak';
+    return { bytes, ...detected, ...imageDimensions(bytes, detected.mime), name };
+  } catch (error) {
+    if (!(error instanceof BotError) && error?.name !== 'TimeoutError' && error?.name !== 'AbortError') {
+      console.error('[bot-runner] görsel indirilemedi:', error?.message);
+    }
+    return null;
+  }
 }
 
 async function findDefaultCategoryId() {
@@ -276,6 +353,11 @@ async function importItem(bot, item, categoryId) {
   try { parsed = new URL(item.link); } catch { return 'skipped'; }
   if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return 'skipped';
   const sourceUrl = parsed.href;
+
+  // Görsel yalnız yeni haberler için indirilsin; kesin kontrol aşağıda işlem içinde yine yapılır.
+  const known = await pool.query('SELECT 1 FROM articles WHERE source_url = $1 LIMIT 1', [sourceUrl]);
+  if (known.rowCount) return 'skipped';
+  const image = await downloadImage(item.imageUrl);
 
   const client = await pool.connect();
   try {
@@ -303,15 +385,28 @@ async function importItem(bot, item, categoryId) {
 
     // Ajansta "otomatik yayınla" açıksa haber doğrudan yayına girer, değilse editör onayı bekler.
     const status = bot.auto_publish === true ? 'published' : 'draft';
+    let coverMediaId = null;
+    if (image) {
+      // Görsel doğrudan veritabanına yazılır: Vercel'de yerel disk kalıcı değildir.
+      const media = await client.query(
+        `INSERT INTO media_assets
+           (storage_key, original_name, mime_type, byte_size, width, height, alt_text, source_credit, content)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+         RETURNING id`,
+        [`${randomBytes(20).toString('hex')}.${image.extension}`, image.name, image.mime, image.bytes.length,
+          image.width, image.height, headline, bot.agency_name, image.bytes]
+      );
+      coverMediaId = media.rows[0].id;
+    }
     const inserted = await client.query(
       `INSERT INTO articles
          (slug, headline, standfirst, body, status, primary_category_id,
-          source_name, source_url, seo_title, seo_description, published_at)
+          source_name, source_url, seo_title, seo_description, published_at, cover_media_id)
        VALUES ($1, $2, $3, $4::jsonb, $10, $5, $6, $7, $8, $9,
-               CASE WHEN $10 = 'published' THEN NOW() END)
+               CASE WHEN $10 = 'published' THEN NOW() END, $11)
        RETURNING id`,
       [slug, headline, standfirst, JSON.stringify(body), categoryId,
-        bot.agency_name, sourceUrl, headline, standfirst, status]
+        bot.agency_name, sourceUrl, headline, standfirst, status, coverMediaId]
     );
     const articleId = inserted.rows[0].id;
     const note = status === 'published'
