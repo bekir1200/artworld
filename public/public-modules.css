@@ -39,15 +39,20 @@
 .comment{background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:14px 16px}
 .comment p{margin:6px 0 0;line-height:1.6;white-space:pre-line}
 form[data-comment-form],form[data-visitor-post-form]{display:grid;gap:10px;max-width:640px;margin:16px 0}
-form[data-comment-form] label,form[data-visitor-post-form] label{display:grid;gap:6px;font-weight:700;font-size:var(--type-small,.95rem)}
+form[data-comment-form] label,form[data-visitor-post-form] label{display:block;font-weight:700;font-size:var(--type-small,.95rem);margin-top:4px}
+form[data-comment-form] label>span[aria-hidden],form[data-visitor-post-form] label>span[aria-hidden]{color:var(--bsx-red,#e02424)}
+form[data-comment-form]>small,form[data-visitor-post-form]>small{margin-top:-4px;color:var(--muted,var(--bsx-muted,#6b7280))}
 form[data-comment-form] input:not([type=checkbox]),form[data-comment-form] textarea,
-form[data-visitor-post-form] input:not([type=checkbox]),form[data-visitor-post-form] textarea{width:100%;min-height:46px;padding:10px 12px;border:1px solid var(--line);border-radius:6px;background:var(--paper);color:var(--ink);font:inherit}
+form[data-visitor-post-form] input:not([type=checkbox]),form[data-visitor-post-form] textarea{width:100%;min-height:46px;padding:10px 12px;border:1px solid var(--line,var(--bsx-line2,#d1d5db));border-radius:6px;background:var(--paper,var(--bsx-card,#fff));color:var(--ink,var(--bsx-text,#111827));font:inherit;box-sizing:border-box}
+form[data-comment-form] input:not([type=checkbox]):focus,form[data-comment-form] textarea:focus,form[data-visitor-post-form] input:not([type=checkbox]):focus,form[data-visitor-post-form] textarea:focus{outline:2px solid var(--blue-deep,var(--bsx-red,#e02424));outline-offset:1px;border-color:transparent}
 form[data-comment-form] textarea,form[data-visitor-post-form] textarea{min-height:140px;resize:vertical}
 .form-consent{display:flex!important;align-items:flex-start;gap:8px;font-weight:400!important}
 .form-consent input{margin-top:3px;flex:none}
-form[data-comment-form] button,form[data-visitor-post-form] button,form[data-poll-form] button{justify-self:start;min-height:44px;padding:0 20px;border:0;border-radius:6px;background:var(--blue-deep);color:#fff;font-weight:700;cursor:pointer}
+form[data-comment-form] button,form[data-visitor-post-form] button,form[data-poll-form] button{justify-self:start;min-height:44px;padding:0 20px;border:0;border-radius:6px;background:var(--blue-deep,var(--bsx-red,#e02424));color:#fff;font-weight:700;cursor:pointer}
 form[data-comment-form] button:disabled,form[data-visitor-post-form] button:disabled,form[data-poll-form] button:disabled{opacity:.6;cursor:wait}
-[data-form-status]{min-height:1.2em;margin:4px 0 0;font-size:var(--type-small,.95rem);color:var(--blue-deep)}
+[data-form-status]{min-height:1.2em;margin:4px 0 0;font-size:var(--type-small,.95rem);color:var(--blue-deep,var(--bsx-green,#046c4e))}
+/* BSX karanlık tema: form kutuları koyu zeminde. */
+body.bsx-dark form[data-comment-form] input:not([type=checkbox]),body.bsx-dark form[data-comment-form] textarea,body.bsx-dark form[data-visitor-post-form] input:not([type=checkbox]),body.bsx-dark form[data-visitor-post-form] textarea{background:#111827;color:#f3f4f6;border-color:#374151}
 form :focus-visible{outline:3px solid color-mix(in srgb,var(--blue) 35%,transparent);outline-offset:2px}
 
 /* Anket sonuçları (site-modules.js tarafından çizilir) */
