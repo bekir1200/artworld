@@ -9,7 +9,7 @@
   if(!panel) return;
 
   const API = '/api/admin/bots';
-  const NOTE = 'Aktif ajanlar Cron ayarlarındaki aralıkla otomatik çekilir. Çekilen haberler TASLAK olarak Haber Yönetimi\'ne düşer; editör onayıyla yayımlanır. "Otomatik yayınla" işaretli ajansların haberleri onay beklemeden doğrudan yayına girer.';
+  const NOTE = 'Aktif ajanlar Cron ayarlarındaki aralıkla otomatik çekilir. Çekilen haberler TASLAK olarak Haber Yönetimi\'ne düşer; editör onayıyla yayımlanır. "Otomatik yayınla" işaretli ajansların haberleri onay beklemeden doğrudan yayına girer. Son 48 saatte başka bir kaynaktan aynı olay eklenmişse (benzer başlık) haber tekrar eklenmez.';
 
   const state = { bots: [], busy: false };
   const refs = {};
@@ -207,7 +207,8 @@
       if(result.error){
         showFeedback(result.error, true);
       } else {
-        showFeedback(bot.agency_name + ': ' + (result.inserted || 0) + (bot.auto_publish === true ? ' yeni haber yayınlandı, ' : ' yeni taslak eklendi, ') + (result.skipped || 0) + ' mevcut veya atlandı.', false);
+        showFeedback(bot.agency_name + ': ' + (result.inserted || 0) + (bot.auto_publish === true ? ' yeni haber yayınlandı, ' : ' yeni taslak eklendi, ') + (result.skipped || 0) + ' mevcut veya atlandı'
+          + (result.similar ? ', ' + result.similar + ' benzer haber (başka kaynakta zaten var) atlandı' : '') + '.', false);
       }
       await loadBots();
     } catch(err){

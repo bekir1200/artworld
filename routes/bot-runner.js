@@ -1,6 +1,7 @@
 'use strict';
 /* İçerik botu çekim motoru.
-   Aktif ajansların RSS/Atom beslemesini çeker ve yeni haberleri articles tablosuna ekler: ajansta
+   Aktif ajansların RSS/Atom beslemesini çeker ve yeni haberleri articles tablosuna ekler (son 48 saatte
+   başka kaynaktan eklenmiş aynı olay, başlık benzerliğiyle atlanır): ajansta
    "otomatik yayınla" açıksa yayında, değilse TASLAK. Beslemedeki haber görseli indirilip kapak olarak
    veritabanına (media_assets.content) yazılır. Harici kütüphane yok; ayrıştırma regex ile yapılır. */
 
@@ -10,6 +11,7 @@ const { randomBytes } = require('node:crypto');
 const pool = require('../db/pool');
 const { getSettings } = require('./settings-store');
 const { imageType, imageDimensions } = require('./media-utils');
+const { createIndex } = require('./headline-similarity');
 
 const FETCH_TIMEOUT_MS = 15000;
 const MAX_BYTES = 2 * 1024 * 1024;
@@ -23,6 +25,7 @@ const RESULT_MAX = 500;
 const URL_MAX = 2000;
 const IMAGE_MAX_BYTES = 6 * 1024 * 1024; // yönetim paneli yükleme sınırıyla aynı
 const IMAGE_TIMEOUT_MS = 10000;
+const SIMILAR_WINDOW_HOURS = 48; // aynı olay kontrolü bu süre içindeki haberlere bakar
 
 // Modül düzeyinde kilit: aynı anda tek çekim (zamanlayıcı ya da manuel).
 let running = false;
@@ -338,14 +341,29 @@ async function downloadImage(rawUrl) {
   }
 }
 
+/* ---------- Aynı olay kontrolü ---------- */
+// Son 48 saatteki haberler (bot ya da editör, arşiv hariç). Farklı ajansların aynı olayı anlatan
+// haberleri başlık benzerliğiyle yakalanır; bkz. headline-similarity.js.
+async function loadRecentIndex() {
+  const { rows } = await pool.query(
+    `SELECT id, headline FROM articles
+      WHERE status <> 'archived'
+        AND GREATEST(created_at, COALESCE(published_at, created_at)) > NOW() - make_interval(hours => $1::int)
+      ORDER BY id DESC
+      LIMIT 3000`,
+    [SIMILAR_WINDOW_HOURS]
+  );
+  return createIndex(rows);
+}
+
 async function findDefaultCategoryId() {
   // Kategori: 'Gündem' (import-artworld-archive.js ile aynı varsayılan). Yoksa NULL.
   const result = await pool.query("SELECT id FROM categories WHERE slug = 'gundem' AND is_active = TRUE LIMIT 1");
   return result.rows[0]?.id || null;
 }
 
-// Tek öğe: 'inserted' | 'skipped'. Hata fırlatabilir (executeBot yakalar).
-async function importItem(bot, item, categoryId) {
+// Tek öğe: 'inserted' | 'skipped' | 'similar'. Hata fırlatabilir (executeBot yakalar).
+async function importItem(bot, item, categoryId, recent) {
   const headline = item.title.slice(0, TITLE_MAX);
   if (!headline) return 'skipped';
   if (!item.link || item.link.length > URL_MAX) return 'skipped';
@@ -357,6 +375,8 @@ async function importItem(bot, item, categoryId) {
   // Görsel yalnız yeni haberler için indirilsin; kesin kontrol aşağıda işlem içinde yine yapılır.
   const known = await pool.query('SELECT 1 FROM articles WHERE source_url = $1 LIMIT 1', [sourceUrl]);
   if (known.rowCount) return 'skipped';
+  // Başka bir ajanstan (ya da editörden) aynı olay son 48 saatte eklendiyse bu haber atlanır.
+  if (recent && recent.find(headline)) return 'similar';
   const image = await downloadImage(item.imageUrl);
 
   const client = await pool.connect();
@@ -429,6 +449,7 @@ async function importItem(bot, item, categoryId) {
       [articleId, JSON.stringify({ source_url: sourceUrl, agency_key: bot.agency_key, status, source_published_at: item.publishedAt })]
     );
     await client.query('COMMIT');
+    if (recent) recent.add({ id: articleId, headline });
     return 'inserted';
   } catch (error) {
     await client.query('ROLLBACK').catch(() => {});
@@ -445,8 +466,8 @@ function describeFetchError(error) {
   return 'RSS adresine ulaşılamadı.';
 }
 
-async function executeBot(bot, categoryId) {
-  const summary = { botId: bot.id, agency: bot.agency_name, fetched: 0, inserted: 0, skipped: 0, failed: 0, error: null };
+async function executeBot(bot, categoryId, recent) {
+  const summary = { botId: bot.id, agency: bot.agency_name, fetched: 0, inserted: 0, skipped: 0, similar: 0, failed: 0, error: null };
   let runError = null;
   try {
     if (!bot.rss_url || !String(bot.rss_url).trim()) throw new BotError('Önce RSS adresi girin.');
@@ -455,8 +476,9 @@ async function executeBot(bot, categoryId) {
     summary.fetched = items.length;
     for (const item of items) {
       try {
-        const outcome = await importItem(bot, item, categoryId);
+        const outcome = await importItem(bot, item, categoryId, recent);
         if (outcome === 'inserted') summary.inserted += 1;
+        else if (outcome === 'similar') summary.similar += 1;
         else summary.skipped += 1;
       } catch (error) {
         summary.failed += 1;
@@ -472,6 +494,7 @@ async function executeBot(bot, categoryId) {
   const text = runError
     ? runError
     : `Tamam: ${summary.fetched} öğe, ${summary.inserted} yeni, ${summary.skipped} mevcut veya atlandı`
+      + (summary.similar ? `, ${summary.similar} benzer haber atlandı` : '')
       + (summary.failed ? `, ${summary.failed} kayıt hatası` : '');
   summary.result = text.slice(0, RESULT_MAX);
 
@@ -496,7 +519,7 @@ async function findBotById(id) {
 // Manuel çekim. Asla throw etmez; sonuç her zaman {botId, agency, fetched, inserted, skipped, error}.
 async function runBot(botId) {
   const id = Number(botId);
-  const empty = (error, agency = null) => ({ botId: id, agency, fetched: 0, inserted: 0, skipped: 0, error });
+  const empty = (error, agency = null) => ({ botId: id, agency, fetched: 0, inserted: 0, skipped: 0, similar: 0, error });
   if (!Number.isSafeInteger(id) || id < 1) return empty('Geçersiz ajans kimliği.');
   if (running) return empty('Başka bir çekim sürüyor. Biraz sonra tekrar deneyin.');
   running = true;
@@ -504,13 +527,14 @@ async function runBot(botId) {
     const bot = await findBotById(id);
     if (!bot) return empty('Ajans bulunamadı.');
     const categoryId = await findDefaultCategoryId();
-    const summary = await executeBot(bot, categoryId);
+    const summary = await executeBot(bot, categoryId, await loadRecentIndex());
     return {
       botId: summary.botId,
       agency: summary.agency,
       fetched: summary.fetched,
       inserted: summary.inserted,
       skipped: summary.skipped,
+      similar: summary.similar,
       error: summary.error
     };
   } catch (error) {
@@ -540,9 +564,11 @@ async function runDueBots() {
     );
     if (!due.rowCount) return [];
     const categoryId = await findDefaultCategoryId();
+    // Tek liste tüm ajanslar arasında paylaşılır: aynı çekimde iki ajansın aynı olayı da yakalanır.
+    const recent = await loadRecentIndex();
     const results = [];
     for (const bot of due.rows) {
-      results.push(await executeBot(bot, categoryId));
+      results.push(await executeBot(bot, categoryId, recent));
     }
     return results;
   } catch (error) {
