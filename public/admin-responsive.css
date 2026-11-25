@@ -1,0 +1,60 @@
+/* Yönetim paneli taşma düzeltmeleri.
+   Satır ızgaraları ekran yerine panelin kendi genişliğine göre daralır: kenar çubuğu
+   açıkken (~900-1200px ekranlar) içerik alanı dar kaldığında da satırlar sığar.
+   Bu dosya yonetim.html'de en son yüklenmeli. */
+
+.admin-layout > .admin-content {
+  container: admin-panel / inline-size;
+  min-width: 0;
+}
+.admin-managed-row > * { min-width: 0; }
+
+@container admin-panel (max-width: 820px) {
+  .admin-managed-row,
+  .staff-managed-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@container admin-panel (max-width: 520px) {
+  .admin-managed-row,
+  .staff-managed-row { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Bot satırı: "Son çalışma" bilgisi butonların altına insin. */
+.bot-actions .bot-run-meta { flex-basis: 100%; }
+
+/* Ziyaretçi haberleri: metin | durum | işlemler (3 sütun). */
+[data-panel="ziyaretci-haberleri"] .admin-managed-row { grid-template-columns: minmax(0, 1fr) auto auto; }
+[data-panel="ziyaretci-haberleri"] .admin-managed-row strong,
+[data-panel="ziyaretci-haberleri"] .admin-managed-row .meta { display: block; }
+@container admin-panel (max-width: 820px) {
+  [data-panel="ziyaretci-haberleri"] .admin-managed-row { grid-template-columns: minmax(0, 1fr) auto; }
+  [data-panel="ziyaretci-haberleri"] .admin-managed-row > :nth-child(3) { grid-column: 1 / -1; }
+}
+@container admin-panel (max-width: 520px) {
+  [data-panel="ziyaretci-haberleri"] .admin-managed-row { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Kontrol paneli "Son Haberler": saat sütunu "09/11 15:19" sığacak kadar geniş. */
+.dash-news .table-row { grid-template-columns: 10px minmax(140px, 1fr) 110px 100px auto 36px; }
+
+/* Dar panelde tablo satırları (sayfa listesi, kategori listesi, son haberler) kırpılmak
+   yerine alt satıra sarar: başlık tam genişlik, diğer bilgiler altında. */
+@container admin-panel (max-width: 520px) {
+  .admin-managed-list > .table-row:not(.shell-row):not(.article-row),
+  .dash-news .table-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 10px;
+    min-width: 0;
+  }
+  .admin-managed-list > .table-row:not(.shell-row):not(.article-row) > :nth-child(2),
+  .dash-news .table-row > :nth-child(2) {
+    flex: 1 1 calc(100% - 24px);
+    min-width: 0;
+  }
+  .dash-news .table-row button { margin-left: auto; }
+
+  /* Dar metrik kartlarında dekoratif daire başlığın üstüne binmesin. */
+  .dash-metrics .metric::after { display: none; }
+  .dash-metrics .metric > span { padding-right: 0; }
+}
