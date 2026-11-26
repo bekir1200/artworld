@@ -394,6 +394,7 @@ function setupAdminInnerTabs() {
   const tableFor = (panel, childId) => panel.querySelector(`#${childId}`)?.closest('.admin-table');
   const ads = $('.admin-content[data-panel="reklam"]');
   if (ads) build('reklam', 'Reklam yönetimi bölümleri', [
+    { title: 'Hızlı reklam', nodes: [ads.querySelector('#quick-ad-form')] },
     { title: 'Raporlar', nodes: [ads.querySelector('.workflow'), ads.querySelector('.ad-report')] },
     { title: 'Kampanyalar', nodes: [ads.querySelector('#campaign-form'), tableFor(ads, 'campaign-list')] },
     { title: 'Kreatifler', nodes: [ads.querySelector('#creative-form'), tableFor(ads, 'creative-list')] },
@@ -807,6 +808,8 @@ async function setupAdvertisingManagement() {
     finally { button.disabled = false; }
   });
   $('#campaign-status-filter').addEventListener('change', renderCampaignRows);
+  // Hızlı reklam formu (admin-quick-ad.js) reklam ekleyince listeler yenilenir.
+  document.addEventListener('ads:changed', () => { refresh().catch((error) => toast(error.message)); });
   $('#creative-campaign')?.addEventListener('change', updateCreativeFormatHelp);
   $('#creative-form')?.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -1210,6 +1213,8 @@ function setupArticleDialog(categories) {
       form.elements.body.value = article.body || '';
       form.elements.homepageSliderSlot.value = article.homepage_slider_slot || 'auto';
       form.elements.isBreaking.checked = Boolean(article.is_breaking);
+      form.elements.hideHeroTitle.checked = Boolean(article.hide_hero_title);
+      form.elements.videoUrl.value = article.video_url || '';
       form.elements.isInBriefing.checked = article.is_in_briefing !== false;
       form.elements.isInLatest.checked = article.is_in_latest !== false;
       form.elements.scheduledAt.value = article.scheduled_at ? new Date(article.scheduled_at).toISOString().slice(0, 16) : '';
@@ -1353,6 +1358,7 @@ function setupArticleDialog(categories) {
           categoryIds: [...extraCategorySelect.selectedOptions].map((option) => Number(option.value)),
           tags: form.elements.tags.value, coverMediaId: coverIdInput.value || null, coverAltText: form.elements.coverAltText.value,
           homepageSliderSlot: form.elements.homepageSliderSlot.value, isBreaking: form.elements.isBreaking.checked,
+          hideHeroTitle: form.elements.hideHeroTitle.checked, videoUrl: form.elements.videoUrl.value.trim(),
           isInBriefing: form.elements.isInBriefing.checked, isInLatest: form.elements.isInLatest.checked,
           scheduledAt: form.elements.scheduledAt.value || null, sourceName: form.elements.sourceName.value,
           sourceUrl: form.elements.sourceUrl.value, seoTitle: form.elements.seoTitle.value,

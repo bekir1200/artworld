@@ -8,7 +8,7 @@ const ORDER = [
   ['breaking', S1.breaking], ['hero', S1.hero], ['strip', S1.strip], ['featured', S1.featured],
   ['fx', S1.fx], ['columnists', S1.columnists], ['gridA', S1.gridA], ['local', S2.local],
   ['prayer', S2.prayer], ['gridB', S2.gridB], ['magazin', S2.magazin], ['movies', S2.movies],
-  ['photos', S2.photos], ['sport', S2.sport], ['videos', S2.videos], ['zodiac', S2.zodiac],
+  ['photos', S2.photos], ['sport', S2.sport], ['standings', S2.standings], ['videos', S2.videos], ['zodiac', S2.zodiac],
   ['gridC', S2.gridC], ['tabs', S2.tabs], ['weather', S2.weather], ['top6', S2.top6], ['timeline', S2.timeline]
 ];
 
@@ -16,7 +16,8 @@ const ORDER = [
 const TOGGLES = {
   breaking: 'module.breaking', strip: 'module.strip', featured: 'module.featured', fx: 'module.fx',
   columnists: 'module.columnists', local: 'module.local', prayer: 'module.prayer', movies: 'module.movies',
-  photos: 'module.photos', videos: 'module.videos', zodiac: 'module.horoscope', weather: 'module.weather'
+  photos: 'module.photos', videos: 'module.videos', zodiac: 'module.horoscope', weather: 'module.weather',
+  standings: 'module.standings'
 };
 
 function isEnabled(name, settings) {

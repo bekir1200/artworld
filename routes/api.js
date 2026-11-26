@@ -1,3 +1,4 @@
+const { youtubeId } = require('./youtube');
 const { createCipheriv, createDecipheriv, createHash, randomBytes } = require('node:crypto');
 const fs = require('node:fs/promises');
 const path = require('node:path');
@@ -783,13 +784,16 @@ function validateArticle(input) {
   for (const [key, max] of [['sourceName', 180], ['sourceUrl', 1000], ['seoTitle', 220], ['seoDescription', 320], ['coverAltText', 240]]) {
     if (typeof input[key] === 'string' && input[key].length > max) throw new HttpError(400, `${key} alanı çok uzun.`);
   }
+  const videoUrl = String(input.videoUrl || '').trim();
+  if (videoUrl && (videoUrl.length > 500 || !youtubeId(videoUrl))) throw new HttpError(400, 'Video bağlantısı bir YouTube bağlantısı olmalı (youtube.com/watch?v=… veya youtu.be/…).');
   const status = input.status === undefined ? 'draft' : input.status;
   if (!['draft', 'in_review'].includes(status)) throw new HttpError(400, 'Yeni haber taslağı yalnızca taslakta veya incelemede başlayabilir.');
   return { headline, standfirst, bodyText, categoryId, categoryIds: categoryIds.filter((id) => id !== categoryId), tags,
     coverMediaId, coverAltText: String(input.coverAltText || '').trim(), homepageSliderSlot,
     isBreaking: input.isBreaking === true, isInBriefing: input.isInBriefing !== false, isInLatest: input.isInLatest !== false,
     scheduledAt, sourceName: String(input.sourceName || '').trim(), sourceUrl: String(input.sourceUrl || '').trim(),
-    seoTitle: String(input.seoTitle || '').trim(), seoDescription: String(input.seoDescription || '').trim(), status };
+    seoTitle: String(input.seoTitle || '').trim(), seoDescription: String(input.seoDescription || '').trim(), status,
+    videoUrl, hideHeroTitle: input.hideHeroTitle === true };
 }
 
 function articleSnapshot(article) {
@@ -802,7 +806,8 @@ function articleSnapshot(article) {
     cover_media_id: article.cover_media_id,
     homepage_slider_slot: article.homepage_slider_slot, is_breaking: article.is_breaking,
     is_in_briefing: article.is_in_briefing, is_in_latest: article.is_in_latest, scheduled_at: article.scheduled_at,
-    source_name: article.source_name, source_url: article.source_url, seo_title: article.seo_title, seo_description: article.seo_description
+    source_name: article.source_name, source_url: article.source_url, seo_title: article.seo_title, seo_description: article.seo_description,
+    video_url: article.video_url, hide_hero_title: article.hide_hero_title
   };
 }
 
@@ -946,11 +951,13 @@ async function createArticle(user, req) {
     const created = await client.query(
       `INSERT INTO articles
         (slug, headline, standfirst, body, status, primary_category_id, cover_media_id, author_id, created_by, updated_by,
-         homepage_slider_slot, is_breaking, is_in_briefing, is_in_latest, scheduled_at, source_name, source_url, seo_title, seo_description)
-       VALUES ($1, $2, $3, $4::jsonb, $5, $6, $7, $8, $8, $8, $9, $10, $11, $12, NULL, $13, $14, $15, $16)
+         homepage_slider_slot, is_breaking, is_in_briefing, is_in_latest, scheduled_at, source_name, source_url, seo_title, seo_description,
+         video_url, hide_hero_title)
+       VALUES ($1, $2, $3, $4::jsonb, $5, $6, $7, $8, $8, $8, $9, $10, $11, $12, NULL, $13, $14, $15, $16, $17, $18)
        RETURNING id, slug, headline, standfirst, status, created_at, updated_at`,
       [slug, input.headline, input.standfirst, JSON.stringify(body), input.status, input.categoryId, input.coverMediaId, user.id,
-        input.homepageSliderSlot, input.isBreaking, input.isInBriefing, input.isInLatest, input.sourceName, input.sourceUrl, input.seoTitle, input.seoDescription]
+        input.homepageSliderSlot, input.isBreaking, input.isInBriefing, input.isInLatest, input.sourceName, input.sourceUrl, input.seoTitle, input.seoDescription,
+        input.videoUrl, input.hideHeroTitle]
     );
     const article = created.rows[0];
     if (categoryIds.length) await client.query('INSERT INTO article_categories (article_id, category_id) SELECT $1, unnest($2::bigint[]) ON CONFLICT DO NOTHING', [article.id, categoryIds]);
@@ -994,7 +1001,7 @@ async function getArticle(user, articleId) {
     `SELECT a.id, a.slug, a.headline, a.standfirst, a.body, a.status,
             a.primary_category_id, a.cover_media_id, m.storage_key AS cover_storage_key, m.alt_text AS cover_alt_text,
             a.homepage_slider_slot, a.is_breaking, a.is_in_briefing, a.is_in_latest, a.scheduled_at,
-            a.source_name, a.source_url, a.seo_title, a.seo_description,
+            a.source_name, a.source_url, a.seo_title, a.seo_description, a.video_url, a.hide_hero_title,
             a.created_at, a.updated_at, a.published_at,
             u.display_name AS author_name, c.name AS category_name
        FROM articles a
@@ -1033,7 +1040,8 @@ async function updateArticle(user, req, articleId) {
     await client.query('BEGIN');
     const result = await client.query(
       `SELECT id, slug, headline, standfirst, body, status, primary_category_id, cover_media_id, author_id, created_by, published_at,
-              homepage_slider_slot, is_breaking, is_in_briefing, is_in_latest, scheduled_at, source_name, source_url, seo_title, seo_description
+              homepage_slider_slot, is_breaking, is_in_briefing, is_in_latest, scheduled_at, source_name, source_url, seo_title, seo_description,
+              video_url, hide_hero_title
          FROM articles WHERE id = $1 FOR UPDATE`, [articleId]
     );
     const before = result.rows[0];
@@ -1096,13 +1104,14 @@ async function updateArticle(user, req, articleId) {
               homepage_slider_slot = $9, is_breaking = $10, is_in_briefing = $11, is_in_latest = $12,
               scheduled_at = CASE WHEN $7 = 'scheduled' THEN $13::timestamptz ELSE NULL END,
               source_name = $14, source_url = $15, seo_title = $16, seo_description = $17,
+              video_url = $18, hide_hero_title = $19,
               published_at = CASE WHEN $7 = 'published' THEN COALESCE(published_at, NOW()) ELSE published_at END,
               archived_at = CASE WHEN $7 = 'archived' THEN NOW() WHEN $7 = 'draft' THEN NULL ELSE archived_at END
         WHERE id = $1
         RETURNING id, slug, headline, standfirst, status, created_at, updated_at, published_at`,
       [articleId, validated.headline, validated.standfirst, JSON.stringify(body), validated.categoryId, validated.coverMediaId, input.status, user.id,
         validated.homepageSliderSlot, validated.isBreaking, validated.isInBriefing, validated.isInLatest, validated.scheduledAt,
-        validated.sourceName, validated.sourceUrl, validated.seoTitle, validated.seoDescription]
+        validated.sourceName, validated.sourceUrl, validated.seoTitle, validated.seoDescription, validated.videoUrl, validated.hideHeroTitle]
     );
     await client.query('DELETE FROM article_categories WHERE article_id = $1', [articleId]);
     if (categoryIds.length) await client.query('INSERT INTO article_categories (article_id, category_id) SELECT $1, unnest($2::bigint[]) ON CONFLICT DO NOTHING', [articleId, categoryIds]);

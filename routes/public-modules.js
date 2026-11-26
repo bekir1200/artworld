@@ -4,6 +4,9 @@
 // resmi ilanlar, burçlar, ziyaretçi haberleri, yorumlar, footer linkleri) okur tarafı.
 // Yazma/moderasyon işlemleri api.js ve ilgili route dosyalarında kalır.
 
+const { loadFootball } = require('./football');
+const footballHtml = require('./football-html');
+const { youtubeId } = require('./youtube');
 const pool = require('../db/pool');
 
 const NOT_FOUND = Symbol('not-found');
@@ -326,35 +329,6 @@ async function videoDetail(slug) {
   };
 }
 
-// Videonun YouTube kimliğini çıkarır (watch, youtu.be, embed, shorts, live).
-function youtubeId(raw) {
-  let text = String(raw ?? '').trim();
-  if (!text) return null;
-  if (!/^https?:\/\//i.test(text)) text = `https://${text}`;
-
-  let url;
-  try {
-    url = new URL(text);
-  } catch {
-    return null;
-  }
-
-  const host = url.hostname.replace(/^www\./i, '').toLowerCase();
-  let id = null;
-  if (host === 'youtu.be') {
-    id = url.pathname.split('/')[1] || null;
-  } else if (['youtube.com', 'm.youtube.com', 'youtube-nocookie.com'].includes(host)) {
-    if (url.pathname === '/watch') {
-      id = url.searchParams.get('v');
-    } else {
-      const match = url.pathname.match(/^\/(?:embed|shorts|live|v)\/([^/?#]+)/);
-      id = match ? match[1] : null;
-    }
-  }
-
-  return id && /^[A-Za-z0-9_-]{4,64}$/.test(id) ? id : null;
-}
-
 async function listAuthors() {
   const { rows } = await pool.query(`
     SELECT title, COALESCE(slug, id::text) AS slug, author_name,
@@ -525,6 +499,24 @@ async function listHoroscopes() {
 }
 
 // ---------------------------------------------------------------------------
+// Puan durumu ve fikstür (Süper Lig, kaynak ESPN)
+
+async function standingsPage() {
+  if (!(await moduleOn('module.standings'))) return null;
+  const data = await loadFootball();
+  return {
+    title: 'Süper Lig Puan Durumu ve Fikstür',
+    description: 'Trendyol Süper Lig güncel puan durumu, maç programı ve son sonuçlar.',
+    bodyHtml: layout({
+      trail: [{ label: 'Puan Durumu' }],
+      kicker: 'SPOR',
+      title: 'Süper Lig Puan Durumu ve Fikstür',
+      inner: data ? footballHtml.pageBlock(data) : emptyState('Puan durumu şu an alınamadı. Lütfen biraz sonra tekrar deneyin.')
+    })
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Vizyondaki filmler
 // ---------------------------------------------------------------------------
 
@@ -664,6 +656,7 @@ const EXACT_ROUTES = {
   '/yazarlar': listAuthors,
   '/resmi-ilanlar': listAnnouncements,
   '/burclar': listHoroscopes,
+  '/puan-durumu': standingsPage,
   '/filmler': listMovies,
   '/haber-gonder': visitorPostForm,
   '/hakkimizda': aboutPage

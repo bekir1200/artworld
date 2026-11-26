@@ -160,13 +160,14 @@
     ['module.photos', 'Foto Galeri', 'toggle'],
     ['module.videos', 'Video Galeri', 'toggle'],
     ['module.announcements', 'Resmi İlanlar', 'toggle'],
+    ['module.liveButton', 'Canlı Yayın Butonu', 'toggle'],
+    ['live.url', 'Canlı Yayın Bağlantısı', 'link'],
     ['module.weather', 'Hava Durumu', 'toggle'],
     ['module.prayer', 'Namaz Vakitleri', 'toggle'],
     ['module.pharmacy', 'Nöbetçi Eczaneler', 'pending'],
     ['module.papers', 'Gazete Manşetleri', 'pending'],
     ['module.horoscope', 'Burç Yorumları', 'toggle'],
-    ['module.standings', 'Puan Durumu', 'pending'],
-    ['league.default', 'Default Lig', 'league'],
+    ['module.standings', 'Puan Durumu ve Fikstür', 'toggle'],
     ['module.local', 'Yerel Haberler', 'toggle'],
     ['module.onlinePaper', 'Online Gazete', 'pending'],
     ['module.movies', 'Vizyondaki Filmler', 'toggle'],
@@ -297,6 +298,16 @@
           set: (v) => { input.value = v || '24'; }
         };
         return moduleCard(name, input, el('small', { className: 'mod-hint', text: `Saat cinsinden (${POPUP_HOURS_MIN}-${POPUP_HOURS_MAX})` }));
+      }
+
+      if (kind === 'link') {
+        const input = el('input', { type: 'text', name: key, maxLength: 500, ariaLabel: name });
+        input.placeholder = '/canli-yayin';
+        controls[key] = {
+          value: () => input.value.trim(),
+          set: (v) => { input.value = v || ''; }
+        };
+        return moduleCard(name, input, el('small', { className: 'mod-hint', text: 'Boş bırakılırsa sitenin Canlı Yayın sayfası açılır. YouTube vb. için https:// adresi yazın.' }));
       }
 
       // kind === 'city'

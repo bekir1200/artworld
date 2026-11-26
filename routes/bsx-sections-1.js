@@ -69,7 +69,8 @@ function hero(data) {
   const slides = items
     .map((c, i) => `<a class="bsx-hero-slide${i === 0 ? ' is-active' : ''}" data-bsx-slide href="${esc(hrefOf(c.href))}">`
       + `<div class="bsx-hero-img">${heroImg(c, i)}</div>`
-      + `<div class="bsx-hero-panel"><h2 class="bsx-hero-title">${esc(c.title)}</h2></div>`
+      // Görselde zaten yazı varsa (hideTitle) başlık yalnız ekran okuyucular için kalır.
+      + `<div class="bsx-hero-panel${c.hideTitle && c.image ? ' bsx-hero-panel--hidden' : ''}"><h2 class="bsx-hero-title">${esc(c.title)}</h2></div>`
       + `</a>`)
     .join('');
   const inner = `<div class="bsx-hero-in" data-bsx-slider data-bsx-auto="6000">`

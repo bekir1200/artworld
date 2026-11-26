@@ -1,0 +1,50 @@
+/* Puan durumu ve maç programı (routes/football-html.js). Hem BSX ana sayfada hem eski kabuktaki
+   /puan-durumu sayfasında kullanılır; renkler iki temanın değişkenlerinden, yoksa sabitlerden gelir. */
+.fb-home, .fb-page { --fb-ink: var(--bsx-ink, var(--ink, #111827)); --fb-muted: var(--bsx-text, var(--muted, #4b5563)); --fb-line: var(--bsx-line, var(--line, #e5e7eb)); --fb-card: var(--bsx-card, #fff); --fb-accent: var(--bsx-red, var(--blue-deep, #e02424)); color: var(--fb-ink); }
+.fb-home { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; }
+.fb-col { min-width: 0; background: var(--fb-card); padding: 16px; border-radius: 6px; }
+.fb-col-title { margin: 0 0 10px; font-size: 16px; font-weight: 700; line-height: 24px; }
+.fb-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.fb-table { width: 100%; border-collapse: collapse; font-size: 14px; line-height: 20px; font-variant-numeric: tabular-nums; }
+.fb-table th, .fb-table td { padding: 6px 6px; text-align: center; border-bottom: 1px solid var(--fb-line); white-space: nowrap; }
+.fb-table thead th { font-size: 12px; font-weight: 700; color: var(--fb-muted); text-transform: uppercase; }
+.fb-table thead th:nth-child(2) { text-align: left; }
+.fb-table .fb-num { width: 28px; color: var(--fb-muted); font-weight: 600; }
+.fb-table .fb-marked { box-shadow: inset 3px 0 0 var(--fb-mark, transparent); }
+.fb-table .fb-team { display: flex; align-items: center; gap: 8px; text-align: left; font-weight: 600; min-width: 0; }
+.fb-table .fb-team span { overflow: hidden; text-overflow: ellipsis; }
+.fb-table .fb-pts { font-weight: 800; color: var(--fb-ink); }
+.fb-table-compact th, .fb-table-compact td { padding: 5px 4px; }
+.fb-logo { width: 20px; height: 20px; object-fit: contain; flex: 0 0 20px; }
+.fb-logo-empty { display: inline-block; }
+.fb-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 10px 0 0; padding: 0; list-style: none; font-size: 13px; color: var(--fb-muted); }
+.fb-legend span { display: inline-block; width: 10px; height: 10px; margin-right: 6px; border-radius: 2px; background: var(--fb-mark); vertical-align: -1px; }
+.fb-day + .fb-day { margin-top: 10px; }
+.fb-day-title { margin: 0 0 4px; font-size: 13px; font-weight: 700; color: var(--fb-muted); text-transform: capitalize; }
+.fb-matches { margin: 0; padding: 0; list-style: none; }
+.fb-match { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--fb-line); font-size: 14px; position: relative; }
+.fb-side { display: flex; align-items: center; gap: 6px; min-width: 0; font-weight: 600; }
+.fb-side span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fb-home .fb-side span, .fb-page .fb-side span { min-width: 0; }
+.fb-match .fb-home { justify-content: flex-end; text-align: right; }
+.fb-score { min-width: 56px; padding: 2px 8px; border-radius: 4px; background: var(--fb-ink); color: #fff; font-weight: 800; text-align: center; font-variant-numeric: tabular-nums; }
+.fb-score-pre { background: transparent; color: var(--fb-ink); border: 1px solid var(--fb-line); font-weight: 700; }
+.fb-score-live { background: var(--fb-accent); }
+.fb-live { grid-column: 1 / -1; justify-self: center; font-size: 11px; font-weight: 800; color: var(--fb-accent); letter-spacing: .04em; }
+.fb-more { display: inline-block; margin-top: 12px; font-weight: 700; color: var(--fb-accent); }
+.fb-source { margin: 8px 0 0; font-size: 12px; color: var(--fb-muted); }
+.fb-page { margin-top: 16px; }
+.fb-block { margin-bottom: 24px; }
+.fb-block h2 { margin: 0 0 12px; font-size: 20px; }
+.fb-page-cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+@media (max-width: 860px) {
+  .fb-home, .fb-page-cols { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+}
+@media (max-width: 480px) {
+  .fb-col { padding: 12px; }
+  .fb-match { font-size: 13px; gap: 6px; }
+  .fb-score { min-width: 48px; padding: 2px 6px; }
+  .fb-match .fb-logo { display: none; }
+}
+body.bsx-dark .fb-home, body.bsx-dark .fb-page { --fb-ink: #f3f4f6; --fb-muted: #9ca3af; --fb-line: #374151; --fb-card: #1f2937; }
+body.bsx-dark .fb-score:not(.fb-score-pre):not(.fb-score-live) { background: #f3f4f6; color: #111827; }

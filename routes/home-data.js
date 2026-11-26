@@ -4,6 +4,7 @@
 // Çıktı şekli TASARIM-BSX.md §4 ve MODUL-AYARLARI.md §2 sözleşmelerine uyar.
 // load() asla throw etmez: her parça bağımsız çekilir, hata veren parça [] / null alır.
 
+const { loadFootball } = require('./football');
 const { getSettings } = require('./settings-store');
 const pool = require('../db/pool');
 
@@ -184,7 +185,8 @@ function toEntry(row) {
       categoryHref: row.category_slug ? categoryHref(row.category_slug) : null,
       time: timeOf(published),
       date: dateOf(published),
-      summary: String(row.standfirst || '').trim() || null
+      summary: String(row.standfirst || '').trim() || null,
+      hideTitle: row.hide_hero_title === true
     }
   };
 }
@@ -248,7 +250,7 @@ async function getJson(url) {
 // ---------------------------------------------------------------------------
 
 const ARTICLE_COLUMNS = `
-  a.slug, a.headline, a.standfirst, a.published_at, a.views_count,
+  a.slug, a.headline, a.standfirst, a.published_at, a.views_count, a.hide_hero_title,
   c.id AS category_id, c.name AS category_name, c.slug AS category_slug, m.storage_key`;
 
 const ARTICLE_FROM = `
@@ -795,7 +797,10 @@ function assemble(raw) {
       logoUrl: safeUrl(settings.logoUrl) || LOGO_FALLBACK,
       slogan: settings.slogan || '',
       social: social.length ? social : [{ key: 'yt', href: YT_DEFAULT }],
-      showAnnouncements: settingValue(settings, 'module.announcements') === 'on'
+      showAnnouncements: settingValue(settings, 'module.announcements') === 'on',
+      // Üst bardaki CANLI YAYIN düğmesi (Modül Ayarları > Canlı Yayın Butonu / Bağlantısı).
+      live: settingValue(settings, 'module.liveButton') === 'off' ? null
+        : { href: String(settings['live.url'] || '').trim() || '/canli-yayin' }
     },
     nav: raw.nav || [],
     tabs: raw.tabs || [],
@@ -820,6 +825,7 @@ function assemble(raw) {
     zodiac: raw.zodiac || [],
     gridC,
     weather: raw.weather || null,
+    football: raw.football || null,
     top6,
     timeline,
     local: raw.local || null,
@@ -870,6 +876,7 @@ async function build() {
     footerLinks: loadFooterLinks,
     weather: () => loadWeather(city),
     prayer: () => loadPrayer(city),
+    football: () => (settingValue(ctx.settings, 'module.standings') === 'off' ? null : loadFootball()),
     fx: loadFx
   });
   raw.settings = ctx.settings;

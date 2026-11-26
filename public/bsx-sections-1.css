@@ -592,3 +592,18 @@
 
   .bsx-grid4 { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* Manşette başlığı gizle: görselin üzerinde zaten yazı var. Kırmızı panel çizilmez, başlık
+   yalnız ekran okuyucular için kalır. Tüm ekran genişliklerinde geçerli olsun diye en sonda. */
+.bsx-hero-panel.bsx-hero-panel--hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+  background: none;
+}

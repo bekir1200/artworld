@@ -854,7 +854,7 @@ async function servePublicPage(req, res, pathname, url) {
     const { rows } = await pool.query(
       `UPDATE articles SET views_count = views_count + 1
         WHERE slug = $1 AND status = 'published' AND published_at <= NOW()
-        RETURNING id, slug, headline, standfirst, body, seo_description, published_at, updated_at, primary_category_id, author_id, cover_media_id`, [slug]
+        RETURNING id, slug, headline, standfirst, body, seo_description, published_at, updated_at, primary_category_id, author_id, cover_media_id, video_url`, [slug]
     );
     const article = rows[0];
     if (!article) { sendNotFound(res, { title: 'Haber bulunamadı', message: 'Bu haber kaldırılmış ya da adresi değişmiş olabilir.' }); return true; }

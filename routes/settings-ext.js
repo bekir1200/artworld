@@ -14,7 +14,7 @@ const ON_OFF_KEYS = [
   'module.comments', 'module.polls', 'module.visitorPosts', 'module.horoscope', 'module.movies',
   'module.breaking', 'module.strip', 'module.featured', 'module.fx', 'module.columnists',
   'module.photos', 'module.videos', 'module.announcements', 'module.weather', 'module.prayer',
-  'module.local', 'module.popup',
+  'module.local', 'module.popup', 'module.liveButton', 'module.standings',
   'theme.defaultDark', 'cron.botsEnabled'
 ];
 const BLOG_KEYS = ['blog.1', 'blog.2'];
@@ -39,7 +39,8 @@ const LABELS = {
   'blog.1': '1. Blog', 'blog.2': '2. Blog', 'numbered.category': 'Numaralı Haberler',
   'tabs.categories': 'Tab Menü', 'popup.hours': 'Popup Reklam Süresi',
   'theme.defaultDark': 'Koyu tema', 'cron.botsEnabled': 'İçerik botları', 'cron.botIntervalMinutes': 'Çekme aralığı',
-  'theme.primary': 'Ana renk', 'theme.accent': 'Vurgu rengi'
+  'theme.primary': 'Ana renk', 'theme.accent': 'Vurgu rengi',
+  'module.liveButton': 'Canlı Yayın Butonu', 'live.url': 'Canlı Yayın Bağlantısı'
 };
 
 function labelOf(key) {
@@ -189,6 +190,21 @@ function normalizeSettingValue(key, raw, activeSlugs) {
     } catch {
       throw invalid;
     }
+    if (parsed.protocol !== 'https:' || parsed.username || parsed.password || !parsed.hostname) throw invalid;
+    return value;
+  }
+
+  // Canlı yayın düğmesinin adresi: boş (= /canli-yayin), site içi yol (/...) ya da https:// adresi.
+  if (key === 'live.url') {
+    if (raw === null || raw === undefined) return '';
+    const invalid = httpError(400, 'Canlı yayın bağlantısı / ile başlayan site içi bir yol ya da https:// ile başlayan bir adres olmalı.');
+    if (typeof raw !== 'string') throw invalid;
+    const value = raw.trim();
+    if (value === '') return '';
+    if (value.length > 500) throw invalid;
+    if (/^\/(?![\/\\])[^\s]*$/.test(value)) return value;
+    let parsed;
+    try { parsed = new URL(value); } catch { throw invalid; }
     if (parsed.protocol !== 'https:' || parsed.username || parsed.password || !parsed.hostname) throw invalid;
     return value;
   }

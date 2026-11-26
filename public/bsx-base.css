@@ -227,6 +227,7 @@ body.bsx-dark .bsx-mobile-in a { color: #f3f4f6; border-color: #374151; }
   .bsx-burger { display: inline-flex; }
   .bsx-header-tools .bsx-icon-btn[aria-label="Ara"] { display: none; }
   .bsx-header-tools .bsx-yellow-btn { display: none; }
+  .bsx-live-btn { padding: 6px 10px; font-size: 13px; }
 }
 @media (max-width: 768px) {
   .bsx-footer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
@@ -247,3 +248,14 @@ body.bsx-dark .bsx-mobile-in a { color: #f3f4f6; border-color: #374151; }
   .bsx-card-title { font-size: 16px; line-height: 24px; }
   .bsx-totop { right: 12px; bottom: 12px; }
 }
+
+/* CANLI YAYIN düğmesi (üst bar, Resmi İlanlar'ın solunda; telefonda da görünür) */
+.bsx-live-btn {
+  display: inline-flex; align-items: center; gap: 8px; white-space: nowrap;
+  background: var(--bsx-red, #e02424); color: #fff; font-size: 15px; font-weight: 700; line-height: 22px;
+  padding: 8px 14px; border-radius: 6px; letter-spacing: .02em;
+}
+.bsx-live-btn:hover { filter: brightness(1.08); color: #fff; }
+.bsx-live-dot { width: 9px; height: 9px; border-radius: 50%; background: #fff; flex: 0 0 auto; animation: bsx-live-pulse 1.4s ease-in-out infinite; }
+@keyframes bsx-live-pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .35; transform: scale(.8); } }
+@media (prefers-reduced-motion: reduce) { .bsx-live-dot { animation: none; } }

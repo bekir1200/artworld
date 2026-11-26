@@ -2,6 +2,7 @@
 // video, burçlar, ızgara C, hava durumu, top6, saat akışı.
 // Sözleşme: TASARIM-BSX.md §3, §4, §5. Ortak yardımcılar routes/bsx-kit.js'ten gelir.
 
+const footballHtml = require('./football-html');
 const { esc, url, img, card, title, section } = require('./bsx-kit');
 
 const MONTHS = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
@@ -242,6 +243,12 @@ function weather(data) {
   return section('bsx-weather', title(heading, '') + `<div class="bsx-wx-grid">${days}</div>`);
 }
 
+// ---------- Puan durumu ve fikstür (Süper Lig) ----------
+function standings(data) {
+  const inner = footballHtml.homeBlock(data && data.football);
+  return inner ? section('bsx-standings', title('PUAN DURUMU VE FİKSTÜR', '/puan-durumu') + inner) : '';
+}
+
 // ---------- Numaralı liste (top 6) ----------
 function top6(data) {
   const items = list(data && data.top6, 6);
@@ -261,4 +268,4 @@ function timeline(data) {
   return section('bsx-timeline', `<div class="bsx-tl-grid">${rows}</div>`);
 }
 
-module.exports = { prayer, gridB, magazin, movies, photos, sport, videos, local, zodiac, gridC, tabs, weather, top6, timeline };
+module.exports = { prayer, gridB, magazin, movies, photos, sport, standings, videos, local, zodiac, gridC, tabs, weather, top6, timeline };

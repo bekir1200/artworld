@@ -1,5 +1,6 @@
 // BSX iç sayfaları: haber detayı, kategori, arama. Sözleşme: TASARIM-ICSAYFA-BSX.md.
 // Saf HTML üretir, veritabanına dokunmaz. Tüm metin esc() ile, tüm dış bağlantılar url() ile süzülür.
+const { youtubeId } = require('./youtube');
 const L = require('./bsx-layout');
 const { esc, url, img, card } = require('./bsx-kit');
 
@@ -146,8 +147,13 @@ function renderArticleMain(a, ad) {
       : `<span class="bsx-article-cat">${esc(a.category_name)}</span>`)
     : '';
   const summary = a.standfirst ? `<p class="bsx-article-summary">${esc(a.standfirst)}</p>` : '';
-  const cover = `<figure class="bsx-article-cover">${img(a.cover_url, a.cover_alt_text || headline)}`
+  const coverImage = `<figure class="bsx-article-cover">${img(a.cover_url, a.cover_alt_text || headline)}`
     + `${a.cover_caption ? `<figcaption>${esc(a.cover_caption)}</figcaption>` : ''}</figure>`;
+  // Haberde YouTube videosu varsa kapak görselinin yerine oynatıcı gösterilir.
+  const videoId = youtubeId(a.video_url);
+  const cover = videoId
+    ? `<div class="bsx-article-video"><iframe src="https://www.youtube-nocookie.com/embed/${esc(videoId)}" title="${esc(headline)} videosu" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>`
+    : coverImage;
   const article = `<article class="bsx-article"><header>${catLink}`
     + `<h1 class="bsx-article-title">${esc(headline)}</h1>${summary}`
     + `${meta.length ? `<div class="bsx-article-meta">${meta.join('')}</div>` : ''}</header>`

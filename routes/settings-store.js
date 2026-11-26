@@ -16,13 +16,15 @@ const DEFAULTS = {
   'module.photos': 'on',
   'module.videos': 'on',
   'module.announcements': 'on',
+  'module.liveButton': 'on',
+  'live.url': '',
   'module.weather': 'on',
   'module.prayer': 'on',
   'module.local': 'on',
   'module.popup': 'off',
   'module.pharmacy': 'off',
   'module.papers': 'off',
-  'module.standings': 'off',
+  'module.standings': 'on',
   'module.onlinePaper': 'off',
   'module.lottery': 'off',
   'module.directory': 'off',
@@ -52,7 +54,7 @@ const DEFAULTS = {
 
 // Veri kaynağı henüz bağlanmadığı için her zaman 'off' kalan modüller.
 const PENDING_MODULE_KEYS = [
-  'module.pharmacy', 'module.papers', 'module.standings', 'module.onlinePaper',
+  'module.pharmacy', 'module.papers', 'module.onlinePaper',
   'module.lottery', 'module.directory', 'module.traffic'
 ];
 

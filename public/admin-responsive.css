@@ -230,3 +230,11 @@
   min-width: 0;
 }
 .admin-content[data-panel="modul-ayarlari"] .mod-check-list input { flex: 0 0 auto; margin-top: 3px; }
+
+/* Hızlı reklam formu (admin-quick-ad.js) */
+.quick-ad-form h4 { margin: 4px 0; }
+.quick-ad-preview:empty { display: none; }
+.quick-ad-preview { padding: 10px; border: 1px dashed var(--line, #cbd5e1); border-radius: 8px; background: repeating-conic-gradient(#f1f5f9 0 25%, #fff 0 50%) 0 0 / 16px 16px; }
+.quick-ad-canvas { display: block; max-width: 100%; max-height: 320px; width: auto; height: auto; margin: 0 auto; box-shadow: 0 1px 4px rgba(15, 23, 42, .18); }
+.quick-ad-mobile { display: grid; gap: 8px; }
+.quick-ad-mobile[hidden] { display: none; }

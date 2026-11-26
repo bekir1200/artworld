@@ -427,3 +427,7 @@ body.bsx-dark .pagination-current { background: var(--bsx-red); border-color: va
   .archive-pagination { gap: 6px; }
   .pagination-step, .pagination-number { min-width: 40px; min-height: 40px; padding: 6px 9px; font-size: 13px; }
 }
+
+/* Haber videosu (kapak görselinin yerine) */
+.bsx-article-video{position:relative;width:100%;aspect-ratio:16/9;margin:0 0 20px;background:#000;border-radius:6px;overflow:hidden}
+.bsx-article-video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
