@@ -12,8 +12,8 @@
 
   // [liste kabı seçicisi, satır seçicisi]. Kontrol paneli özet tablosu (5 satır) hariç.
   var TARGETS = [
-    ['.admin-content .admin-managed-list', ':scope > *'],
-    ['.admin-content[data-panel="haber"] .admin-table', ':scope > .table-row']
+    ['.admin-content .admin-managed-list', ':scope > *']
+    // Haber yönetimi listesi sunucudan sayfa sayfa gelir (app.js, setupArticleList).
   ];
 
   function rowsOf(container, rowSelector) {

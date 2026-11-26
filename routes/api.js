@@ -879,10 +879,15 @@ async function login(req, res) {
   sendJson(res, 200, { user: { id: user.id, email: user.email, displayName: user.display_name, role: user.role, roleLabel: roles[user.role] } });
 }
 
+/* Haber listesi, sunucuda sayfalanır: ?page=1&limit=20&status=draft&q=antalya
+   -> { items, total, page, pages, limit }. Arama başlık, yazar ve kategori adında yapılır. */
 async function articleList(user, url) {
   requireRole(user, writers);
   const status = url.searchParams.get('status');
   if (status && !articleStatuses.has(status)) throw new HttpError(400, 'Durum filtresi geçersiz.');
+  const query = String(url.searchParams.get('q') || '').trim().slice(0, 100);
+  const limit = Math.min(Math.max(Number.parseInt(url.searchParams.get('limit'), 10) || 20, 1), 100);
+  const requestedPage = Math.max(Number.parseInt(url.searchParams.get('page'), 10) || 1, 1);
   const filters = [];
   const values = [];
   if (status) { values.push(status); filters.push(`a.status = $${values.length}`); }
@@ -890,19 +895,28 @@ async function articleList(user, url) {
     values.push(user.id);
     filters.push(`(a.author_id = $${values.length} OR a.created_by = $${values.length})`);
   }
+  if (query) {
+    values.push(`%${query.replace(/[\\%_]/g, (c) => `\\${c}`)}%`);
+    const n = values.length;
+    filters.push(`(a.headline ILIKE $${n} OR u.display_name ILIKE $${n} OR c.name ILIKE $${n})`);
+  }
   const where = filters.length ? `WHERE ${filters.join(' AND ')}` : '';
+  const from = `FROM articles a
+       LEFT JOIN users u ON u.id = a.author_id
+       LEFT JOIN categories c ON c.id = a.primary_category_id
+       ${where}`;
+  const { rows: [{ total }] } = await pool.query(`SELECT COUNT(*)::int AS total ${from}`, values);
+  const pages = Math.max(1, Math.ceil(total / limit));
+  const page = Math.min(requestedPage, pages);
   const { rows } = await pool.query(
     `SELECT a.id, a.slug, a.headline, a.standfirst, a.status, a.is_breaking,
             a.created_at, a.updated_at, a.published_at,
             u.display_name AS author_name, c.name AS category_name
-       FROM articles a
-       LEFT JOIN users u ON u.id = a.author_id
-       LEFT JOIN categories c ON c.id = a.primary_category_id
-       ${where}
+       ${from}
       ORDER BY a.updated_at DESC, a.id DESC
-      LIMIT 500`, values
+      LIMIT $${values.length + 1} OFFSET $${values.length + 2}`, [...values, limit, (page - 1) * limit]
   );
-  return rows;
+  return { items: rows, total, page, pages, limit };
 }
 
 async function createArticle(user, req) {

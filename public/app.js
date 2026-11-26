@@ -298,16 +298,11 @@ async function initializeAdminPanel() {
     });
 
     const canEditNews = ['admin', 'editor_in_chief', 'editor', 'reporter'].includes(currentAdminRole);
-    const [summary, articles] = await Promise.all([
-      apiRequest('/api/dashboard'),
-      canEditNews ? apiRequest('/api/articles') : Promise.resolve(null)
-    ]);
+    const summary = await apiRequest('/api/dashboard');
     renderSummary(summary);
     if (canEditNews) {
-      renderArticleLists(articles);
+      setupArticleList();
       setupArticleDialog(summary.categories || []);
-      $('#article-status-filter')?.addEventListener('change', () => renderArticleLists(articles));
-      $('#article-search')?.addEventListener('input', () => renderArticleLists(articles));
     }
     setupAdminInnerTabs();
     if (['admin', 'ad_sales'].includes(currentAdminRole)) setupAdvertisingManagement();
@@ -1033,25 +1028,118 @@ function makeArticleRow(article) {
   return row;
 }
 
-function renderArticleLists(articles) {
-  for (const selector of ['.admin-content[data-panel="haber"] .admin-table', '.admin-content[data-panel="genel"] .admin-table']) {
-    const table = $(selector);
-    if (!table) continue;
-    const heading = $('.table-heading', table);
-    table.replaceChildren(heading);
-    const selectedStatus = $('#article-status-filter')?.value || 'all';
-    const query = ($('#article-search')?.value || '').trim().toLocaleLowerCase('tr-TR');
-    const filtered = articles.filter((article) => (selectedStatus === 'all' || article.status === selectedStatus)
-      && (!query || `${article.headline} ${article.author_name || ''} ${article.category_name || ''}`.toLocaleLowerCase('tr-TR').includes(query)));
-    if (!filtered.length) {
-      const empty = document.createElement('p');
-      empty.className = 'dialog-empty';
-      empty.textContent = 'Bu listede henüz haber yok.';
-      table.append(empty);
-    } else {
-      filtered.slice(0, selector.includes('[data-panel="genel"]') ? 5 : filtered.length).forEach((article) => table.append(makeArticleRow(article)));
-    }
+function fillArticleTable(table, articles, emptyText) {
+  const heading = $('.table-heading', table);
+  table.replaceChildren(heading);
+  if (!articles.length) {
+    const empty = document.createElement('p');
+    empty.className = 'dialog-empty';
+    empty.textContent = emptyText;
+    table.append(empty);
+    return;
   }
+  articles.forEach((article) => table.append(makeArticleRow(article)));
+}
+
+/* Haber yönetimi listesi: her sayfa sunucudan ayrı istenir; arama ve durum filtresi de sunucuda
+   uygulanır, böylece bütün haberler (yalnız son yüklenenler değil) listelenebilir. */
+const articleListState = { page: 1, request: 0 };
+
+function articlePageList(current, total) {
+  const list = [];
+  for (let p = 1; p <= total; p += 1) {
+    if (p === 1 || p === total || Math.abs(p - current) <= 1) list.push(p);
+    else if (list[list.length - 1] !== '…') list.push('…');
+  }
+  return list;
+}
+
+function renderArticlePager(table, result) {
+  let pager = table.nextElementSibling?.classList.contains('article-pager') ? table.nextElementSibling : null;
+  if (!pager) {
+    pager = document.createElement('nav');
+    pager.className = 'admin-pager article-pager';
+    pager.setAttribute('aria-label', 'Haber listesi sayfaları');
+    pager.addEventListener('click', (event) => {
+      const target = event.target.closest('[data-page]');
+      if (!target || target.disabled) return;
+      articleListState.page = Number(target.dataset.page) || 1;
+      loadArticleLists({ scroll: true });
+    });
+    table.insertAdjacentElement('afterend', pager);
+  }
+  const { page, pages, total, limit } = result;
+  pager.hidden = total === 0;
+  const button = (label, targetPage, disabled, ariaLabel, current = false) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = current ? 'primary-action' : 'secondary-action';
+    b.textContent = label;
+    b.dataset.page = String(targetPage);
+    b.disabled = disabled;
+    if (ariaLabel) b.setAttribute('aria-label', ariaLabel);
+    if (current) b.setAttribute('aria-current', 'page');
+    return b;
+  };
+  const parts = [];
+  if (pages > 1) {
+    parts.push(button('‹ Önceki', page - 1, page === 1, 'Önceki sayfa'));
+    for (const p of articlePageList(page, pages)) {
+      if (p === '…') {
+        const gap = document.createElement('span');
+        gap.className = 'admin-pager-gap';
+        gap.textContent = '…';
+        parts.push(gap);
+      } else parts.push(button(String(p), p, false, `${p}. sayfa`, p === page));
+    }
+    parts.push(button('Sonraki ›', page + 1, page === pages, 'Sonraki sayfa'));
+  }
+  const info = document.createElement('span');
+  info.className = 'admin-pager-info';
+  const first = (page - 1) * limit + 1;
+  info.textContent = `${first}–${Math.min(first + limit - 1, total)} / ${total.toLocaleString('tr-TR')} kayıt`;
+  parts.push(info);
+  pager.replaceChildren(...parts);
+}
+
+async function loadArticleLists({ scroll = false } = {}) {
+  const request = ++articleListState.request;
+  const newsTable = $('.admin-content[data-panel="haber"] .admin-table');
+  const overviewTable = $('.admin-content[data-panel="genel"] .admin-table');
+  const params = new URLSearchParams({ page: String(articleListState.page), limit: '20' });
+  const status = $('#article-status-filter')?.value || 'all';
+  const query = ($('#article-search')?.value || '').trim();
+  if (status !== 'all') params.set('status', status);
+  if (query) params.set('q', query);
+  newsTable?.setAttribute('aria-busy', 'true');
+  try {
+    const [result, overview] = await Promise.all([
+      apiRequest(`/api/articles?${params}`),
+      overviewTable ? apiRequest('/api/articles?limit=5') : Promise.resolve(null)
+    ]);
+    if (request !== articleListState.request) return; // daha yeni bir istek var
+    articleListState.page = result.page;
+    if (newsTable) {
+      fillArticleTable(newsTable, result.items, query || status !== 'all' ? 'Bu aramaya uyan haber yok.' : 'Bu listede henüz haber yok.');
+      renderArticlePager(newsTable, result);
+      if (scroll && newsTable.getBoundingClientRect().top < 0) newsTable.scrollIntoView({ block: 'start' });
+    }
+    if (overviewTable && overview) fillArticleTable(overviewTable, overview.items, 'Bu listede henüz haber yok.');
+  } catch (error) {
+    if (request === articleListState.request) toast(error.message || 'Haber listesi alınamadı.');
+  } finally {
+    if (request === articleListState.request) newsTable?.removeAttribute('aria-busy');
+  }
+}
+
+function setupArticleList() {
+  let timer = 0;
+  $('#article-status-filter')?.addEventListener('change', () => { articleListState.page = 1; loadArticleLists(); });
+  $('#article-search')?.addEventListener('input', () => {
+    clearTimeout(timer);
+    timer = setTimeout(() => { articleListState.page = 1; loadArticleLists(); }, 300);
+  });
+  return loadArticleLists();
 }
 
 function replaceUnimplementedRows(selector, message) {
@@ -1272,9 +1360,8 @@ function setupArticleDialog(categories) {
       });
       dialog.close();
       delete form.dataset.articleId;
-      const [summary, articles] = await Promise.all([apiRequest('/api/dashboard'), apiRequest('/api/articles')]);
+      const [summary] = await Promise.all([apiRequest('/api/dashboard'), loadArticleLists()]);
       renderSummary(summary);
-      renderArticleLists(articles);
       const statusMessages = { in_review: 'Haber editör incelemesine gönderildi.', approved: 'Haber onaylandı.', published: 'Haber yayımlandı.', scheduled: 'Haber planlanan zamanda yayımlanacak.', archived: 'Haber arşivlendi.', draft: editingId ? 'Taslak güncellendi.' : 'Haber taslağı kaydedildi.' };
       toast(statusMessages[nextStatus] || 'Haber güncellendi.');
     } catch (requestError) {
@@ -1283,9 +1370,5 @@ function setupArticleDialog(categories) {
       buttons.forEach((button) => { button.disabled = false; });
       form.removeAttribute('aria-busy');
     }
-  });
-  $('.admin-content[data-panel="haber"] select')?.addEventListener('change', async () => {
-    try { renderArticleLists(await apiRequest('/api/articles')); }
-    catch (requestError) { toast(requestError.message); }
   });
 }
