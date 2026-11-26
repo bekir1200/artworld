@@ -4,7 +4,7 @@
 // resmi ilanlar, burçlar, ziyaretçi haberleri, yorumlar, footer linkleri) okur tarafı.
 // Yazma/moderasyon işlemleri api.js ve ilgili route dosyalarında kalır.
 
-const { loadFootball } = require('./football');
+const { loadLeague, loadTurkishEurope, leagueList } = require('./football');
 const footballHtml = require('./football-html');
 const { youtubeId } = require('./youtube');
 const pool = require('../db/pool');
@@ -501,17 +501,26 @@ async function listHoroscopes() {
 // ---------------------------------------------------------------------------
 // Puan durumu ve fikstür (Süper Lig, kaynak ESPN)
 
-async function standingsPage() {
+// /puan-durumu (Süper Lig), /puan-durumu/<lig> ve /puan-durumu/turk-takimlari (Türk takımları Avrupa'da).
+async function standingsPage(rawKey = 'super-lig') {
   if (!(await moduleOn('module.standings'))) return null;
-  const data = await loadFootball();
+  const key = String(rawKey || '').replace(/\/+$/, '') || 'super-lig';
+  const leagues = leagueList();
+  const isEurope = key === footballHtml.EUROPE_KEY;
+  const league = leagues.find((l) => l.key === key);
+  if (!isEurope && !league) return null;
+  const [data, europe] = await Promise.all([isEurope ? null : loadLeague(key), isEurope ? loadTurkishEurope() : null]);
+  const heading = isEurope ? 'Türk Takımları Avrupa’da' : `${league.name} Puan Durumu ve Fikstür`;
   return {
-    title: 'Süper Lig Puan Durumu ve Fikstür',
-    description: 'Trendyol Süper Lig güncel puan durumu, maç programı ve son sonuçlar.',
+    title: heading,
+    description: isEurope
+      ? 'Türk takımlarının Şampiyonlar Ligi, Avrupa Ligi ve Konferans Ligi maçları, sonuçları ve gruptaki yerleri.'
+      : `${league.name} güncel puan durumu, maç programı ve son sonuçlar.`,
     bodyHtml: layout({
-      trail: [{ label: 'Puan Durumu' }],
-      kicker: 'SPOR',
-      title: 'Süper Lig Puan Durumu ve Fikstür',
-      inner: data ? footballHtml.pageBlock(data) : emptyState('Puan durumu şu an alınamadı. Lütfen biraz sonra tekrar deneyin.')
+      trail: [{ label: 'Spor Merkezi', href: '/puan-durumu' }, { label: isEurope ? 'Türk Takımları Avrupa’da' : league.short }],
+      kicker: 'SPOR MERKEZİ',
+      title: heading,
+      inner: footballHtml.pageBlock({ leagues, activeKey: key, data, europe })
     })
   };
 }
@@ -656,7 +665,7 @@ const EXACT_ROUTES = {
   '/yazarlar': listAuthors,
   '/resmi-ilanlar': listAnnouncements,
   '/burclar': listHoroscopes,
-  '/puan-durumu': standingsPage,
+  '/puan-durumu': () => standingsPage('super-lig'),
   '/filmler': listMovies,
   '/haber-gonder': visitorPostForm,
   '/hakkimizda': aboutPage
@@ -668,7 +677,8 @@ const PREFIX_ROUTES = [
   ['/film/', movieDetail],
   ['/yazi/', columnDetail],
   ['/sayfa/', staticDetail],
-  ['/resmi-ilanlar/', announcementDetail]
+  ['/resmi-ilanlar/', announcementDetail],
+  ['/puan-durumu/', standingsPage]
 ];
 
 async function serve(req, res, pathname, url, helpers) {

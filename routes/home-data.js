@@ -4,7 +4,7 @@
 // Çıktı şekli TASARIM-BSX.md §4 ve MODUL-AYARLARI.md §2 sözleşmelerine uyar.
 // load() asla throw etmez: her parça bağımsız çekilir, hata veren parça [] / null alır.
 
-const { loadFootball } = require('./football');
+const { loadFootball, loadTurkishEurope, leagueList } = require('./football');
 const { getSettings } = require('./settings-store');
 const pool = require('../db/pool');
 
@@ -876,7 +876,9 @@ async function build() {
     footerLinks: loadFooterLinks,
     weather: () => loadWeather(city),
     prayer: () => loadPrayer(city),
-    football: () => (settingValue(ctx.settings, 'module.standings') === 'off' ? null : loadFootball()),
+    football: () => (settingValue(ctx.settings, 'module.standings') === 'off' ? null
+      : Promise.all([loadFootball(), loadTurkishEurope().catch(() => null)])
+        .then(([league, europe]) => (league ? { ...league, europe, leagues: leagueList() } : null))),
     fx: loadFx
   });
   raw.settings = ctx.settings;

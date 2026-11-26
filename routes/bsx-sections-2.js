@@ -245,7 +245,8 @@ function weather(data) {
 
 // ---------- Puan durumu ve fikstür (Süper Lig) ----------
 function standings(data) {
-  const inner = footballHtml.homeBlock(data && data.football);
+  const f = data && data.football;
+  const inner = footballHtml.homeBlock(f, { europe: f && f.europe, leagues: (f && f.leagues) || [] });
   return inner ? section('bsx-standings', title('PUAN DURUMU VE FİKSTÜR', '/puan-durumu') + inner) : '';
 }
 

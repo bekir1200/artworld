@@ -198,7 +198,7 @@ function renderArticlePage({ shell, article, related, popular, ad, commentsHtml,
 
 // ---------- Kategori ----------
 
-function renderCategoryPage({ shell, category, articles, ad, popup, page = 1, totalPages = 1, pager = '' } = {}) {
+function renderCategoryPage({ shell, category, articles, ad, popup, page = 1, totalPages = 1, pager = '', intro = '' } = {}) {
   const parts = shellParts(shell);
   const brand = brandOf(parts.site);
   const name = (category && category.name) || 'Kategori';
@@ -214,7 +214,7 @@ function renderCategoryPage({ shell, category, articles, ad, popup, page = 1, to
   const pageNote = totalPages > 1 ? ` · Sayfa ${Number(page)} / ${Number(totalPages)}` : '';
   const main = `${crumbs([{ label: 'Anasayfa', href: '/' }, { label: name }])}`
     + `<h1 class="bsx-page-title">${esc(name)}</h1>`
-    + `<p class="bsx-page-desc">${esc(name)} kategorisinden güncel haberler.${esc(pageNote)}</p>`
+    + `<p class="bsx-page-desc">${esc(name)} kategorisinden güncel haberler.${esc(pageNote)}</p>${intro}`
     + `<div class="bsx-inner-grid"><div>${ad || ''}${body}${pager || ''}</div>`
     + `<aside>${sideBox('KATEGORİLER', catNavHtml(parts.nav))}</aside></div>`;
   return fullPage(parts, {

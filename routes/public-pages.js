@@ -235,6 +235,15 @@ async function selectArticles(limit = 30) {
   });
 }
 
+// Spor kategorisinde (ilk sayfa) puan durumu ve fikstür kısayolları; modül kapalıysa boş.
+async function sportIntro(category) {
+  if (!category || !/^spor($|-)/.test(String(category.slug || ''))) return '';
+  const settings = await settingsStore.getSettings().catch(() => null);
+  if (settings && settings['module.standings'] === 'off') return '';
+  const { leagueList } = require('./football');
+  return `<link rel="stylesheet" href="/football.css"><div class="fb-cat-intro"><strong>Puan durumu ve fikstür</strong>${require('./football-html').leagueChips(leagueList())}</div>`;
+}
+
 async function getActiveAd(placementKey) {
   const { rows } = await pool.query(
     `SELECT cr.id, cr.headline, cr.target_url, m.storage_key, m.alt_text, m.width, m.height,
@@ -921,7 +930,7 @@ async function servePublicPage(req, res, pathname, url) {
     try {
       const shell = await innerShell();
       const cards = articles.map((article) => ({ ...article, cover_url: article.cover_storage_key ? `/media/${article.cover_storage_key}` : '' }));
-      sendHtml(res, 200, bsxInner.renderCategoryPage({ shell, category, articles: cards, ad: categoryAd ? renderAdSlot(categoryAd, 'Sponsorlu içerik', 'category-top') : '', page, totalPages, pager: categoryPager }));
+      sendHtml(res, 200, bsxInner.renderCategoryPage({ shell, category, articles: cards, ad: categoryAd ? renderAdSlot(categoryAd, 'Sponsorlu içerik', 'category-top') : '', page, totalPages, pager: categoryPager, intro: await sportIntro(category) }));
       return true;
     } catch (error) { console.error('BSX kategori sayfası çizilemedi, eski düzene düşülüyor:', error?.stack || error); }
     const categoryContent = (categoryAd ? `${renderAdSlot(categoryAd, 'Sponsorlu içerik', 'category-top')}${content}` : content) + categoryPager;

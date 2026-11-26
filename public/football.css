@@ -48,3 +48,45 @@
 }
 body.bsx-dark .fb-home, body.bsx-dark .fb-page { --fb-ink: #f3f4f6; --fb-muted: #9ca3af; --fb-line: #374151; --fb-card: #1f2937; }
 body.bsx-dark .fb-score:not(.fb-score-pre):not(.fb-score-live) { background: #f3f4f6; color: #111827; }
+
+/* Lig sekmeleri (spor merkezi) */
+.fb-tabs { display: grid; gap: 10px; margin: 0 0 24px; padding: 14px; background: var(--fb-card); border: 1px solid var(--fb-line); border-radius: 8px; }
+.fb-tab-group { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.fb-tab-label { min-width: 118px; font-size: 12px; font-weight: 700; color: var(--fb-muted); text-transform: uppercase; letter-spacing: .04em; }
+.fb-tab { display: inline-flex; align-items: center; min-height: 34px; padding: 0 12px; border: 1px solid var(--fb-line); border-radius: 999px; font-size: 14px; font-weight: 600; color: var(--fb-ink); text-decoration: none; white-space: nowrap; }
+.fb-tab:hover { border-color: var(--fb-accent); color: var(--fb-accent); }
+.fb-tab.is-active { background: var(--fb-accent); border-color: var(--fb-accent); color: #fff; }
+
+/* Türk takımı vurgusu */
+.fb-row-tr { background: color-mix(in srgb, var(--fb-accent) 9%, transparent); }
+.fb-flag { flex: 0 0 auto; padding: 0 5px; border-radius: 3px; background: #e30a17; color: #fff; font-size: 10px; font-weight: 800; line-height: 16px; }
+.fb-name-tr { color: var(--fb-accent); font-weight: 800; }
+.fb-match-tr { background: color-mix(in srgb, var(--fb-accent) 6%, transparent); }
+.fb-extra { grid-column: 1 / -1; display: flex; justify-content: center; gap: 10px; }
+.fb-comp { font-size: 11px; font-weight: 700; color: var(--fb-muted); text-transform: uppercase; letter-spacing: .03em; }
+.fb-match .fb-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.fb-block-tr { padding: 14px; border: 1px solid color-mix(in srgb, var(--fb-accent) 35%, var(--fb-line)); border-radius: 8px; }
+.fb-euro { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--fb-line); }
+
+/* Türk takımları kupalarda (kart listesi) */
+.fb-tr-teams { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr)); gap: 12px; margin: 0; padding: 0; list-style: none; }
+.fb-tr-teams a { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 2px 8px; align-items: center; padding: 12px; border: 1px solid var(--fb-line); border-radius: 8px; color: var(--fb-ink); text-decoration: none; background: var(--fb-card); }
+.fb-tr-teams a:hover { border-color: var(--fb-accent); }
+.fb-tr-team { font-weight: 800; }
+.fb-tr-comp, .fb-tr-rank, .fb-tr-note { grid-column: 2; font-size: 13px; color: var(--fb-muted); }
+.fb-tr-note { color: var(--fb-accent); font-weight: 700; }
+
+/* Lig kısayolları (ana sayfa, Spor kategorisi) */
+.fb-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+.fb-chip { display: inline-flex; align-items: center; min-height: 32px; padding: 0 12px; border: 1px solid var(--bsx-line, var(--line, #e5e7eb)); border-radius: 999px; background: var(--bsx-card, #fff); color: var(--bsx-ink, #111827); font-size: 13px; font-weight: 600; text-decoration: none; white-space: nowrap; }
+.fb-chip:hover { border-color: var(--bsx-red, #e02424); color: var(--bsx-red, #e02424); }
+.fb-chip-tr { border-color: var(--bsx-red, #e02424); color: var(--bsx-red, #e02424); }
+.fb-cat-intro { margin: 4px 0 20px; padding: 12px 14px; border: 1px solid var(--bsx-line, #e5e7eb); border-radius: 8px; background: var(--bsx-card, #fff); }
+.fb-cat-intro strong { display: block; font-size: 14px; }
+.fb-cat-intro .fb-chips { margin-top: 8px; }
+@media (max-width: 640px) {
+  .fb-tab-label { min-width: 100%; }
+  .fb-tabs { padding: 12px; }
+}
+body.bsx-dark .fb-chip { background: #1f2937; color: #f3f4f6; border-color: #374151; }
+body.bsx-dark .fb-cat-intro { background: #1f2937; border-color: #374151; }
