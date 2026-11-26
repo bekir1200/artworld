@@ -192,7 +192,7 @@ function renderArticlePage({ shell, article, related, popular, ad, commentsHtml,
 
 // ---------- Kategori ----------
 
-function renderCategoryPage({ shell, category, articles, ad, popup } = {}) {
+function renderCategoryPage({ shell, category, articles, ad, popup, page = 1, totalPages = 1, pager = '' } = {}) {
   const parts = shellParts(shell);
   const brand = brandOf(parts.site);
   const name = (category && category.name) || 'Kategori';
@@ -205,13 +205,14 @@ function renderCategoryPage({ shell, category, articles, ad, popup } = {}) {
   const body = list.length
     ? `${lead}${mediumHtml}${restHtml}`
     : '<p class="bsx-empty">Bu kategoride henüz yayımlanmış haber yok.</p>';
+  const pageNote = totalPages > 1 ? ` · Sayfa ${Number(page)} / ${Number(totalPages)}` : '';
   const main = `${crumbs([{ label: 'Anasayfa', href: '/' }, { label: name }])}`
     + `<h1 class="bsx-page-title">${esc(name)}</h1>`
-    + `<p class="bsx-page-desc">${esc(name)} kategorisinden güncel haberler.</p>`
-    + `<div class="bsx-inner-grid"><div>${ad || ''}${body}</div>`
+    + `<p class="bsx-page-desc">${esc(name)} kategorisinden güncel haberler.${esc(pageNote)}</p>`
+    + `<div class="bsx-inner-grid"><div>${ad || ''}${body}${pager || ''}</div>`
     + `<aside>${sideBox('KATEGORİLER', catNavHtml(parts.nav))}</aside></div>`;
   return fullPage(parts, {
-    title: `${name} | ${brand}`,
+    title: `${name}${page > 1 ? ` · Sayfa ${Number(page)}` : ''} | ${brand}`,
     description: `${name} kategorisinden güncel haberler.`,
     main,
     popupHtml: popup,
@@ -220,7 +221,7 @@ function renderCategoryPage({ shell, category, articles, ad, popup } = {}) {
 
 // ---------- Arama ----------
 
-function renderSearchPage({ shell, query, articles } = {}) {
+function renderSearchPage({ shell, query, articles, total, pager = '' } = {}) {
   const parts = shellParts(shell);
   const brand = brandOf(parts.site);
   const q = String(query ?? '').trim().slice(0, 100);
@@ -228,7 +229,7 @@ function renderSearchPage({ shell, query, articles } = {}) {
   let results;
   if (q.length < 2) results = '<p class="bsx-empty">Aramak için en az 2 karakter yazın.</p>';
   else if (!list.length) results = '<p class="bsx-empty">Aramanızla eşleşen haber bulunamadı.</p>';
-  else results = `<div class="bsx-list">${list.map(listItem).join('')}</div>`;
+  else results = `${Number(total) > 0 ? `<p class="bsx-page-desc">${esc(Number(total).toLocaleString('tr-TR'))} sonuç</p>` : ''}<div class="bsx-list">${list.map(listItem).join('')}</div>${pager || ''}`;
   const form = `<form class="bsx-search-form" action="/arama" method="get" role="search">`
     + `<input class="bsx-search-input" type="search" name="q" value="${esc(q)}" maxlength="100" placeholder="Haber ara" aria-label="Haber ara">`
     + `<button class="bsx-search-btn" type="submit">Ara</button></form>`;

@@ -2,7 +2,7 @@ require('./config/env');
 const fs = require('node:fs');
 const path = require('node:path');
 const { handleApi, isAuthenticated } = require('./routes/api');
-const { servePublicPage } = require('./routes/public-pages');
+const { servePublicPage, sendNotFound } = require('./routes/public-pages');
 const { serveMedia } = require('./routes/media');
 const { runScheduledTasks, publishDueContentThrottled } = require('./routes/scheduled-tasks');
 
@@ -57,7 +57,11 @@ async function serveStatic(req, res, pathname) {
   const file = path.resolve(publicDir, requested);
   if (!file.startsWith(publicDir + path.sep)) return sendText(res, 403, 'Erişim reddedildi.');
   fs.readFile(file, (error, data) => {
-    if (error) return sendText(res, 404, 'Sayfa bulunamadı.');
+    if (error) {
+      // Dosya istekleri (.css, .png …) düz metin; sayfa adresleri site iskeletli bulunamadı sayfası alır.
+      if (!/\.[a-z0-9]+$/i.test(pathname) && req.method === 'GET') return sendNotFound(res);
+      return sendText(res, 404, 'Sayfa bulunamadı.');
+    }
     res.writeHead(200, {
       'Content-Type': contentTypes[path.extname(file)] || 'application/octet-stream',
       'Cache-Control': pathname.startsWith('/yonetim') || pathname.startsWith('/giris') ? 'no-store' : 'no-cache',

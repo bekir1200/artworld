@@ -387,3 +387,43 @@ body.bsx-dark .bsx-search-btn { background: var(--bsx-red); color: #fff; }
   .bsx-article-body img,
   .bsx-article-cover img { max-width: 100%; }
 }
+
+/* ---------- Sayfalama (kategori, arama) ---------- */
+.archive-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin: 24px 0 32px;
+}
+.pagination-numbers { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+.pagination-step,
+.pagination-number {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 6px 12px;
+  border: 1px solid var(--bsx-line2);
+  border-radius: 6px;
+  background: var(--bsx-card);
+  color: var(--bsx-ink);
+  font: 600 14px/1 var(--bsx-font);
+  text-decoration: none;
+  box-sizing: border-box;
+}
+.pagination-step:hover,
+.pagination-number:hover { border-color: var(--bsx-red); color: var(--bsx-red); }
+.pagination-current,
+.pagination-current:hover { background: var(--bsx-red); border-color: var(--bsx-red); color: #fff; }
+.pagination-disabled { color: var(--bsx-muted); background: var(--bsx-bg); }
+.pagination-gap { display: inline-flex; align-items: center; padding: 0 2px; color: var(--bsx-muted); }
+body.bsx-dark .pagination-step,
+body.bsx-dark .pagination-number { background: #1f2937; color: #f3f4f6; border-color: #374151; }
+body.bsx-dark .pagination-current { background: var(--bsx-red); border-color: var(--bsx-red); }
+@media (max-width: 480px) {
+  .archive-pagination { gap: 6px; }
+  .pagination-step, .pagination-number { min-width: 40px; min-height: 40px; padding: 6px 9px; font-size: 13px; }
+}

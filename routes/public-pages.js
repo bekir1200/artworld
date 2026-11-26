@@ -424,23 +424,50 @@ function renderHome(template, articles, popular, layout, ads = {}, playbackUrl =
   return html;
 }
 
-function renderArchivePagination(page, totalPages) {
+// Sayfalama: ‹ Önceki 1 … 4 5 6 … 42 Sonraki ›. İlk ve son sayfa her zaman görünür.
+// basePath: '/haberler', '/kategori/spor' gibi; params: korunacak diğer sorgu parametreleri ({ q }).
+function renderPagination(basePath, page, totalPages, { params = {}, label = 'Sayfalar' } = {}) {
   if (totalPages <= 1) return '';
-  const windowSize = 5;
-  const start = Math.max(1, Math.min(page - 2, totalPages - windowSize + 1));
-  const end = Math.min(totalPages, start + windowSize - 1);
+  const href = (number) => {
+    const search = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => { if (value !== undefined && value !== '') search.set(key, value); });
+    if (number > 1) search.set('page', String(number));
+    const query = search.toString();
+    return escapeHtml(`${basePath}${query ? `?${query}` : ''}`);
+  };
+  const pages = [];
+  for (let number = 1; number <= totalPages; number += 1) {
+    if (number === 1 || number === totalPages || Math.abs(number - page) <= 1
+      || (page <= 3 && number <= 4) || (page >= totalPages - 2 && number >= totalPages - 3)) {
+      pages.push(number);
+    } else if (pages[pages.length - 1] !== '…') {
+      pages.push('…');
+    }
+  }
   const previous = page > 1
-    ? `<a class="pagination-step" href="/haberler?page=${page - 1}" rel="prev" aria-label="Önceki sayfa">‹ Önceki</a>`
+    ? `<a class="pagination-step" href="${href(page - 1)}" rel="prev" aria-label="Önceki sayfa">‹ Önceki</a>`
     : '<span class="pagination-step pagination-disabled" aria-disabled="true">‹ Önceki</span>';
   const next = page < totalPages
-    ? `<a class="pagination-step" href="/haberler?page=${page + 1}" rel="next" aria-label="Sonraki sayfa">Sonraki ›</a>`
+    ? `<a class="pagination-step" href="${href(page + 1)}" rel="next" aria-label="Sonraki sayfa">Sonraki ›</a>`
     : '<span class="pagination-step pagination-disabled" aria-disabled="true">Sonraki ›</span>';
-  const numbers = Array.from({ length: end - start + 1 }, (_, index) => start + index)
-    .map((number) => number === page
+  const numbers = pages.map((number) => {
+    if (number === '…') return '<span class="pagination-gap" aria-hidden="true">…</span>';
+    return number === page
       ? `<span class="pagination-number pagination-current" aria-current="page" aria-label="Sayfa ${number}">${number}</span>`
-      : `<a class="pagination-number" href="/haberler?page=${number}" aria-label="Sayfa ${number}">${number}</a>`)
-    .join('');
-  return `<nav class="archive-pagination" aria-label="Haber arşivi sayfaları">${previous}<div class="pagination-numbers">${numbers}</div>${next}</nav>`;
+      : `<a class="pagination-number" href="${href(number)}" aria-label="Sayfa ${number}">${number}</a>`;
+  }).join('');
+  return `<nav class="archive-pagination" aria-label="${escapeHtml(label)}">${previous}<div class="pagination-numbers">${numbers}</div>${next}</nav>`;
+}
+
+function renderArchivePagination(page, totalPages) {
+  return renderPagination('/haberler', page, totalPages, { label: 'Haber arşivi sayfaları' });
+}
+
+// ?page= değeri: geçersizse 1.
+function requestedPageOf(url) {
+  const raw = String(url.searchParams.get('page') || '1');
+  const parsed = /^[1-9]\d{0,5}$/.test(raw) ? Number(raw) : 1;
+  return Number.isSafeInteger(parsed) ? parsed : 1;
 }
 
 function istanbulDate(value = new Date()) {
@@ -556,6 +583,17 @@ function renderShell({ title = '', description = '', path: pagePath = '/', bodyH
 }
 
 const publicModuleHelpers = { renderShell, sendHtml, escapeHtml };
+
+// Bulunamadı sayfası: site iskeleti (menü, logo, alt bilgi) içinde, ana sayfa / arşiv / arama bağlantılarıyla.
+function sendNotFound(res, { title = 'Sayfa bulunamadı', message = 'Aradığınız sayfa taşınmış, kaldırılmış ya da adresi yanlış yazılmış olabilir.', backHref = '', backLabel = '' } = {}) {
+  const back = backHref ? `<a class="primary-action" href="${escapeHtml(backHref)}">${escapeHtml(backLabel || 'Geri dön')}</a>` : '';
+  const bodyHtml = `<section class="corporate-page not-found-page"><span class="section-kicker">404</span><h1>${escapeHtml(title)}</h1>`
+    + `<p class="lead">${escapeHtml(message)}</p>`
+    + `<form class="not-found-search" action="/arama" method="get" role="search"><label for="not-found-q">Haberlerde ara</label><div><input id="not-found-q" type="search" name="q" maxlength="100" placeholder="Aramak istediğiniz kelime"><button type="submit">Ara</button></div></form>`
+    + `<p class="not-found-links">${back}<a href="/">Ana sayfa</a><a href="/haberler">Tüm haberler</a></p></section>`;
+  sendHtml(res, 404, renderShell({ title, description: message, path: '/404', bodyHtml }));
+}
+
 
 // BSX iç sayfaları için ortak kabuk verisi (site adı, menü, altbilgi) — ana sayfayla aynı kaynak.
 async function innerShell() {
@@ -779,7 +817,7 @@ async function servePublicPage(req, res, pathname, url) {
     const total = countRows[0].total;
     const totalPages = Math.ceil(total / pageSize);
     if (page > Math.max(totalPages, 1)) {
-      sendHtml(res, 404, '<!doctype html><html lang="tr"><meta charset="utf-8"><title>Sayfa bulunamadı</title><h1>Arşiv sayfası bulunamadı</h1><a href="/haberler">Haber arşivine dön</a></html>');
+      sendNotFound(res, { title: 'Arşiv sayfası bulunamadı', message: 'Haber arşivinde bu numarada bir sayfa yok.', backHref: '/haberler', backLabel: 'Haber arşivine dön' });
       return true;
     }
     const { rows } = await pool.query(
@@ -812,14 +850,14 @@ async function servePublicPage(req, res, pathname, url) {
   const articleMatch = pathname.match(/^\/haber\/([^/]+)$/);
   if (articleMatch) {
     let slug;
-    try { slug = decodeURIComponent(articleMatch[1]); } catch { sendHtml(res, 404, '<!doctype html><html lang="tr"><meta charset="utf-8"><title>Haber bulunamadı</title><h1>Haber bulunamadı</h1><a href="/">Ana sayfa</a></html>'); return true; }
+    try { slug = decodeURIComponent(articleMatch[1]); } catch { sendNotFound(res, { title: 'Haber bulunamadı', message: 'Bu haber kaldırılmış ya da adresi değişmiş olabilir.' }); return true; }
     const { rows } = await pool.query(
       `UPDATE articles SET views_count = views_count + 1
         WHERE slug = $1 AND status = 'published' AND published_at <= NOW()
         RETURNING id, slug, headline, standfirst, body, seo_description, published_at, updated_at, primary_category_id, author_id, cover_media_id`, [slug]
     );
     const article = rows[0];
-    if (!article) { sendHtml(res, 404, '<!doctype html><html lang="tr"><meta charset="utf-8"><title>Haber bulunamadı</title><h1>Haber bulunamadı</h1><a href="/">Ana sayfa</a></html>'); return true; }
+    if (!article) { sendNotFound(res, { title: 'Haber bulunamadı', message: 'Bu haber kaldırılmış ya da adresi değişmiş olabilir.' }); return true; }
     const layout = siteStructure.defaults.article;
     const [{ rows: taxonomy }, { rows: related }, { rows: popular }] = await Promise.all([
       pool.query(`SELECT c.name AS category_name, c.slug AS category_slug, u.display_name AS author_name,
@@ -855,28 +893,38 @@ async function servePublicPage(req, res, pathname, url) {
   const categoryMatch = pathname.match(/^\/kategori\/([^/]+)$/);
   if (categoryMatch) {
     let slug;
-    try { slug = decodeURIComponent(categoryMatch[1]); } catch { sendHtml(res, 404, '<!doctype html><html lang="tr"><meta charset="utf-8"><title>Kategori bulunamadı</title><h1>Kategori bulunamadı</h1><a href="/">Ana sayfa</a></html>'); return true; }
+    try { slug = decodeURIComponent(categoryMatch[1]); } catch { sendNotFound(res, { title: 'Kategori bulunamadı', message: 'Bu kategori kaldırılmış ya da adresi değişmiş olabilir.' }); return true; }
     const { rows: categories } = await pool.query('SELECT id, name, slug FROM categories WHERE slug = $1 AND is_active = TRUE', [slug]);
     const category = categories[0];
-    if (!category) { sendHtml(res, 404, '<!doctype html><html lang="tr"><meta charset="utf-8"><title>Kategori bulunamadı</title><h1>Kategori bulunamadı</h1><a href="/">Ana sayfa</a></html>'); return true; }
+    if (!category) { sendNotFound(res, { title: 'Kategori bulunamadı', message: 'Bu kategori kaldırılmış ya da adresi değişmiş olabilir.' }); return true; }
+    const categoryWhere = `a.status = 'published' AND a.published_at <= NOW() AND (a.primary_category_id = $1 OR EXISTS (SELECT 1 FROM article_categories ac WHERE ac.article_id = a.id AND ac.category_id = $1))`;
+    const page = requestedPageOf(url);
+    const pageSize = 20;
+    const { rows: categoryCount } = await pool.query(`SELECT COUNT(*)::int AS total FROM articles a WHERE ${categoryWhere}`, [category.id]);
+    const totalPages = Math.ceil(categoryCount[0].total / pageSize);
+    if (page > Math.max(totalPages, 1)) {
+      sendNotFound(res, { title: 'Sayfa bulunamadı', message: `${category.name} kategorisinde bu numarada bir sayfa yok.`, backHref: `/kategori/${encodeURIComponent(category.slug)}`, backLabel: `${category.name} haberlerine dön` });
+      return true;
+    }
     const { rows: articles } = await pool.query(
       `SELECT a.slug, a.headline, a.standfirst, a.body, a.published_at, u.display_name AS author_name,
               c.name AS category_name, c.slug AS category_slug, m.storage_key AS cover_storage_key, m.alt_text AS cover_alt_text
          FROM articles a LEFT JOIN users u ON u.id = a.author_id
          LEFT JOIN categories c ON c.id = a.primary_category_id
          LEFT JOIN media_assets m ON m.id = a.cover_media_id
-        WHERE a.status = 'published' AND a.published_at <= NOW() AND (a.primary_category_id = $1 OR EXISTS (SELECT 1 FROM article_categories ac WHERE ac.article_id = a.id AND ac.category_id = $1))
-        ORDER BY a.published_at DESC LIMIT 50`, [category.id]
+        WHERE ${categoryWhere}
+        ORDER BY a.published_at DESC, a.id DESC LIMIT $2 OFFSET $3`, [category.id, pageSize, (page - 1) * pageSize]
     );
+    const categoryPager = renderPagination(`/kategori/${encodeURIComponent(category.slug)}`, page, totalPages, { label: `${category.name} sayfaları` });
     const content = articles.map((article) => renderNewsCard({ ...article, cover_url: article.cover_storage_key ? `/media/${article.cover_storage_key}` : '', read_minutes: 1 })).join('') || '<p class="public-empty">Bu kategoride henüz yayımlanmış haber yok.</p>';
     const categoryAd = await getActiveAd('category-top');
     try {
       const shell = await innerShell();
       const cards = articles.map((article) => ({ ...article, cover_url: article.cover_storage_key ? `/media/${article.cover_storage_key}` : '' }));
-      sendHtml(res, 200, bsxInner.renderCategoryPage({ shell, category, articles: cards, ad: categoryAd ? renderAdSlot(categoryAd, 'Sponsorlu içerik', 'category-top') : '' }));
+      sendHtml(res, 200, bsxInner.renderCategoryPage({ shell, category, articles: cards, ad: categoryAd ? renderAdSlot(categoryAd, 'Sponsorlu içerik', 'category-top') : '', page, totalPages, pager: categoryPager }));
       return true;
     } catch (error) { console.error('BSX kategori sayfası çizilemedi, eski düzene düşülüyor:', error?.stack || error); }
-    const categoryContent = categoryAd ? `${renderAdSlot(categoryAd, 'Sponsorlu içerik', 'category-top')}${content}` : content;
+    const categoryContent = (categoryAd ? `${renderAdSlot(categoryAd, 'Sponsorlu içerik', 'category-top')}${content}` : content) + categoryPager;
     sendHtml(res, 200, listingTemplate({ title: category.name, description: `${category.name} kategorisinden güncel haberler.`, canonical: `${siteUrl}/kategori/${encodeURIComponent(category.slug)}`, content: categoryContent, activePath: `/kategori/${encodeURIComponent(category.slug)}` }));
     return true;
   }
@@ -885,15 +933,26 @@ async function servePublicPage(req, res, pathname, url) {
     const query = String(url.searchParams.get('q') || '').trim().slice(0, 100);
     let content = '<p class="public-empty">Aramak için en az 2 karakter yazın.</p>';
     let searchRows = [];
+    let searchPager = '';
+    let searchTotal = 0;
+    const page = requestedPageOf(url);
+    const pageSize = 20;
     if (query.length >= 2) {
       const term = `%${query}%`;
+      const { rows: searchCount } = await pool.query(
+        `SELECT COUNT(*)::int AS total FROM articles a
+          WHERE a.status = 'published' AND a.published_at <= NOW() AND (a.headline ILIKE $1 OR a.standfirst ILIKE $1)`, [term]
+      );
+      searchTotal = searchCount[0].total;
+      const totalPages = Math.ceil(searchTotal / pageSize);
+      searchPager = renderPagination('/arama', Math.min(page, Math.max(totalPages, 1)), totalPages, { params: { q: query }, label: 'Arama sonuç sayfaları' });
       const { rows } = await pool.query(
         `SELECT a.slug, a.headline, a.standfirst, a.body, a.published_at, u.display_name AS author_name,
                 c.name AS category_name, c.slug AS category_slug, m.storage_key AS cover_storage_key, m.alt_text AS cover_alt_text
            FROM articles a LEFT JOIN users u ON u.id = a.author_id LEFT JOIN categories c ON c.id = a.primary_category_id
            LEFT JOIN media_assets m ON m.id = a.cover_media_id
           WHERE a.status = 'published' AND a.published_at <= NOW() AND (a.headline ILIKE $1 OR a.standfirst ILIKE $1)
-          ORDER BY a.published_at DESC LIMIT 50`, [term]
+          ORDER BY a.published_at DESC, a.id DESC LIMIT $2 OFFSET $3`, [term, pageSize, (Math.min(page, Math.max(totalPages, 1)) - 1) * pageSize]
       );
       searchRows = rows;
       content = rows.map((article) => renderNewsCard({ ...article, cover_url: article.cover_storage_key ? `/media/${article.cover_storage_key}` : '', read_minutes: 1 })).join('') || '<p class="public-empty">Bu aramayla eşleşen haber bulunamadı.</p>';
@@ -901,7 +960,7 @@ async function servePublicPage(req, res, pathname, url) {
     try {
       const shell = await innerShell();
       const results = searchRows.map((article) => ({ ...article, cover_url: article.cover_storage_key ? `/media/${article.cover_storage_key}` : '' }));
-      sendHtml(res, 200, bsxInner.renderSearchPage({ shell, query, articles: results }));
+      sendHtml(res, 200, bsxInner.renderSearchPage({ shell, query, articles: results, total: searchTotal, pager: searchPager }));
       return true;
     } catch (error) { console.error('BSX arama sayfası çizilemedi, eski düzene düşülüyor:', error?.stack || error); }
     sendHtml(res, 200, listingTemplate({ title: query ? `“${query}” arama sonuçları` : 'Haber ara', description: 'Art World TV haber arama sonuçları.', canonical: `${siteUrl}/arama`, content }));
@@ -910,4 +969,4 @@ async function servePublicPage(req, res, pathname, url) {
   return false;
 }
 
-module.exports = { servePublicPage };
+module.exports = { servePublicPage, sendNotFound };
