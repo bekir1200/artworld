@@ -67,7 +67,7 @@ function hero(data) {
     .map((_, i) => `<button type="button"${i === 0 ? ' class="is-active"' : ''} data-bsx-goto="${i}" aria-label="${i + 1}. manşet">${i + 1}</button>`)
     .join('');
   const slides = items
-    .map((c, i) => `<a class="bsx-hero-slide${i === 0 ? ' is-active' : ''}" data-bsx-slide href="${esc(hrefOf(c.href))}">`
+    .map((c, i) => `<a class="bsx-hero-slide${i === 0 ? ' is-active' : ''}${c.hideTitle && c.image ? ' bsx-hero-slide--notitle' : ''}" data-bsx-slide href="${esc(hrefOf(c.href))}">`
       + `<div class="bsx-hero-img">${heroImg(c, i)}</div>`
       // Görselde zaten yazı varsa (hideTitle) başlık yalnız ekran okuyucular için kalır.
       + `<div class="bsx-hero-panel${c.hideTitle && c.image ? ' bsx-hero-panel--hidden' : ''}"><h2 class="bsx-hero-title">${esc(c.title)}</h2></div>`

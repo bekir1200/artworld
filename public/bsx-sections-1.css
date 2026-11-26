@@ -607,3 +607,8 @@
   border: 0;
   background: none;
 }
+
+/* Başlığı gizli manşet: görsel tüm alanı kaplar, kırpılmadan (üzerindeki yazı kesilmesin) gösterilir. */
+.bsx-hero-slide--notitle { background: #111; }
+.bsx-hero-slide--notitle .bsx-hero-img { width: 100%; }
+.bsx-hero-slide--notitle .bsx-hero-pic { object-fit: contain; }
