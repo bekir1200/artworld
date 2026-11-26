@@ -1,5 +1,6 @@
 const pool = require('../db/pool');
 
+const guard = require('./publish-guard');
 const STATUSES = ['draft', 'published', 'scheduled', 'archived'];
 const TITLE_MAX = 200;
 const AUTHOR_MAX = 200;
@@ -85,6 +86,7 @@ async function createColumn(user, req, res){
   const summary = textField(data.summary, 'Özet', SUMMARY_MAX, false);
   const body = textField(data.body, 'İçerik', BODY_MAX, false);
   const status = normalizeStatus(data.status);
+  guard.assertCanSetStatus(user, status);
   const publishAt = status === 'scheduled' ? requireFutureSchedule(data.publishAt) : null;
   const slug = slugify(title);
 
@@ -97,8 +99,10 @@ async function createColumn(user, req, res){
   sendJson(res, 201, { column: rows[0] });
 }
 
-async function updateColumn(req, res, id){
+async function updateColumn(user, req, res, id){
   const data = await readJson(req);
+  guard.assertCanSetStatus(user, data.status);
+  await guard.assertCanEditExisting(user, 'columns', id);
   const sets = [];
   const params = [];
   const add = (sql, value) => { params.push(value); sets.push(sql.replace('?', `$${params.length}`)); };
@@ -166,8 +170,8 @@ async function handle(user, req, res, method, pathname, url){
       const match = /^\/(\d+)$/.exec(rest);
       if (match) {
         const id = parseId(match[1]);
-        if (method === 'PATCH') { await updateColumn(req, res, id); return true; }
-        if (method === 'DELETE') { await deleteColumn(res, id); return true; }
+        if (method === 'PATCH') { await updateColumn(user, req, res, id); return true; }
+        if (method === 'DELETE') { await guard.assertCanEditExisting(user, 'columns', id); await deleteColumn(res, id); return true; }
       }
     }
 

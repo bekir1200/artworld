@@ -1,6 +1,7 @@
 const pool = require('../db/pool');
 
 const ALLOWED_ROLES = ['admin', 'editor_in_chief', 'editor'];
+const guard = require('./publish-guard');
 const STATUSES = new Set(['draft', 'published', 'scheduled', 'archived']);
 const MAX_IMAGE_URLS = 100;
 const MAX_URL_LENGTH = 2000;
@@ -234,6 +235,7 @@ async function createGallery(req, res, user) {
   const description = validateDescription(input.description);
   const imageUrls = validateImageUrls(input.imageUrls);
   const status = input.status === undefined ? 'draft' : validateStatus(input.status);
+  guard.assertCanSetStatus(user, status);
   const publishAt = status === 'scheduled' ? requireFutureSchedule(input.publishAt) : null;
   await assertCategoryExists(categoryId);
 
@@ -246,8 +248,10 @@ async function createGallery(req, res, user) {
   return sendJson(res, 201, { gallery: await fetchGallery(rows[0].id) });
 }
 
-async function updateGallery(req, res, id) {
+async function updateGallery(user, req, res, id) {
   const input = await readBody(req);
+  guard.assertCanSetStatus(user, input.status);
+  await guard.assertCanEditExisting(user, 'galleries', id);
   const sets = [];
   const params = [];
   const push = (column, value) => {
@@ -349,8 +353,8 @@ async function handle(user, req, res, method, pathname, url) {
     const match = sub.match(/^\/([^/]+)$/);
     if (match && match[1] !== 'categories' && (method === 'PATCH' || method === 'DELETE')) {
       const id = parseId(match[1]);
-      if (method === 'PATCH') await updateGallery(req, res, id);
-      else await deleteGallery(res, id);
+      if (method === 'PATCH') await updateGallery(user, req, res, id);
+      else { await guard.assertCanEditExisting(user, 'galleries', id); await deleteGallery(res, id); }
       return true;
     }
 

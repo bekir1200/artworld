@@ -2,7 +2,10 @@ const pool = require('../db/pool');
 
 const BASE = '/api/admin/static-pages';
 const ALLOWED_ROLES = ['admin', 'editor_in_chief', 'editor'];
+const guard = require('./publish-guard');
 const STATUSES = ['draft', 'published'];
+// Hakkımızda sayfası yönetici ayarlarından (settings-ext) düzenlenir; burada da yalnız yöneticiye açık.
+const ABOUT_SLUG = 'hakkimizda';
 const MAX_TITLE = 200;
 const MAX_SLUG = 120;
 const MAX_CONTENT = 100000;
@@ -75,6 +78,8 @@ async function createPage(user, body){
   const slug = resolveSlug(body.slug, title);
   const content = validateContent(body.content);
   const status = normalizeStatus(body.status);
+  guard.assertCanSetStatus(user, status);
+  if(slug === ABOUT_SLUG && user.role !== 'admin') throw httpError(403, 'Hakkımızda sayfasını yalnızca yönetici düzenleyebilir.');
   const createdBy = user && user.id !== undefined ? user.id : null;
   const { rows } = await pool.query(`
     INSERT INTO static_pages (title, slug, content, status, created_by)
@@ -84,7 +89,7 @@ async function createPage(user, body){
   return rows[0];
 }
 
-async function updatePage(id, body){
+async function updatePage(user, id, body){
   const fields = [];
   const values = [];
   const set = (column, value) => { values.push(value); fields.push(`${column} = $${values.length}`); };
@@ -97,8 +102,13 @@ async function updatePage(id, body){
     throw httpError(400, 'Güncellenecek en az bir alan gönderin.');
   }
 
-  const { rows: existingRows } = await pool.query('SELECT title FROM static_pages WHERE id = $1', [id]);
+  if(hasStatus) guard.assertCanSetStatus(user, normalizeStatus(body.status));
+  await guard.assertCanEditExisting(user, 'static_pages', id);
+  const { rows: existingRows } = await pool.query('SELECT title, slug FROM static_pages WHERE id = $1', [id]);
   if(!existingRows[0]) throw httpError(404, 'Sayfa bulunamadı.');
+  if(user.role !== 'admin' && (existingRows[0].slug === ABOUT_SLUG || (hasSlug && resolveSlug(body.slug, existingRows[0].title) === ABOUT_SLUG))){
+    throw httpError(403, 'Hakkımızda sayfasını yalnızca yönetici düzenleyebilir.');
+  }
 
   const title = hasTitle ? validateTitle(body.title) : existingRows[0].title;
   if(hasTitle) set('title', title);
@@ -114,7 +124,10 @@ async function updatePage(id, body){
   if(!rows[0]) throw httpError(404, 'Sayfa bulunamadı.');
 }
 
-async function deletePage(id){
+async function deletePage(user, id){
+  await guard.assertCanEditExisting(user, 'static_pages', id);
+  const about = await pool.query('SELECT 1 FROM static_pages WHERE id = $1 AND slug = $2', [id, ABOUT_SLUG]);
+  if(about.rowCount && user.role !== 'admin') throw httpError(403, 'Hakkımızda sayfasını yalnızca yönetici silebilir.');
   const { rows } = await pool.query('DELETE FROM static_pages WHERE id = $1 RETURNING id', [id]);
   if(!rows[0]) throw httpError(404, 'Sayfa bulunamadı.');
 }
@@ -142,12 +155,12 @@ async function handle(user, req, res, method, pathname, url){
         const id = parsePageId(match[1]);
         if(method === 'PATCH'){
           const body = ensureObject(await readJson(req));
-          await updatePage(id, body);
+          await updatePage(user, id, body);
           sendJson(res, 200, { ok: true });
           return true;
         }
         if(method === 'DELETE'){
-          await deletePage(id);
+          await deletePage(user, id);
           sendJson(res, 200, { ok: true });
           return true;
         }

@@ -1,6 +1,7 @@
 const pool = require('../db/pool');
 
 const ADMIN_ROLES = ['admin', 'editor_in_chief', 'editor'];
+const guard = require('./publish-guard');
 const VIDEO_STATUSES = ['draft', 'published', 'scheduled', 'archived'];
 const MAX_INT = 2147483647;
 
@@ -155,6 +156,7 @@ async function createVideo(user, req, res) {
   const youtubeUrl = cleanUrl(body.youtubeUrl);
   const description = cleanText(body.description, { max: 5000, field: 'Açıklama' }) || null;
   const status = body.status ? cleanStatus(body.status) : 'draft';
+  guard.assertCanSetStatus(user, status);
   const publishAt = status === 'scheduled' ? requireFutureSchedule(body.publishAt) : null;
   await assertCategoryExists(categoryId);
 
@@ -168,8 +170,10 @@ async function createVideo(user, req, res) {
   sendJson(res, 201, { video: await fetchVideoById(rows[0].id) });
 }
 
-async function updateVideo(id, req, res) {
+async function updateVideo(user, id, req, res) {
   const body = (await readJson(req)) || {};
+  guard.assertCanSetStatus(user, body.status);
+  await guard.assertCanEditExisting(user, 'videos', id);
   const sets = [];
   const params = [];
   const add = (column, value) => {
@@ -250,8 +254,8 @@ async function handle(user, req, res, method, pathname, url){
     const match = pathname.match(/^\/api\/admin\/videos\/([^/]+)$/);
     if (match) {
       const id = parseId(match[1]);
-      if (method === 'PATCH') { await updateVideo(id, req, res); return true; }
-      if (method === 'DELETE') { await deleteVideo(id, res); return true; }
+      if (method === 'PATCH') { await updateVideo(user, id, req, res); return true; }
+      if (method === 'DELETE') { await guard.assertCanEditExisting(user, 'videos', id); await deleteVideo(id, res); return true; }
     }
 
     sendJson(res,404,{error:'Adres bulunamadı.'}); return true;

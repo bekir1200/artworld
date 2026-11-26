@@ -488,7 +488,7 @@ async function adminAdvertising(user, req, res, method, pathname) {
     let target;
     try { target = new URL(targetUrl); } catch { throw new HttpError(400, 'Geçerli reklam hedef adresi girin.'); }
     if (!Number.isSafeInteger(campaignId) || campaignId < 1 || !Number.isSafeInteger(mediaId) || mediaId < 1 || headline.length < 2 || target.protocol !== 'https:') throw new HttpError(400, 'Kampanya, görsel, başlık ve HTTPS hedef adresi gerekli.');
-    const campaign = await pool.query('SELECT 1 FROM ad_campaigns WHERE id = $1', [campaignId]);
+    const campaign = await pool.query('SELECT 1 FROM ad_campaigns WHERE id = $1 AND ($2::boolean OR sales_owner_id = $3 OR created_by = $3)', [campaignId, user.role === 'admin', user.id]);
     if (!campaign.rowCount) throw new HttpError(404, 'Kampanya bulunamadı.');
     const media = await pool.query('SELECT id, width, height FROM media_assets WHERE id = $1 AND ($2::boolean OR uploaded_by = $3)', [mediaId, user.role === 'admin', user.id]);
     if (!media.rowCount) throw new HttpError(404, 'Reklam görseli bulunamadı.');
@@ -552,8 +552,12 @@ async function adminAdvertising(user, req, res, method, pathname) {
       const placement = await client.query('SELECT id FROM ad_placements WHERE id = $1 AND is_active = TRUE', [placementId]);
       if (!placement.rowCount) throw new HttpError(400, 'Seçilen reklam alanı etkin değil.');
       const existingAdvertiser = await client.query(`SELECT id FROM advertisers WHERE LOWER(company_name) = LOWER($1) ORDER BY id LIMIT 1 FOR UPDATE`, [company]);
+      // Mevcut reklamverenin iletişim bilgilerini ve aktifliğini yalnız yönetici değiştirir; satış temsilcisi
+      // aynı adla kampanya açınca firma kaydı olduğu gibi kullanılır.
       const advertiser = existingAdvertiser.rows[0]
-        ? await client.query(`UPDATE advertisers SET contact_name=$2,email=$3,phone=$4,is_active=TRUE,updated_at=NOW() WHERE id=$1 RETURNING id`, [existingAdvertiser.rows[0].id, contact, email, phone])
+        ? (user.role === 'admin'
+          ? await client.query(`UPDATE advertisers SET contact_name=$2,email=$3,phone=$4,is_active=TRUE,updated_at=NOW() WHERE id=$1 RETURNING id`, [existingAdvertiser.rows[0].id, contact, email, phone])
+          : existingAdvertiser)
         : await client.query(`INSERT INTO advertisers (company_name, contact_name, email, phone) VALUES ($1,$2,$3,$4) RETURNING id`, [company, contact, email, phone]);
       const campaign = await client.query(
         `INSERT INTO ad_campaigns (advertiser_id, name, status, starts_at, ends_at, budget, regulatory_reference, sales_owner_id, created_by)
@@ -574,7 +578,7 @@ async function adminAdvertising(user, req, res, method, pathname) {
     const { status } = await readJson(req);
     if (!['draft', 'awaiting_approval', 'scheduled', 'active', 'paused', 'completed', 'cancelled'].includes(status)) throw new HttpError(400, 'Kampanya durumu geçersiz.');
     if (user.role === 'ad_sales' && ['scheduled', 'active', 'completed', 'cancelled', 'paused'].includes(status)) throw new HttpError(403, 'Bu kampanya durumunu yalnız yönetici değiştirebilir.');
-    const current = await pool.query('SELECT status FROM ad_campaigns WHERE id = $1', [match[1]]);
+    const current = await pool.query('SELECT status FROM ad_campaigns WHERE id = $1 AND ($2::boolean OR sales_owner_id = $3 OR created_by = $3)', [match[1], user.role === 'admin', user.id]);
     if (!current.rowCount) throw new HttpError(404, 'Kampanya bulunamadı.');
     const allowedTransitions = {
       draft: ['awaiting_approval', 'cancelled'],

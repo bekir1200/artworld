@@ -38,6 +38,10 @@ function slugifyAgencyKey(name){
   return base || 'ajans';
 }
 
+// Otomatik yayın, haberi editör onayı olmadan yayına alır; haberde yayın yetkisi olan roller açabilir.
+const PUBLISHERS = new Set(['admin', 'editor_in_chief']);
+const AUTO_PUBLISH_DENIED = 'Otomatik yayını yalnızca yönetici veya genel yayın yönetmeni açabilir.';
+
 async function handle(user, req, res, method, pathname, url){
   if(!pathname.startsWith('/api/admin/bots')) return false;
   if(!user || !['admin','editor_in_chief','editor'].includes(user.role)){ sendJson(res,403,{error:'Bu işlem için yetkiniz yok.'}); return true; }
@@ -72,6 +76,7 @@ async function handle(user, req, res, method, pathname, url){
         throw httpError(400, 'autoPublish boolean olmalıdır.');
       }
       const autoPublish = body.autoPublish === true;
+      if(autoPublish && !PUBLISHERS.has(user.role)) throw httpError(403, AUTO_PUBLISH_DENIED);
       const rssUrl = await normalizeRssUrl(body.rssUrl);
       const baseKey = slugifyAgencyKey(name);
       let created = null;
@@ -125,6 +130,16 @@ async function handle(user, req, res, method, pathname, url){
         throw httpError(400, 'autoPublish boolean olmalıdır.');
       }
       const autoPublish = typeof body.autoPublish === 'boolean' ? body.autoPublish : null;
+      if(!PUBLISHERS.has(user.role)){
+        const current = (await pool.query('SELECT auto_publish, rss_url FROM content_bots WHERE id = $1', [id])).rows[0];
+        if(!current) throw httpError(404, 'Ajans bulunamadı.');
+        const willAutoPublish = autoPublish === null ? current.auto_publish === true : autoPublish;
+        // Kapalı otomatik yayını açmak ya da açık olanın kaynağını değiştirmek onaysız yayın demektir.
+        if(willAutoPublish && current.auto_publish !== true) throw httpError(403, AUTO_PUBLISH_DENIED);
+        if(willAutoPublish && hasRssUrl && (current.rss_url || null) !== rssUrl){
+          throw httpError(403, 'Otomatik yayınlı ajansın RSS adresini yalnızca yönetici veya genel yayın yönetmeni değiştirebilir.');
+        }
+      }
       const result = await pool.query(
         `UPDATE content_bots
             SET rss_url = CASE WHEN $4::boolean THEN $2::text ELSE rss_url END,

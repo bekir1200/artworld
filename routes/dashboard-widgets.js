@@ -315,14 +315,16 @@ function settled(result) {
   return result.status === 'fulfilled' ? result.value : null;
 }
 
-async function buildPayload(req) {
+async function buildPayload(req, user) {
+  // Denetim kayıtları ve çevrimiçi personel listesi yalnız yöneticiye (/api/admin/activity ile aynı kural).
+  const isAdmin = Boolean(user && user.role === 'admin');
   const [visits, trend, liveVisitors, counters, staffOnline, logs, weather, fx, prayer] = await Promise.allSettled([
     loadVisits(),
     loadTrend(),
     loadLiveVisitors(),
     loadCounters(),
-    loadStaffOnline(),
-    loadLogs(),
+    isAdmin ? loadStaffOnline() : Promise.resolve(null),
+    isAdmin ? loadLogs() : Promise.resolve(null),
     loadWeather(),
     loadFx(),
     loadPrayer()
@@ -353,7 +355,7 @@ async function handle(user, req, res, method, pathname) {
     sendJson(res, 403, { error: 'Bu işlem için yetkiniz yok.' });
     return true;
   }
-  sendJson(res, 200, await buildPayload(req));
+  sendJson(res, 200, await buildPayload(req, user));
   return true;
 }
 

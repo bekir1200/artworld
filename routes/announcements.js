@@ -3,6 +3,7 @@ const pool = require('../db/pool');
 // Resmi ilanlar: /api/admin/announcements
 const BASE = '/api/admin/announcements';
 const ALLOWED_ROLES = ['admin', 'editor_in_chief', 'editor'];
+const guard = require('./publish-guard');
 const STATUSES = ['draft', 'published', 'archived'];
 const TITLE_MAX = 200;
 const ILAN_NO_MAX = 100;
@@ -227,6 +228,7 @@ async function listAnnouncements(res) {
 async function createAnnouncement(user, req, res) {
   const data = await readJson(req);
   const fields = resolveFields(data, null);
+  guard.assertCanSetStatus(user, fields.status);
 
   const announcement = await retryOnSlugConflict(() => withTransaction(async (client) => {
     const slug = await uniqueSlug(client, fields.title, null);
@@ -249,6 +251,8 @@ async function updateAnnouncement(user, req, res, id) {
   if (!MUTABLE_KEYS.some((key) => data[key] !== undefined)) {
     throw httpError(400, 'Güncellenecek alan belirtilmedi.');
   }
+  guard.assertCanSetStatus(user, data.status);
+  await guard.assertCanEditExisting(user, 'announcements', id);
 
   const announcement = await retryOnSlugConflict(() => withTransaction(async (client) => {
     const current = await client.query(
@@ -281,6 +285,7 @@ async function updateAnnouncement(user, req, res, id) {
 }
 
 async function deleteAnnouncement(user, res, id) {
+  await guard.assertCanEditExisting(user, 'announcements', id);
   await withTransaction(async (client) => {
     const { rows } = await client.query(
       'DELETE FROM announcements WHERE id = $1 RETURNING title, slug',
