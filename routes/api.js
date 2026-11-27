@@ -5,6 +5,7 @@ const path = require('node:path');
 const pool = require('../db/pool');
 const { hashPassword, verifyPassword } = require('../auth/password');
 const { allowAdEvent } = require('./ad-rate-limit');
+const { clientIp } = require('./client-ip');
 const { imageType, imageDimensions } = require('./media-utils');
 const newAdminModules = [
   require('./columns'), require('./galleries'), require('./videos'), require('./comments'), require('./polls'),
@@ -17,7 +18,6 @@ const moduleCtx = { sendGmail, gmailCredentials, gmailAccessToken, checkSameOrig
 
 const SESSION_HOURS = 8;
 const REMEMBER_SESSION_HOURS = 24 * 30;
-const loginAttempts = new Map();
 const newsletterAttempts = new Map();
 let briefingWidgetCache = { expiresAt: 0, value: null };
 const roles = {
@@ -131,7 +131,7 @@ function checkNewsletterRateLimit(req, email) {
   const now = Date.now();
   for (const [key, bucket] of newsletterAttempts) if (bucket.expiresAt <= now) newsletterAttempts.delete(key);
   const keys = [
-    [`ip:${req.socket.remoteAddress || 'unknown'}`, 5, 15 * 60_000],
+    [`ip:${clientIp(req)}`, 5, 15 * 60_000],
     [`email:${createHash('sha256').update(email).digest('hex')}`, 3, 60 * 60_000]
   ];
   if (keys.some(([key, limit]) => (newsletterAttempts.get(key)?.count || 0) >= limit)) throw new HttpError(429, 'Çok fazla istek gönderildi. Daha sonra tekrar deneyin.');
@@ -843,27 +843,39 @@ async function uploadMedia(user, req) {
   return rows[0];
 }
 
-function loginBucket(ip) {
-  const now = Date.now();
-  const current = loginAttempts.get(ip);
-  if (!current || current.resetAt <= now) {
-    const fresh = { count: 0, resetAt: now + 15 * 60_000 };
-    loginAttempts.set(ip, fresh);
-    return fresh;
-  }
-  return current;
+// Giriş denemesi sınırı veritabanında (db/migrations/033): Vercel'de her sunucu örneğinin belleği ayrı olduğu için
+// bellek içi sayaç dağıtık denemeyi durdurmaz. Hem IP hem hesap (e-posta) için sayılır; anahtarlar SHA-256 özetidir.
+const LOGIN_WINDOW_MINUTES = 15;
+const LOGIN_LIMIT_PER_IP = 20;
+const LOGIN_LIMIT_PER_ACCOUNT = 8;
+
+async function countLoginAttempt(bucket) {
+  const { rows } = await pool.query(
+    `INSERT INTO login_attempts (bucket, attempts, window_ends_at)
+     VALUES ($1, 1, NOW() + ($2 * INTERVAL '1 minute'))
+     ON CONFLICT (bucket) DO UPDATE SET
+       attempts = CASE WHEN login_attempts.window_ends_at <= NOW() THEN 1 ELSE login_attempts.attempts + 1 END,
+       window_ends_at = CASE WHEN login_attempts.window_ends_at <= NOW() THEN EXCLUDED.window_ends_at ELSE login_attempts.window_ends_at END
+     RETURNING attempts`,
+    [bucket, LOGIN_WINDOW_MINUTES]
+  );
+  return rows[0].attempts;
 }
 
 async function login(req, res) {
   checkSameOrigin(req);
-  const ip = req.socket.remoteAddress || 'unknown';
-  const bucket = loginBucket(ip);
-  if (bucket.count >= 8) throw new HttpError(429, 'Çok fazla giriş denemesi. 15 dakika sonra tekrar deneyin.');
-  bucket.count += 1;
-
   const input = await readJson(req);
-  const email = typeof input.email === 'string' ? input.email.trim().toLowerCase() : '';
+  const email = typeof input.email === 'string' ? input.email.trim().toLowerCase().slice(0, 254) : '';
   const password = typeof input.password === 'string' ? input.password : '';
+  // Deneme, parola doğrulanmadan önce sayılır; eşzamanlı isteklerle sınır aşılamaz.
+  const accountBucket = `email:${hashToken(email)}`;
+  const [ipAttempts, accountAttempts] = await Promise.all([
+    countLoginAttempt(`ip:${hashToken(clientIp(req))}`),
+    countLoginAttempt(accountBucket)
+  ]);
+  if (ipAttempts > LOGIN_LIMIT_PER_IP || accountAttempts > LOGIN_LIMIT_PER_ACCOUNT) {
+    throw new HttpError(429, 'Çok fazla giriş denemesi. 15 dakika sonra tekrar deneyin.');
+  }
   const result = await pool.query(
     'SELECT id, email, display_name, role, password_hash FROM users WHERE LOWER(email) = $1 AND is_active = TRUE',
     [email]
@@ -874,7 +886,8 @@ async function login(req, res) {
   const valid = Boolean(user && validPassword);
   if (!valid) throw new HttpError(401, 'E-posta veya parola hatalı.');
 
-  bucket.count = 0;
+  // Başarılı girişte hesabın sayacı sıfırlanır; IP sayacı pencere sonunda kendiliğinden düşer.
+  await pool.query('DELETE FROM login_attempts WHERE bucket = $1 OR window_ends_at < NOW() - INTERVAL \'1 day\'', [accountBucket]);
   // "Beni hatırla": 30 günlük oturum; aksi halde varsayılan kısa oturum.
   const sessionHours = input.remember === true ? REMEMBER_SESSION_HOURS : SESSION_HOURS;
   const token = randomBytes(32).toString('base64url');
@@ -1312,7 +1325,7 @@ async function handleApi(req, res, pathname, url) {
             AND (c.starts_at IS NULL OR c.starts_at <= NOW()) AND (c.ends_at IS NULL OR c.ends_at > NOW()) LIMIT 1`, [adClick[1], String(url.searchParams.get('placement') || '')]
       );
       if (!rows[0] || !rows[0].target_url.startsWith('https://')) throw new HttpError(404, 'Reklam bulunamadı.');
-      if (allowAdEvent(req.socket.remoteAddress, 'click', adClick[1], rows[0].placement_key)) {
+      if (allowAdEvent(clientIp(req), 'click', adClick[1], rows[0].placement_key)) {
         await recordAdDelivery(rows[0], 'click');
       }
       res.writeHead(302, { Location: rows[0].target_url, 'Cache-Control': 'no-store', 'Referrer-Policy': 'no-referrer' });
@@ -1333,7 +1346,7 @@ async function handleApi(req, res, pathname, url) {
           WHERE cr.id=$1 AND cr.status='approved' AND p.placement_key=$2 AND p.is_active=TRUE AND c.status='active'
             AND (c.starts_at IS NULL OR c.starts_at<=NOW()) AND (c.ends_at IS NULL OR c.ends_at>NOW()) LIMIT 1`, [adImpression[1], placementKey]
       );
-      if (rows[0] && allowAdEvent(req.socket.remoteAddress, 'impression', adImpression[1], placementKey)) {
+      if (rows[0] && allowAdEvent(clientIp(req), 'impression', adImpression[1], placementKey)) {
         await recordAdDelivery(rows[0], 'impression');
       }
       res.writeHead(rows[0] ? 204 : 404, { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' });

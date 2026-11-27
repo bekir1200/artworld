@@ -186,7 +186,7 @@
 <div class="admin-content hidden" data-panel="sayfalar" hidden>
   <p class="form-feedback">Bu modülün arka ucu bir sonraki aşamada bağlanacak.</p>
   <div class="panel-intro"><div><span class="section-kicker">KURUMSAL İÇERİK</span><h3>Sayfa yönetimi</h3><p>Hakkımızda, künye ve benzeri sabit sayfaları oluşturun; başlık, slug ve içeriklerini düzenleyin.</p></div><button class="primary-action" type="button">Yeni ekle</button></div>
-  <form class="admin-form-grid" onsubmit="return false">
+  <form class="admin-form-grid" data-prevent-submit>
     <label>Sayfa başlığı<input name="title" maxlength="180"></label>
     <label>Slug (adres)<input name="slug" maxlength="120" placeholder="ornek-sayfa"></label>
     <label>Yayın durumu<select name="status"><option value="draft">Taslak</option><option value="published">Yayında</option></select></label>
@@ -201,7 +201,7 @@
   <p class="form-feedback">Bu modülün arka ucu bir sonraki aşamada bağlanacak.</p>
   <div class="panel-intro"><div><span class="section-kicker">KÖŞE YAZILARI</span><h3>Makale yönetimi</h3><p>Yazar makalelerini taslaktan yayına taşıyın; kategori ve özet bilgilerini yönetin.</p></div><button class="primary-action" type="button">Yeni ekle</button></div>
   <div class="workflow"><div><b>—</b><span>Taslak</span></div><div><b>—</b><span>Editörde</span></div><div><b>—</b><span>Planlandı</span></div><div><b>—</b><span>Yayında</span></div></div>
-  <form class="admin-form-grid" onsubmit="return false">
+  <form class="admin-form-grid" data-prevent-submit>
     <label>Makale başlığı<input name="title" maxlength="220"></label>
     <label>Yazar<input name="author" maxlength="120"></label>
     <label>Kategori<select name="categoryId"><option value="">Kategori seçin</option><option>Sanat</option><option>Sergi</option><option>Söyleşi</option><option>Tasarım</option></select></label>
@@ -216,7 +216,7 @@
 <div class="admin-content hidden" data-panel="galeriler" hidden>
   <p class="form-feedback">Bu modülün arka ucu bir sonraki aşamada bağlanacak.</p>
   <div class="panel-intro"><div><span class="section-kicker">GÖRSEL ARŞİV</span><h3>Galeri yönetimi</h3><p>Galeri başlığı, kategori ve birden fazla görseli tek kayıtta yönetin.</p></div><button class="primary-action" type="button">Yeni ekle</button></div>
-  <form class="admin-form-grid" onsubmit="return false">
+  <form class="admin-form-grid" data-prevent-submit>
     <label>Galeri başlığı<input name="title" maxlength="180"></label>
     <label>Kategori<select name="categoryId"><option value="">Kategori seçin</option><option>Sanat</option><option>Sergi</option><option>Söyleşi</option><option>Tasarım</option></select></label>
     <label class="form-wide">Açıklama<textarea name="description" rows="2" maxlength="1000"></textarea></label>
@@ -230,7 +230,7 @@
 <div class="admin-content hidden" data-panel="videolar" hidden>
   <p class="form-feedback">Bu modülün arka ucu bir sonraki aşamada bağlanacak.</p>
   <div class="panel-intro"><div><span class="section-kicker">GÖRSEL İÇERİK</span><h3>Video yönetimi</h3><p>YouTube videolarını kategorilere ekleyin ve yayın durumunu takip edin.</p></div><button class="primary-action" type="button">Yeni ekle</button></div>
-  <form class="admin-form-grid" onsubmit="return false">
+  <form class="admin-form-grid" data-prevent-submit>
     <label>Video başlığı<input name="title" maxlength="180"></label>
     <label>Kategori<select name="categoryId"><option value="">Kategori seçin</option><option>Sanat</option><option>Sergi</option><option>Söyleşi</option><option>Tasarım</option></select></label>
     <label class="form-wide">YouTube bağlantısı<input name="youtubeUrl" type="url" maxlength="500" placeholder="https://www.youtube.com/watch?v="></label>
@@ -253,7 +253,7 @@
   <p class="form-feedback">Bu modülün arka ucu bir sonraki aşamada bağlanacak.</p>
   <div class="panel-intro"><div><span class="section-kicker">SİTE ALT BİLGİ</span><h3>Footer linkleri</h3><p>Alt bilgi bağlantılarını kategorilere göre düzenleyin.</p></div><button class="primary-action" type="button">Yeni ekle</button></div>
   <div class="workflow"><div><b>—</b><span>Kurumsal</span></div><div><b>—</b><span>Yasal</span></div><div><b>—</b><span>Hizmetler</span></div><div><b>—</b><span>Sosyal medya</span></div></div>
-  <form class="admin-form-grid" onsubmit="return false">
+  <form class="admin-form-grid" data-prevent-submit>
     <label>Kategori<select name="category"><option>Kurumsal</option><option>Yasal</option><option>Hizmetler</option><option>Sosyal medya</option></select></label>
     <label>Görünen ad<input name="label" maxlength="120"></label>
     <label class="form-wide">Bağlantı (HTTPS veya /site-yolu)<input name="url" maxlength="500" placeholder="/iletisim"></label>
@@ -266,7 +266,7 @@
 <div class="admin-content hidden" data-panel="botlar" hidden>
   <p class="form-feedback">Bu modülün arka ucu bir sonraki aşamada bağlanacak.</p>
   <div class="panel-intro"><div><span class="section-kicker">OTOMATİK İÇERİK</span><h3>İçerik botları</h3><p>Ajans haber akışlarını RSS adresiyle tanımlayın ve her botu aktif ya da pasif yapın.</p></div><button class="primary-action" type="button">Yeni bot ekle</button></div>
-  <form class="admin-form-grid" onsubmit="return false">
+  <form class="admin-form-grid" data-prevent-submit>
     <label>Ajans<select name="agency"><option>Anka</option><option>DHA</option><option>Hibya</option><option>IGF</option><option>İHA</option><option>İlke</option></select></label>
     <label>Durum<select name="active"><option value="false">Pasif</option><option value="true">Aktif</option></select></label>
     <label class="form-wide">RSS adresi (HTTPS)<input name="rssUrl" type="url" maxlength="500" placeholder="https://"></label>
@@ -284,7 +284,7 @@
 <div class="admin-content hidden" data-panel="anketler" hidden>
   <p class="form-feedback">Bu modülün arka ucu bir sonraki aşamada bağlanacak.</p>
   <div class="panel-intro"><div><span class="section-kicker">OKUR GERİ BİLDİRİMİ</span><h3>Anketler</h3><p>Soru ve seçenekleri tanımlayın; anketin yayın durumunu takip edin.</p></div><button class="primary-action" type="button">Yeni anket</button></div>
-  <form class="admin-form-grid" onsubmit="return false">
+  <form class="admin-form-grid" data-prevent-submit>
     <label class="form-wide">Soru<input name="question" maxlength="280"></label>
     <label>Seçenek 1<input name="option1" maxlength="160"></label>
     <label>Seçenek 2<input name="option2" maxlength="160"></label>

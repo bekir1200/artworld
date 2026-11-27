@@ -1,5 +1,6 @@
 const { createHash, randomBytes } = require('node:crypto');
 const pool = require('../db/pool');
+const { clientIp } = require('./client-ip');
 const { hashPassword } = require('../auth/password');
 
 const MIN_PASSWORD = 14;
@@ -53,7 +54,7 @@ function consumeRateLimit(req, bucket) {
   if (attempts.size > 10000) {
     for (const [key, entry] of attempts) if (entry.resetAt <= now) attempts.delete(key);
   }
-  const key = `${bucket}:${req.socket.remoteAddress || 'unknown'}`;
+  const key = `${bucket}:${clientIp(req)}`;
   let entry = attempts.get(key);
   if (!entry || entry.resetAt <= now) {
     entry = { count: 0, resetAt: now + 60 * 60_000 };

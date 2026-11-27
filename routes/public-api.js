@@ -1,5 +1,6 @@
 const { createHash, randomBytes } = require('node:crypto');
 const pool = require('../db/pool');
+const { clientIp } = require('./client-ip');
 
 const MAX_BODY_BYTES = 20 * 1024;
 const MAX_INT = 2147483647;
@@ -85,9 +86,6 @@ function checkSameOrigin(req) {
   if (originHost !== req.headers.host) throw new HttpError(403, 'Geçersiz istek kaynağı.');
 }
 
-function clientIp(req) {
-  return String(req.socket.remoteAddress || '');
-}
 
 // Sayfa acildiginda eski zaman damgalarini temizlemek icin basit budama.
 function pruneRateBuckets(now) {

@@ -1,5 +1,6 @@
 const { createHash } = require('node:crypto');
 const pool = require('../db/pool');
+const { clientIp } = require('./client-ip');
 
 const BOT_PATTERN = /bot|crawl|spider|slurp|facebookexternalhit|preview|monitor|curl|wget|python|headless/i;
 const TIME_ZONE = 'Europe/Istanbul';
@@ -38,7 +39,7 @@ async function trackVisit(req, pathname) {
     const userAgent = String(req.headers?.['user-agent'] || '');
     if (BOT_PATTERN.test(userAgent)) return;
 
-    const ip = String(req.socket?.remoteAddress || '');
+    const ip = clientIp(req);
     const dateKey = istanbulDateKey();
     const visitorHash = sha256(dailySalt(dateKey) + ip + userAgent);
     const livePath = String(pathname || '').slice(0, 200);

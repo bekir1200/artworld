@@ -1,6 +1,7 @@
 'use strict';
 
 const pool = require('../db/pool');
+const { clientIp } = require('./client-ip');
 
 const ENDPOINT = '/api/admin/dashboard-widgets';
 const ALLOWED_ROLES = new Set(['admin', 'editor_in_chief', 'editor', 'reporter', 'ad_sales', 'crm_manager']);
@@ -33,11 +34,7 @@ function addDays(isoDate, days) {
   return new Date(Date.UTC(y, m - 1, d + days)).toISOString().slice(0, 10);
 }
 
-function clientIpOf(req) {
-  let ip = req.socket?.remoteAddress || '';
-  if (ip.startsWith('::ffff:')) ip = ip.slice(7);
-  return ip;
-}
+const clientIpOf = clientIp;
 
 function round(n, digits) {
   const f = 10 ** digits;

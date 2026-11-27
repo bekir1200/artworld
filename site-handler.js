@@ -4,6 +4,7 @@ const path = require('node:path');
 const { handleApi, isAuthenticated } = require('./routes/api');
 const { servePublicPage, sendNotFound } = require('./routes/public-pages');
 const { serveMedia } = require('./routes/media');
+const { cspHeaders } = require('./routes/security-headers');
 const { runScheduledTasks, publishDueContentThrottled } = require('./routes/scheduled-tasks');
 
 // İstek işleyicisi: hem yerel sunucu (server.js) hem Vercel (api/index.js) bunu kullanır.
@@ -65,7 +66,8 @@ async function serveStatic(req, res, pathname) {
     res.writeHead(200, {
       'Content-Type': contentTypes[path.extname(file)] || 'application/octet-stream',
       'Cache-Control': pathname.startsWith('/yonetim') || pathname.startsWith('/giris') ? 'no-store' : 'no-cache',
-      'X-Content-Type-Options': 'nosniff', 'X-Frame-Options': 'DENY', 'Referrer-Policy': 'strict-origin-when-cross-origin'
+      'X-Content-Type-Options': 'nosniff', 'X-Frame-Options': 'DENY', 'Referrer-Policy': 'strict-origin-when-cross-origin',
+      ...(path.extname(file) === '.html' ? cspHeaders('DENY') : {})
     });
     res.end(data);
   });

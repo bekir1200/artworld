@@ -581,7 +581,7 @@ function decoratePublicHtml(html) {
 }
 
 function sendHtml(res, status, html, frameOptions = 'DENY') {
-  res.writeHead(status, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-cache', 'X-Content-Type-Options': 'nosniff', 'X-Frame-Options': frameOptions, 'Referrer-Policy': 'strict-origin-when-cross-origin' });
+  res.writeHead(status, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-cache', 'X-Content-Type-Options': 'nosniff', 'X-Frame-Options': frameOptions, 'Referrer-Policy': 'strict-origin-when-cross-origin', ...require('./security-headers').cspHeaders(frameOptions) });
   res.end(decoratePublicHtml(html));
 }
 

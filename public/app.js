@@ -1,5 +1,9 @@
 const $ = (selector, scope = document) => scope.querySelector(selector);
 const $$ = (selector, scope = document) => [...scope.querySelectorAll(selector)];
+// Yalnız JS ile kaydedilen formlar sayfayı göndermesin (eski satır içi onsubmit="return false" yerine; CSP uyumlu).
+document.addEventListener('submit', (event) => {
+  if (event.target instanceof HTMLFormElement && event.target.hasAttribute('data-prevent-submit')) event.preventDefault();
+}, true);
 const toast = (message) => { const el = $('.toast'); el.textContent = message; el.classList.add('visible'); clearTimeout(window.toastTimer); window.toastTimer = setTimeout(() => el.classList.remove('visible'), 2600); };
 
 function weatherDescription(code) {
